@@ -13,5 +13,165 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="textures">
+      <UniqueIdentifier>{308f3aa4-e810-4d64-9827-2904f300aceb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{fe24a5c7-8541-4d04-a180-a60b2cde0062}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BasicSceneRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glshell.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Prefabs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BasicSceneRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glshell.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Prefabs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="freeglut.dll" />
+    <None Include="glew32.dll" />
+    <None Include="shaders\BlinnPhongPerFragmentDirLight-fs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\BlinnPhongPerFragmentMultiLight-fs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\BlinnPhongPerFragmentPointLight-fs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\BlinnPhongPerFragment-vs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\PerVertexDirLight-fs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\PerVertexDirLight-vs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\vcolor-fs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\vpc-vs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\art.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\art2.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\black.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\bricks_overpainted_blue_9291383.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\CarvedSandstone.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\grass.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\robot.idle.00001.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\rocky.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\skin.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\water_drops_on_metal_3020602.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\white.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\yo.tga">
+      <Filter>textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -69,7 +69,13 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\sdk\glm-0.9.6.3\glm;C:\sdk\glew-2.1.0\include;C:\sdk\freeglut\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\sdk\glew\glew-2.1.0\lib\Release\Win32\;C:\sdk\freeglut-MSVC-3.0.0-2.mp\freeglut\lib</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\sdk\glm-0.9.6.3\glm;C:\sdk\glew-2.1.0\include;C:\sdk\freeglut\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -123,6 +129,62 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BasicSceneRenderer.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="common.cpp" />
+    <ClCompile Include="glshell.cpp" />
+    <ClCompile Include="Image.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainMenu.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Prefabs.cpp" />
+    <ClCompile Include="Shaders.cpp" />
+    <ClCompile Include="StateManager.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Vertex.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BasicSceneRenderer.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="glshell.h" />
+    <ClInclude Include="Image.h" />
+    <ClInclude Include="MainMenu.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Prefabs.h" />
+    <ClInclude Include="Shaders.h" />
+    <ClInclude Include="StateManager.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="Transform.h" />
+    <ClInclude Include="Vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="freeglut.dll" />
+    <None Include="glew32.dll" />
+    <None Include="shaders\BlinnPhongPerFragment-vs.glsl" />
+    <None Include="shaders\BlinnPhongPerFragmentDirLight-fs.glsl" />
+    <None Include="shaders\BlinnPhongPerFragmentMultiLight-fs.glsl" />
+    <None Include="shaders\BlinnPhongPerFragmentPointLight-fs.glsl" />
+    <None Include="shaders\PerVertexDirLight-fs.glsl" />
+    <None Include="shaders\PerVertexDirLight-vs.glsl" />
+    <None Include="shaders\vcolor-fs.glsl" />
+    <None Include="shaders\vpc-vs.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\art.tga" />
+    <Image Include="textures\art2.tga" />
+    <Image Include="textures\black.tga" />
+    <Image Include="textures\bricks_overpainted_blue_9291383.tga" />
+    <Image Include="textures\CarvedSandstone.tga" />
+    <Image Include="textures\grass.tga" />
+    <Image Include="textures\robot.idle.00001.tga" />
+    <Image Include="textures\rocky.tga" />
+    <Image Include="textures\skin.tga" />
+    <Image Include="textures\water_drops_on_metal_3020602.tga" />
+    <Image Include="textures\white.tga" />
+    <Image Include="textures\yo.tga" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
