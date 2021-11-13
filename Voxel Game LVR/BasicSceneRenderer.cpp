@@ -5,13 +5,13 @@
 #include <iostream>
 
 BasicSceneRenderer::BasicSceneRenderer()
-    : mLightingModel(PER_VERTEX_DIR_LIGHT)
-    , mCamera(NULL)
-    , mProjMatrix(1.0f)
-    , mActiveEntityIndex(0)
-    , mDbgProgram(NULL)
-    , mAxes(NULL)
-    , mVisualizePointLights(true)
+	: mLightingModel(PER_VERTEX_DIR_LIGHT)
+	, mCamera(NULL)
+	, mProjMatrix(1.0f)
+	, mActiveEntityIndex(0)
+	, mDbgProgram(NULL)
+	, mAxes(NULL)
+	, mVisualizePointLights(true)
 {
 }
 
@@ -167,7 +167,7 @@ void BasicSceneRenderer::initialize()
     mCamera->lookAt(0, 0, 0);
     mCamera->setSpeed(2);
 
-	glutSetCursor(GLUT_CURSOR_NONE);
+	glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
 
     // create shader program for debug geometry
     mDbgProgram = new ShaderProgram("shaders/vpc-vs.glsl",
@@ -451,8 +451,6 @@ glm::vec3 SplinePointOnCurve(float dt, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2,
 bool BasicSceneRenderer::update(float dt) // GAME LOOP
 {
     const Keyboard* kb = getKeyboard();
-	glutWarpPointer(GLUT_SCREEN_HEIGHT, GLUT_SCREEN_WIDTH);
-
 
 
     if (kb->keyPressed(KC_ESCAPE))
@@ -550,7 +548,19 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 	}
 
     // update the camera
-    mCamera->update(dt);
+	if (isFocused()) {
+		//glutSetCursor(GLUT_CURSOR_NONE);
+		glutWarpPointer(s.SCREEN_WIDTH/2 , s.SCREEN_HEIGHT/2 );
+		mCamera->update(dt);
+	}
 
     return true;
+}
+
+bool BasicSceneRenderer::isFocused() {
+	if (GetActiveWindow()) {
+		return true;
+	} else {
+		return false;
+	}
 }

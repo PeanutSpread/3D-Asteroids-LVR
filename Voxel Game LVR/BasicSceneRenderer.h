@@ -4,6 +4,7 @@
 #include "Shaders.h"
 #include "Camera.h"
 #include "Entity.h"
+#include "Settings.h"
 
 #include <vector>
 
@@ -40,6 +41,8 @@ class BasicSceneRenderer : public GLApp {
 
     bool                        mVisualizePointLights;
 
+	Settings					s;
+
     //
     // debug visualization
     //
@@ -58,6 +61,7 @@ public:
     void                resize(int width, int height);
     void                draw();
     bool                update(float dt);
+	bool				isFocused();
 };
 
 #endif

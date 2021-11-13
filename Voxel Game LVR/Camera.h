@@ -2,6 +2,7 @@
 #define CAMERA_H_
 
 #include "glshell.h"
+#include "Settings.h"
 
 class Camera {
     GLApp* mApp;
@@ -19,6 +20,10 @@ class Camera {
     float mMouseSpeed;
 
     bool mOrientationChanged;
+	bool isFocused();
+
+	Settings s;
+	bool startFix = true;
 
 public:
     Camera(GLApp* app);

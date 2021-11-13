@@ -53,14 +53,32 @@ void Camera::update(float deltaT)
     const Mouse* mouse = mApp->getMouse();
 
     bool orientationChanged = false;
+	float xChange = 0.0;
+	float yChange = 0.0;
+	printf("%d", isFocused());
 
     // freelook with mouse
-	dx += mouse->getDeltaX();
-    dy += mouse->getDeltaY();
-	if (dx != 0)
-        yaw(-dx * mMouseSpeed);
-	if (dy != 0)
-        pitch(-dy * mMouseSpeed);
+	if (isFocused()) {
+
+		xChange = (mouse->getX() - s.SCREEN_WIDTH / 2);
+		yChange = (mouse->getY() - s.SCREEN_HEIGHT / 2);
+		
+		if (startFix)	{
+			if (mouse->getX() != 0.0 and mouse->getY() != 0.0) {
+				startFix = false;
+			}
+			xChange = 0;
+			yChange = 0;
+		}
+
+		dx = xChange;
+		dy = yChange;
+
+		if (dx != 0.0)
+			yaw(-dx * mMouseSpeed);
+		if (dy != 0.0)
+			pitch(-dy * mMouseSpeed);
+	}
 
     // scroll wheel controls FOV
     int wd = mouse->getWheelDelta();
@@ -139,4 +157,14 @@ void Camera::update(float deltaT)
         // apply translation in world space (relative to camera orientation)
         mPosition += localMoveVec.z * mForward + localMoveVec.x * mRight + localMoveVec.y * mUp;
     }
+}
+
+bool Camera::isFocused() {
+
+	if (GetActiveWindow()) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
