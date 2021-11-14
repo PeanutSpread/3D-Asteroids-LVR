@@ -11,7 +11,7 @@ Camera::Camera(GLApp* app)
 	, dy(0.0f)
     , mYaw(0.0f)
     , mPitch(0.0f)
-    , mSpeed(5)                         // world units / second
+    , mSpeed(0.5)                         // world units / second
     , mMouseSpeed(180.0f / 1000.0f)     // degrees / pixel
     , mOrientationChanged(false)
 {
@@ -53,31 +53,31 @@ void Camera::update(float deltaT)
     const Mouse* mouse = mApp->getMouse();
 
     bool orientationChanged = false;
-	float xChange = 0.0;
-	float yChange = 0.0;
-	printf("%d", isFocused());
 
     // freelook with mouse
 	if (isFocused()) {
 
-		xChange = (mouse->getX() - s.SCREEN_WIDTH / 2);
-		yChange = (mouse->getY() - s.SCREEN_HEIGHT / 2);
-		
-		if (startFix)	{
+
+		dx += (mouse->getX() - s.SCREEN_WIDTH / 2);
+		dy += (mouse->getY() - s.SCREEN_HEIGHT / 2);
+
+		if (startFix) {
 			if (mouse->getX() != 0.0 and mouse->getY() != 0.0) {
 				startFix = false;
 			}
-			xChange = 0;
-			yChange = 0;
+			dx = 0;
+			dy = 0;
 		}
 
-		dx = xChange;
-		dy = yChange;
-
-		if (dx != 0.0)
+		if (dx != 0.0) {
 			yaw(-dx * mMouseSpeed);
-		if (dy != 0.0)
+			dx += -dx / 5;
+
+		}
+		if (dy != 0.0) {
 			pitch(-dy * mMouseSpeed);
+			dy += -dy / 5;
+		}
 	}
 
     // scroll wheel controls FOV

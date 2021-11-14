@@ -549,9 +549,12 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 
     // update the camera
 	if (isFocused()) {
-		//glutSetCursor(GLUT_CURSOR_NONE);
+		glutSetCursor(GLUT_CURSOR_NONE);
 		glutWarpPointer(s.SCREEN_WIDTH/2 , s.SCREEN_HEIGHT/2 );
 		mCamera->update(dt);
+	}
+	else {
+		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
 	}
 
     return true;
