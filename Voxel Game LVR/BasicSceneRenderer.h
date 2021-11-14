@@ -4,9 +4,11 @@
 #include "Shaders.h"
 #include "Camera.h"
 #include "Entity.h"
+#include "Player.h"
 #include "Settings.h"
 
 #include <vector>
+#include <math.h>
 
 enum LightingModel {
     PER_VERTEX_DIR_LIGHT,
@@ -32,6 +34,7 @@ class BasicSceneRenderer : public GLApp {
 
     // scene objects
     std::vector<Entity*>        mEntities;
+	Player*						player;
 
     Camera*                     mCamera;
 
@@ -42,6 +45,7 @@ class BasicSceneRenderer : public GLApp {
     bool                        mVisualizePointLights;
 
 	Settings					s;
+	bool						startFix = true;
 
     //
     // debug visualization

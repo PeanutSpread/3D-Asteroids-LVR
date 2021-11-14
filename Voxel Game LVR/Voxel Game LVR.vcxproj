@@ -183,6 +183,7 @@
     <Image Include="textures\bricks_overpainted_blue_9291383.tga" />
     <Image Include="textures\CarvedSandstone.tga" />
     <Image Include="textures\grass.tga" />
+    <Image Include="textures\mogus.tga" />
     <Image Include="textures\robot.idle.00001.tga" />
     <Image Include="textures\rocky.tga" />
     <Image Include="textures\skin.tga" />

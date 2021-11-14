@@ -12,6 +12,7 @@ BasicSceneRenderer::BasicSceneRenderer()
 	, mDbgProgram(NULL)
 	, mAxes(NULL)
 	, mVisualizePointLights(true)
+	, player(NULL)
 {
 }
 
@@ -129,7 +130,7 @@ void BasicSceneRenderer::initialize()
     unsigned numRows = mMaterials.size();
     float spacing = 3;
     float z = 0.5f * spacing * numRows;
-    for (unsigned i = 2; i < mMaterials.size(); i++) {
+    /*for (unsigned i = 2; i < mMaterials.size(); i++) {
         // cube
         mEntities.push_back(new Entity(mMeshes[0], mMaterials[i], Transform(-4.0f, 0.0f, z)));
         // chunky cylinder
@@ -140,6 +141,10 @@ void BasicSceneRenderer::initialize()
         // next row
         z -= spacing;
     }
+	*/
+	// create Player
+	player = new Player(0, 0, 0);
+	mEntities.push_back(player->getEntity());
 
     //
     // Create room
@@ -158,13 +163,14 @@ void BasicSceneRenderer::initialize()
     // ceiling
     mEntities.push_back(new Entity(cfMesh, mMaterials[0], Transform(0, 0.5f * roomHeight, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
 
+
     //
     // create the camera
     //
 
     mCamera = new Camera(this);
-    mCamera->setPosition(20, 0, 0);
-    mCamera->lookAt(0, 0, 0);
+    mCamera->setPosition(0, 2, -6);
+    mCamera->lookAt(0, -2, 6);
     mCamera->setSpeed(2);
 
 	glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
@@ -450,7 +456,32 @@ glm::vec3 SplinePointOnCurve(float dt, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2,
 }
 bool BasicSceneRenderer::update(float dt) // GAME LOOP
 {
-    const Keyboard* kb = getKeyboard();
+	const Keyboard* kb = getKeyboard();
+	const Mouse* mouse = getMouse();
+
+	int mouseChangeX = mouse->getX() - s.SCREEN_WIDTH / 2;
+	int mouseChangeY = mouse->getY() - s.SCREEN_HEIGHT / 2;
+
+	if (startFix) {
+		if (mouse->getX() != 0.0 and mouse->getY() != 0.0) {
+			startFix = false;
+		}
+		mouseChangeX = 0;
+		mouseChangeY = 0;
+	}
+
+	//printf("%f \n", mCamera->getPitch());
+
+	if (mCamera->getPitch() >= 80.0f) {
+		mouseChangeY = 0;
+	} else if (mCamera->getPitch() <= -80.0f) {
+		mouseChangeY = 0;
+	}
+
+	if (!mCamera->getFreeLook()) {
+		player->headLook(mouseChangeX, mouseChangeY, dt); //head movement
+		player->bodyMove(kb, dt);
+	}
 
 
     if (kb->keyPressed(KC_ESCAPE))
@@ -475,6 +506,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
     // get the entity to manipulate
     Entity* activeEntity = mEntities[mActiveEntityIndex];
 
+	/*
     // rotate the entity
     float rotSpeed = 90;
     float rotAmount = rotSpeed * dt;
@@ -486,7 +518,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
         activeEntity->rotate(rotAmount, 1, 0, 0);
     if (kb->isKeyDown(KC_DOWN))
         activeEntity->rotate(-rotAmount, 1, 0, 0);
-
+	
     // reset entity orientation
     if (kb->keyPressed(KC_R))
         activeEntity->setOrientation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
@@ -513,6 +545,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
         activeEntity->translateLocal(disp, 0, 0);
     if (kb->isKeyDown(KC_H))
         activeEntity->translateLocal(-disp, 0, 0);
+	*/
 
     // change lighting models
     if (kb->keyPressed(KC_1))
@@ -528,6 +561,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
     if (kb->keyPressed(KC_TAB))
         mVisualizePointLights = !mVisualizePointLights;
 
+	/*
 	//
 	// start spline
 	//
@@ -546,12 +580,16 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 
 		mEntities[4]->setPosition(vPos);
 	}
+	*/
 
     // update the camera
+	if (kb->keyPressed(KC_P)) {
+		mCamera->toggleFreelook();
+	}
 	if (isFocused()) {
 		glutSetCursor(GLUT_CURSOR_NONE);
 		glutWarpPointer(s.SCREEN_WIDTH/2 , s.SCREEN_HEIGHT/2 );
-		mCamera->update(dt);
+		mCamera->update(dt, player->getPosition());
 	}
 	else {
 		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);

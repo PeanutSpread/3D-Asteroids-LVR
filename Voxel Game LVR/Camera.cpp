@@ -1,19 +1,20 @@
 #include "Camera.h"
 
 Camera::Camera(GLApp* app)
-    : mApp(app)
-    , mPosition(0.0f, 0.0f, 0.0f)
-    , mForward(0.0f, 0.0f, -1.0f)
-    , mRight(1.0f, 0.0f, 0.0f)
-    , mUp(0.0f, 1.0f, 0.0f)
-    , mFOV(50.0f)
+	: mApp(app)
+	, mPosition(0.0f, 0.0f, 0.0f)
+	, mForward(0.0f, 0.0f, -1.0f)
+	, mRight(1.0f, 0.0f, 0.0f)
+	, mUp(0.0f, 1.0f, 0.0f)
+	, mFOV(50.0f)
 	, dx(0.0f)
 	, dy(0.0f)
-    , mYaw(0.0f)
-    , mPitch(0.0f)
-    , mSpeed(0.5)                         // world units / second
-    , mMouseSpeed(180.0f / 1000.0f)     // degrees / pixel
-    , mOrientationChanged(false)
+	, mYaw(0.0f)
+	, mPitch(0.0f)
+	, mSpeed(0.5)                         // world units / second
+	, mMouseSpeed(180.0f / 1000.0f)     // degrees / pixel
+	, mOrientationChanged(false)
+	, freeLook(false)
 {
 }
 
@@ -47,7 +48,7 @@ void Camera::pitch(float degrees)
     mOrientationChanged = true;
 }
 
-void Camera::update(float deltaT)
+void Camera::update(float deltaT, glm::vec3 playerPos)
 {
     const Keyboard* kb = mApp->getKeyboard();
     const Mouse* mouse = mApp->getMouse();
@@ -55,28 +56,30 @@ void Camera::update(float deltaT)
     bool orientationChanged = false;
 
     // freelook with mouse
-	if (isFocused()) {
+	if (freeLook) {
+		if (isFocused()) {
 
 
-		dx += (mouse->getX() - s.SCREEN_WIDTH / 2);
-		dy += (mouse->getY() - s.SCREEN_HEIGHT / 2);
+			dx += (mouse->getX() - s.SCREEN_WIDTH / 2);
+			dy += (mouse->getY() - s.SCREEN_HEIGHT / 2);
 
-		if (startFix) {
-			if (mouse->getX() != 0.0 and mouse->getY() != 0.0) {
-				startFix = false;
+			if (startFix) {
+				if (mouse->getX() != 0.0 and mouse->getY() != 0.0) {
+					startFix = false;
+				}
+				dx = 0;
+				dy = 0;
 			}
-			dx = 0;
-			dy = 0;
-		}
 
-		if (dx != 0.0) {
-			yaw(-dx * mMouseSpeed);
-			dx += -dx / 5;
+			if (dx != 0.0) {
+				yaw(-dx * mMouseSpeed);
+				dx += -dx / 5;
 
-		}
-		if (dy != 0.0) {
-			pitch(-dy * mMouseSpeed);
-			dy += -dy / 5;
+			}
+			if (dy != 0.0) {
+				pitch(-dy * mMouseSpeed);
+				dy += -dy / 5;
+			}
 		}
 	}
 
@@ -121,42 +124,58 @@ void Camera::update(float deltaT)
         mOrientationChanged = false;
     }
 
-    // move vector determined from key states
-    glm::vec3 localMoveVec(0.0f, 0.0f, 0.0f);
+	if (!freeLook) {
+		
+		glm::vec3 cameraChangeVec(playerPos.x, playerPos.y + 2, playerPos.z - 3);
+		glm::vec3 cameraChangeLookVec(playerPos.x, playerPos.y, playerPos.z + 10);
 
-    // move forward and back
-    if (kb->isKeyDown(KC_W))
-        localMoveVec.z += 1;
-    if (kb->isKeyDown(KC_S))
-        localMoveVec.z -= 1;
+		mPosition = cameraChangeVec;
+		lookAt(cameraChangeLookVec);
 
-    // move left and right
-    if (kb->isKeyDown(KC_A))
-        localMoveVec.x -= 1;
-    if (kb->isKeyDown(KC_D))
-        localMoveVec.x += 1;
+	} else {
+		// move vector determined from key states
+		glm::vec3 localMoveVec(0.0f, 0.0f, 0.0f);
 
-    // move up and down
-    if (kb->isKeyDown(KC_E))
-        localMoveVec.y += 1;
-    if (kb->isKeyDown(KC_C))
-        localMoveVec.y -= 1;
+		// move forward and back
+		if (kb->isKeyDown(KC_W))
+			localMoveVec.z += 1;
+		if (kb->isKeyDown(KC_S))
+			localMoveVec.z -= 1;
 
-    float localMoveLen = glm::length(localMoveVec);
+		// move left and right
+		if (kb->isKeyDown(KC_A))
+			localMoveVec.x -= 1;
+		if (kb->isKeyDown(KC_D))
+			localMoveVec.x += 1;
 
-    if (localMoveLen > 0) {
+		// move up and down
+		if (kb->isKeyDown(KC_E))
+			localMoveVec.y += 1;
+		if (kb->isKeyDown(KC_C))
+			localMoveVec.y -= 1;
 
-        // determine motion speed
-        float speed = mSpeed;
-        if (kb->isKeyDown(KC_SHIFT))
-            speed *= 5;
 
-        // normalize and scale the local move vector
-        localMoveVec *= speed * deltaT / localMoveLen;
+		float localMoveLen = glm::length(localMoveVec);
 
-        // apply translation in world space (relative to camera orientation)
-        mPosition += localMoveVec.z * mForward + localMoveVec.x * mRight + localMoveVec.y * mUp;
-    }
+		if (localMoveLen > 0) {
+
+			// determine motion speed
+			float speed = mSpeed;
+			if (kb->isKeyDown(KC_SHIFT))
+				speed *= 5;
+
+			// normalize and scale the local move vector
+			localMoveVec *= speed * deltaT / localMoveLen;
+
+			// apply translation in world space (relative to camera orientation)
+			mPosition += localMoveVec.z * mForward + localMoveVec.x * mRight + localMoveVec.y * mUp;
+		}
+	}
+}
+
+void Camera::toggleFreelook()
+{
+	freeLook = !freeLook;
 }
 
 bool Camera::isFocused() {

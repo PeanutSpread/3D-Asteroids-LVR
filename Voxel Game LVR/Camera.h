@@ -21,6 +21,7 @@ class Camera {
 
     bool mOrientationChanged;
 	bool isFocused();
+	bool freeLook;
 
 	Settings s;
 	bool startFix = true;
@@ -66,7 +67,16 @@ public:
     void yaw(float degrees);
     void pitch(float degrees);
     
-    void update(float deltaT);
+	float getYaw() const
+	{ return mYaw; }
+	float getPitch() const
+	{ return mPitch; }
+
+    void update(float deltaT, glm::vec3 playerPos);
+
+	void toggleFreelook();
+	bool getFreeLook() const 
+	{ return freeLook; }
 };
 
 #endif

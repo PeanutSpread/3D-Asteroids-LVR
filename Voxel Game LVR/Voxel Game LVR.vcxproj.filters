@@ -187,5 +187,8 @@
     <Image Include="textures\yo.tga">
       <Filter>textures</Filter>
     </Image>
+    <Image Include="textures\mogus.tga">
+      <Filter>textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>
