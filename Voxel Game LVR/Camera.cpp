@@ -79,6 +79,11 @@ void Camera::update(float deltaT)
 			pitch(-dy * mMouseSpeed);
 			dy += -dy / 5;
 		}
+
+		float dw = mDistance - mouse->getWheelDelta();
+			if (dw > 0 && dw < 20) {
+				mDistance -= mouse->getWheelDelta();
+			}
 	}
 
 	/*
@@ -113,10 +118,14 @@ void Camera::toggleFreelook() {
 	freeLook = !freeLook;
 }
 
-
 void Camera::thirdPerson() {
 	mPosition = mPlayer->getPosition();
 	localMoveTo(glm::vec3(0.0f, 0.0f, -mDistance));
+	
+	glm::vec3 focusPoint = mPlayer->getPosition();
+	focusPoint.x += 5;
+	focusPoint.y += 5;
+
 	lookAt(mPlayer->getPosition());
 	
 }

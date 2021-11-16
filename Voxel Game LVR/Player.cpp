@@ -1,41 +1,28 @@
 #include "Player.h"
 
-Player::Player(float x, float y, float z)
+Player::Player(glm::vec3 location)
 	:textureLocation("textures/mogus.tga")
 	,texture(NULL)
 	,material(NULL)
 	,mesh(NULL)
 	,entity(NULL)
-	,position(x, y, z)
+	,position(location)
 {
-	this->texture = new Texture(textureLocation, GL_CLAMP_TO_EDGE, GL_LINEAR);
+	this->texture = new Texture(textureLocation, GL_REPEAT, GL_LINEAR);
 	this->material = new Material(this->texture);
-	this->mesh = CreateTexturedCube(1);
+	this->mesh = CreateChunkyCone(1,6,6);
 	this->entity = new Entity(mesh, material, Transform(position.x, position.y, position.z));
 
-	this->entity->rotate(180, 0, 1, 0);
+	this->entity->rotate(-90, 1, 0, 0);
 }
 
-void Player::headLook(int x, int y, float dt) {
+void Player::headLook(float yaw, float pitch, float dt) {
+	float radYaw = (3.14159265f / 180.0f) * yaw;
+	float radPitch = (3.14159265f / 180.0f) * pitch;
 
-	int mouseChangeX = x;
-	int mouseChangeY = y;
+	glm::vec3 rotEul = glm::vec3(radPitch - 1.5, radYaw, 0);
 
-	int mouseChangeAvg = (abs(mouseChangeX) + abs(mouseChangeY)) / 2;
-	if (abs(mouseChangeX) == 0 || abs(mouseChangeY) == 0) {
-		mouseChangeAvg = (abs(mouseChangeX) + abs(mouseChangeY));
-	}
-
-	float rotSpeed = 50 * abs(mouseChangeAvg);
-	float rotAmount = rotSpeed * dt;
-	if (mouseChangeX < 0)
-		entity->rotate(rotAmount, 0, 1, 0);
-	if (mouseChangeX > 0)
-		entity->rotate(-rotAmount, 0, 1, 0);
-	if (mouseChangeY < 0)
-		entity->rotate(rotAmount, 1, 0, 0);
-	if (mouseChangeY > 0)
-		entity->rotate(-rotAmount, 1, 0, 0);
+	entity->setOrientation(glm::quat(rotEul));
 
 }
 
@@ -46,9 +33,9 @@ void Player::bodyMove(const Keyboard * kb, float dt) {
 	
 	// move forward and back
 	if (kb->isKeyDown(KC_W))
-		entity->translateLocal(0, 0, -disp);
+		entity->translateLocal(0, disp, 0);
 	if (kb->isKeyDown(KC_S))
-		entity->translateLocal(0, 0, disp);
+		entity->translateLocal(0, -disp, 0);
 
 	// strafe left and right
 	if (kb->isKeyDown(KC_A))

@@ -88,6 +88,9 @@ public:
 	bool getFreeLook() const 
 	{ return freeLook; }
 
+	void setZoom(float distance) 
+	{ mDistance = distance; }
+
 };
 
 #endif

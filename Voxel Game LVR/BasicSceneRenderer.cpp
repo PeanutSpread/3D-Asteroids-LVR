@@ -143,7 +143,7 @@ void BasicSceneRenderer::initialize()
     }
 	*/
 	// create Player
-	player = new Player(0, 0, 0);
+	player = new Player(glm::vec3(0, 0, 0));
 	mEntities.push_back(player->getEntity());
 
     //
@@ -452,24 +452,14 @@ glm::vec3 SplinePointOnCurve(float dt, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2,
 
 	return vOut;
 }
+
 bool BasicSceneRenderer::update(float dt) // GAME LOOP
 {
 	const Keyboard* kb = getKeyboard();
 	const Mouse* mouse = getMouse();
 
-	int mouseChangeX = mouse->getX() - s.SCREEN_WIDTH / 2;
-	int mouseChangeY = mouse->getY() - s.SCREEN_HEIGHT / 2;
-
-	if (startFix) {
-		if (mouse->getX() != 0.0 and mouse->getY() != 0.0) {
-			startFix = false;
-		}
-		mouseChangeX = 0;
-		mouseChangeY = 0;
-	}
-
 	if (!mCamera->getFreeLook()) {
-		player->headLook(mouseChangeX, mouseChangeY, dt); //head movement
+		player->headLook(mCamera->getYaw(), mCamera->getPitch(), dt);
 		player->bodyMove(kb, dt);
 	}
 

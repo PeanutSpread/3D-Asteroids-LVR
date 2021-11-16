@@ -14,23 +14,25 @@ class Player {
 	Mesh*			mesh;
 	
 	glm::vec3		position;
+	glm::vec3		aim;
 
 	Settings		s;
 
 public:
-	Player(float x, float y, float z);
+	Player(glm::vec3 location);
 
 	Entity* getEntity() const
 	{ return entity; }
-	
+
 	glm::vec3 getPosition() const 
 	{ return entity->getPosition(); }
 
 	glm::quat getOrientation() const
 	{ return entity->getOrientation(); }
 	
-	void headLook(int x, int y, float dt);
+	void headLook(float yaw, float pitch, float dt);
 	void bodyMove(const Keyboard* kb, float dt);
+	glm::vec3 getAim() {}
 
 };
 
