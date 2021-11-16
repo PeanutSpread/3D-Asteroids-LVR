@@ -3,6 +3,7 @@
 
 #include "glshell.h"
 #include "Settings.h"
+#include "Player.h"
 
 class Camera {
     GLApp* mApp;
@@ -10,24 +11,33 @@ class Camera {
     glm::vec3 mPosition;
     glm::vec3 mForward, mRight, mUp;   // orientation vectors
 
+	Player*	mPlayer;
+
     float mFOV;  // field of view
 
 	float dx, dy;
     float mYaw;
     float mPitch;
+	float mDistance;
 
     float mSpeed;
     float mMouseSpeed;
 
     bool mOrientationChanged;
+	void orientationChange();
+
 	bool isFocused();
 	bool freeLook;
+
+	void thirdPerson();
+	void localMove(float deltaT);
+	void localMoveTo(glm::vec3 movement);
 
 	Settings s;
 	bool startFix = true;
 
 public:
-    Camera(GLApp* app);
+    Camera(GLApp* app, Player* player);
 
     const glm::vec3& getPosition() const
     { return mPosition; }
@@ -38,7 +48,7 @@ public:
     void setPosition(float x, float y, float z)
     { mPosition = glm::vec3(x, y, z); }
 
-    void lookAt(const glm::vec3& target);
+	void lookAt(const glm::vec3& target);
 
     void lookAt(float x, float y, float z)
     { lookAt(glm::vec3(x, y, z)); }
@@ -72,11 +82,12 @@ public:
 	float getPitch() const
 	{ return mPitch; }
 
-    void update(float deltaT, glm::vec3 playerPos);
+    void update(float deltaT);
 
 	void toggleFreelook();
 	bool getFreeLook() const 
 	{ return freeLook; }
+
 };
 
 #endif

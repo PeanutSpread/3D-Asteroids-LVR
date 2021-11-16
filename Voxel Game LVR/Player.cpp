@@ -36,6 +36,7 @@ void Player::headLook(int x, int y, float dt) {
 		entity->rotate(rotAmount, 1, 0, 0);
 	if (mouseChangeY > 0)
 		entity->rotate(-rotAmount, 1, 0, 0);
+
 }
 
 void Player::bodyMove(const Keyboard * kb, float dt) {

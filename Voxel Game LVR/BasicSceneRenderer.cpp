@@ -168,9 +168,7 @@ void BasicSceneRenderer::initialize()
     // create the camera
     //
 
-    mCamera = new Camera(this);
-    mCamera->setPosition(0, 2, -6);
-    mCamera->lookAt(0, -2, 6);
+    mCamera = new Camera(this, player);
     mCamera->setSpeed(2);
 
 	glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
@@ -470,14 +468,6 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 		mouseChangeY = 0;
 	}
 
-	//printf("%f \n", mCamera->getPitch());
-
-	if (mCamera->getPitch() >= 80.0f) {
-		mouseChangeY = 0;
-	} else if (mCamera->getPitch() <= -80.0f) {
-		mouseChangeY = 0;
-	}
-
 	if (!mCamera->getFreeLook()) {
 		player->headLook(mouseChangeX, mouseChangeY, dt); //head movement
 		player->bodyMove(kb, dt);
@@ -589,7 +579,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 	if (isFocused()) {
 		glutSetCursor(GLUT_CURSOR_NONE);
 		glutWarpPointer(s.SCREEN_WIDTH/2 , s.SCREEN_HEIGHT/2 );
-		mCamera->update(dt, player->getPosition());
+		mCamera->update(dt);
 	}
 	else {
 		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);

@@ -25,6 +25,9 @@ public:
 	
 	glm::vec3 getPosition() const 
 	{ return entity->getPosition(); }
+
+	glm::quat getOrientation() const
+	{ return entity->getOrientation(); }
 	
 	void headLook(int x, int y, float dt);
 	void bodyMove(const Keyboard* kb, float dt);
