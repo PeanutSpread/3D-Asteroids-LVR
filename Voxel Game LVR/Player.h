@@ -7,32 +7,34 @@
 #include <vector>
 
 class Player {
-	std::string		textureLocation;
-	Texture*		texture;
-	Material*		material;
-	Entity*			entity;
-	Mesh*			mesh;
-	
-	glm::vec3		position;
-	glm::vec3		aim;
+	std::vector<Entity*>	entities;
 
-	Settings		s;
+	std::vector<glm::vec3>	offsets;
+	
+	Entity*					aligner;
+	glm::vec3				position;
+	glm::quat				orientation;
+	glm::vec3				aim;
+
+	Settings				s;
 
 public:
 	Player(glm::vec3 location);
 
-	Entity* getEntity() const
-	{ return entity; }
+	std::vector<Entity*> getEntities() const
+	{ return entities; }
 
 	glm::vec3 getPosition() const 
-	{ return entity->getPosition(); }
+	{ return position; }
 
 	glm::quat getOrientation() const
-	{ return entity->getOrientation(); }
+	{ return orientation; }
+
+	glm::vec3 getAim() const
+	{ return aim; }
 	
 	void headLook(float yaw, float pitch, float dt);
 	void bodyMove(const Keyboard* kb, float dt);
-	glm::vec3 getAim() {}
 
 };
 

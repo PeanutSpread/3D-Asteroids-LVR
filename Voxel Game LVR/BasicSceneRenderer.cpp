@@ -144,7 +144,7 @@ void BasicSceneRenderer::initialize()
 	*/
 	// create Player
 	player = new Player(glm::vec3(0, 0, 0));
-	mEntities.push_back(player->getEntity());
+	addEntities(player->getEntities());
 
     //
     // Create room
@@ -584,4 +584,11 @@ bool BasicSceneRenderer::isFocused() {
 	} else {
 		return false;
 	}
+}
+
+void BasicSceneRenderer::addEntities(std::vector<Entity*> entities) {
+	for (int i = 0; i < entities.size(); i++) {
+		mEntities.push_back(entities[i]);
+    }
+
 }

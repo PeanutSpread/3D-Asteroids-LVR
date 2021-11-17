@@ -119,14 +119,10 @@ void Camera::toggleFreelook() {
 }
 
 void Camera::thirdPerson() {
-	mPosition = mPlayer->getPosition();
+	mPosition = mPlayer->getAim();
 	localMoveTo(glm::vec3(0.0f, 0.0f, -mDistance));
-	
-	glm::vec3 focusPoint = mPlayer->getPosition();
-	focusPoint.x += 5;
-	focusPoint.y += 5;
 
-	lookAt(mPlayer->getPosition());
+	lookAt(mPlayer->getAim());
 	
 }
 

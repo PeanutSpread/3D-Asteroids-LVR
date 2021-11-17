@@ -44,6 +44,8 @@ class BasicSceneRenderer : public GLApp {
 
     bool                        mVisualizePointLights;
 
+	void						addEntities(std::vector<Entity*> entities);
+
 	Settings					s;
 	bool						startFix = true;
 
