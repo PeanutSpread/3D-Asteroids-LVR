@@ -54,14 +54,6 @@ void Player::headLook(float yaw, float pitch, float dt) {
 		aligner->translateLocal(offsets[i]);
 		entities[i]->setPosition(aligner->getPosition());
 		entities[i]->setOrientation(glm::quat(rotEul));
-
-		/*
-
-		aligner->translateLocal(relatedLoc);
-		entities[i]->setPosition(aligner->getPosition());
-		entities[i]->setOrientation(glm::quat(rotEul));
-		aligner->translateLocal(-relatedLoc);
-		*/
 	}
 }
 
@@ -89,6 +81,8 @@ void Player::bodyMove(const Keyboard * kb, float dt) {
 	}
 
 	position = entities[0]->getPosition();
-	aim = entities[0]->getPosition();
-	aim.y += 3;
+	aligner->setPosition(position);
+	aligner->setOrientation(entities[0]->getOrientation());
+	aligner->translateLocal(0, 0, 3);
+	aim = aligner->getPosition();
 }
