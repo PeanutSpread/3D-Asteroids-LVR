@@ -139,6 +139,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Prefabs.cpp" />
+    <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="Shaders.cpp" />
     <ClCompile Include="StateManager.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Prefabs.h" />
+    <ClInclude Include="Projectile.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Shaders.h" />
@@ -182,6 +184,7 @@
     <Image Include="textures\black.tga" />
     <Image Include="textures\bricks_overpainted_blue_9291383.tga" />
     <Image Include="textures\CarvedSandstone.tga" />
+    <Image Include="textures\debug.tga" />
     <Image Include="textures\grass.tga" />
     <Image Include="textures\mogus.tga" />
     <Image Include="textures\robot.idle.00001.tga" />
@@ -190,6 +193,9 @@
     <Image Include="textures\water_drops_on_metal_3020602.tga" />
     <Image Include="textures\white.tga" />
     <Image Include="textures\yo.tga" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Bugs.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

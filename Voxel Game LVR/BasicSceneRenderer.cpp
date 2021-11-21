@@ -1,6 +1,7 @@
 #include "BasicSceneRenderer.h"
 #include "Image.h"
 #include "Prefabs.h"
+#include "Projectile.h"
 
 #include <iostream>
 
@@ -410,18 +411,16 @@ void BasicSceneRenderer::draw()
         mesh->activate();
         mesh->draw();
     }
-
-    //
-    // draw local axes for current entity
-    //
-
     mDbgProgram->activate();
     mDbgProgram->sendUniform("u_ProjectionMatrix", mProjMatrix);
 
-    Entity* activeEntity = mEntities[mActiveEntityIndex];
-    mDbgProgram->sendUniform("u_ModelviewMatrix", viewMatrix * activeEntity->getWorldMatrix());
-    mAxes->activate();
-    mAxes->draw();
+    //Entity* activeEntity = mEntities[mActiveEntityIndex];
+    mDbgProgram->sendUniform("u_ModelviewMatrix", viewMatrix * player->getEntities()[0]->getWorldMatrix());
+    //mAxes->activate();
+    //mAxes->draw();
+	
+	//2D Drawing
+	drawHUD(mCamera->getZoom()/10);
 
     CHECK_GL_ERRORS("drawing");
 }
@@ -461,6 +460,11 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 	if (!mCamera->getFreeLook()) {
 		player->headLook(mCamera->getYaw(), mCamera->getPitch(), dt);
 		player->bodyMove(kb, dt);
+		if (mouse->buttonPressed(MOUSE_BUTTON_LEFT)) {
+			projectiles.push_back(player->shoot());
+			//addEntities(projectiles[projectiles.size() - 1].getEntities());
+
+		}
 	}
 
 
@@ -591,4 +595,34 @@ void BasicSceneRenderer::addEntities(std::vector<Entity*> entities) {
 		mEntities.push_back(entities[i]);
     }
 
+}
+
+void BasicSceneRenderer::drawHUD(float scale) {
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0.0, s.SCREEN_WIDTH, s.SCREEN_HEIGHT, 0.0, -1.0, 1.0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glDisable(GL_CULL_FACE);
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	glBegin(GL_TRIANGLES);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(0.025 * scale, 0.0, 3.0);
+	glVertex3f(0.5 * scale, 0.0, 3.0 - (0.075 * scale));
+	glVertex3f(0.5 * scale, 0.0, 3.0 + (0.075 * scale));
+	//--------------------------
+	glVertex3f(-0.025 * scale, 0.0, 3.0);
+	glVertex3f(-0.5 * scale, 0.0, 3.0 - (0.075 * scale));
+	glVertex3f(-0.5 * scale, 0.0, 3.0 + (0.075 * scale));
+	glEnd();
+
+
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 }

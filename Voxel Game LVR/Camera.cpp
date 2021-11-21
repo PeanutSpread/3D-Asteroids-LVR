@@ -81,7 +81,7 @@ void Camera::update(float deltaT)
 		}
 
 		float dw = mDistance - mouse->getWheelDelta();
-			if (dw > 0 && dw < 20) {
+			if (dw >= 6 && dw <= 18) {
 				mDistance -= mouse->getWheelDelta();
 			}
 	}

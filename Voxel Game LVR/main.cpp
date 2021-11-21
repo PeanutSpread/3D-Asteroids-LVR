@@ -5,5 +5,5 @@ int main()
 {
     BasicSceneRenderer app;
 	Settings s;
-    GLShell::Run(app, "Basic Scene Renderer", s.SCREEN_WIDTH, s.SCREEN_HEIGHT);
+    GLShell::Run(app, "Asteroids 3D", s.SCREEN_WIDTH, s.SCREEN_HEIGHT);
 }

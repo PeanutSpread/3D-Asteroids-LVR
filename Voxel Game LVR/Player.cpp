@@ -55,6 +55,11 @@ void Player::headLook(float yaw, float pitch, float dt) {
 		entities[i]->setPosition(aligner->getPosition());
 		entities[i]->setOrientation(glm::quat(rotEul));
 	}
+
+	aligner->setPosition(position);
+	aligner->setOrientation(entities[0]->getOrientation());
+	aligner->translateLocal(0, 0, 3);
+	aim = aligner->getPosition();
 }
 
 void Player::bodyMove(const Keyboard * kb, float dt) {
@@ -81,8 +86,10 @@ void Player::bodyMove(const Keyboard * kb, float dt) {
 	}
 
 	position = entities[0]->getPosition();
-	aligner->setPosition(position);
-	aligner->setOrientation(entities[0]->getOrientation());
-	aligner->translateLocal(0, 0, 3);
-	aim = aligner->getPosition();
+}
+
+Projectile* Player::shoot() {
+	Projectile rocket(position, orientation);
+	
+	return &rocket;
 }

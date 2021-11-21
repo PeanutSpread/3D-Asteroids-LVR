@@ -90,6 +90,9 @@ public:
 
 	void setZoom(float distance) 
 	{ mDistance = distance; }
+	
+	float getZoom() const
+	{ return mDistance; }
 
 };
 

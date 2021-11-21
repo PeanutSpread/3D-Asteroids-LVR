@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Entity.h"
 #include "Player.h"
+#include "Projectile.h"
 #include "Settings.h"
 
 #include <vector>
@@ -34,6 +35,7 @@ class BasicSceneRenderer : public GLApp {
 
     // scene objects
     std::vector<Entity*>        mEntities;
+	std::vector<Projectile*>	projectiles;
 	Player*						player;
 
     Camera*                     mCamera;
@@ -45,6 +47,8 @@ class BasicSceneRenderer : public GLApp {
     bool                        mVisualizePointLights;
 
 	void						addEntities(std::vector<Entity*> entities);
+
+	void						drawHUD(float scale);
 
 	Settings					s;
 	bool						startFix = true;

@@ -2,13 +2,12 @@
 #include "Image.h"
 #include "Prefabs.h"
 #include "Entity.h"
-#include "Player.h"
 #include "Settings.h"
+#include "Projectile.h"
 #include <vector>
 
 class Player {
 	std::vector<Entity*>	entities;
-
 	std::vector<glm::vec3>	offsets;
 	
 	Entity*					aligner;
@@ -35,6 +34,7 @@ public:
 	
 	void headLook(float yaw, float pitch, float dt);
 	void bodyMove(const Keyboard* kb, float dt);
+	Projectile* shoot();
 
 };
 
