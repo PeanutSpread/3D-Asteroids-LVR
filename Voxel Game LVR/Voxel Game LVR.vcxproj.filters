@@ -66,7 +66,7 @@
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="Projectile.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,7 +125,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Projectile.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -197,6 +197,27 @@
       <Filter>textures</Filter>
     </Image>
     <Image Include="textures\debug.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\debug2.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\debug3.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\space.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\metal_panel.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\metal_panel_corrugated.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\metal_panel_dark.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\metal_window.tga">
       <Filter>textures</Filter>
     </Image>
   </ItemGroup>

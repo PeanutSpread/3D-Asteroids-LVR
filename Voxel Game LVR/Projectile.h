@@ -2,7 +2,6 @@
 #include "Image.h"
 #include "Prefabs.h"
 #include "Entity.h"
-#include "Player.h"
 #include <vector>
 
 class Projectile {
@@ -12,6 +11,8 @@ class Projectile {
 	Entity*					aligner;
 	glm::vec3				position;
 	glm::quat				orientation;
+
+	void					adjustOrientation();
 
 public:
 	Projectile(glm::vec3 location, glm::quat orientation);
@@ -30,6 +31,8 @@ public:
 	{
 		return orientation;
 	}
+
+	void update(float dt);
 
 };
 

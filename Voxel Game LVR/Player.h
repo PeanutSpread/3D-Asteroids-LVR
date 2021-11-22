@@ -9,6 +9,8 @@
 class Player {
 	std::vector<Entity*>	entities;
 	std::vector<glm::vec3>	offsets;
+	std::vector<Entity*>	hitboxes;
+	std::vector<glm::vec3>	hbOffsets;
 	
 	Entity*					aligner;
 	glm::vec3				position;
@@ -34,7 +36,8 @@ public:
 	
 	void headLook(float yaw, float pitch, float dt);
 	void bodyMove(const Keyboard* kb, float dt);
-	Projectile* shoot();
+	std::vector<Projectile*> shoot();
+	bool hasCollision(std::vector<Entity*> otherHitboxes);
 
 };
 

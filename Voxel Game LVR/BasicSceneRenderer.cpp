@@ -9,7 +9,6 @@ BasicSceneRenderer::BasicSceneRenderer()
 	: mLightingModel(PER_VERTEX_DIR_LIGHT)
 	, mCamera(NULL)
 	, mProjMatrix(1.0f)
-	, mActiveEntityIndex(0)
 	, mDbgProgram(NULL)
 	, mAxes(NULL)
 	, mVisualizePointLights(true)
@@ -60,10 +59,10 @@ void BasicSceneRenderer::initialize()
     mMeshes.push_back(CreateChunkyTexturedCylinder(0.5f, 1, 8));
     mMeshes.push_back(CreateSmoothTexturedCylinder(0.5f, 1, 15));
 
-    float roomWidth = 32;
-    float roomHeight = 24;
-    float roomDepth = 52;
-    float roomTilesPerUnit = 0.25f;
+    float roomWidth = 500;
+    float roomHeight = 500;
+    float roomDepth = 500;
+    float roomTilesPerUnit = 100.0f;
 
     // front and back walls
     Mesh* fbMesh = CreateTexturedQuad(roomWidth, roomHeight, roomWidth * roomTilesPerUnit, roomHeight * roomTilesPerUnit);
@@ -80,14 +79,10 @@ void BasicSceneRenderer::initialize()
     //
 
     std::vector<std::string> texNames;
-    texNames.push_back("textures/CarvedSandstone.tga");
-    texNames.push_back("textures/rocky.tga");
-    texNames.push_back("textures/bricks_overpainted_blue_9291383.tga");
-    texNames.push_back("textures/water_drops_on_metal_3020602.tga");
-    texNames.push_back("textures/skin.tga");
     texNames.push_back("textures/white.tga");
-    texNames.push_back("textures/yo.tga");
     texNames.push_back("textures/black.tga");
+	texNames.push_back("textures/space.tga");
+	texNames.push_back("textures/rocky.tga");
 
     for (unsigned i = 0; i < texNames.size(); i++)
         mTextures.push_back(new Texture(texNames[i], GL_REPEAT, GL_LINEAR));
@@ -104,45 +99,22 @@ void BasicSceneRenderer::initialize()
     // set extra material properties
     //
 
-    // water drops (sharp and strong specular highlight)
-    mMaterials[3]->specular = glm::vec3(1.0f, 1.0f, 1.0f);
-    mMaterials[3]->shininess = 128;
-
-    // skin (washed out and faint specular highlight)
-    mMaterials[4]->specular = glm::vec3(0.3f, 0.3f, 0.3f);
-    mMaterials[4]->shininess = 8;
-
     // white
-    mMaterials[5]->specular = glm::vec3(0.75f, 0.75f, 0.75f);
-    mMaterials[5]->shininess = 64;
-
-    // yo
-    mMaterials[6]->specular = glm::vec3(1.0f, 0.0f, 1.0f);  // magenta highlights
-    mMaterials[6]->shininess = 16;
+    mMaterials[0]->specular = glm::vec3(0.75f, 0.75f, 0.75f);
+    mMaterials[0]->shininess = 64;
 
     // black
-    mMaterials[7]->specular = glm::vec3(1.0f, 0.5f, 0.0f);  // orange hightlights
-    mMaterials[7]->shininess = 16;
+    mMaterials[1]->specular = glm::vec3(1.0f, 0.5f, 0.0f);  // orange hightlights
+    mMaterials[1]->shininess = 16;
+
+	// space
+	mMaterials[2]->specular = glm::vec3(0.5f, 0.0f, 0.5f);  // orange hightlights
+	mMaterials[2]->shininess = 32;
 
     //
     // Create entities
     //
 
-    unsigned numRows = mMaterials.size();
-    float spacing = 3;
-    float z = 0.5f * spacing * numRows;
-    /*for (unsigned i = 2; i < mMaterials.size(); i++) {
-        // cube
-        mEntities.push_back(new Entity(mMeshes[0], mMaterials[i], Transform(-4.0f, 0.0f, z)));
-        // chunky cylinder
-        mEntities.push_back(new Entity(mMeshes[1], mMaterials[i], Transform( 0.0f, 0.0f, z)));
-        // smooth cylinder
-        mEntities.push_back(new Entity(mMeshes[2], mMaterials[i], Transform( 4.0f, 0.0f, z)));
-
-        // next row
-        z -= spacing;
-    }
-	*/
 	// create Player
 	player = new Player(glm::vec3(0, 0, 0));
 	addEntities(player->getEntities());
@@ -152,18 +124,19 @@ void BasicSceneRenderer::initialize()
     //
 
     // back wall
-    mEntities.push_back(new Entity(fbMesh, mMaterials[1], Transform(0, 0, -0.5f * roomDepth)));
+    boundries.push_back(new Entity(fbMesh, mMaterials[2], Transform(0, 0, -0.5f * roomDepth)));
     // front wall
-    mEntities.push_back(new Entity(fbMesh, mMaterials[1], Transform(0, 0, 0.5f * roomDepth, glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
+    boundries.push_back(new Entity(fbMesh, mMaterials[2], Transform(0, 0, 0.5f * roomDepth, glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
     // left wall
-    mEntities.push_back(new Entity(lrMesh, mMaterials[1], Transform(-0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
+    boundries.push_back(new Entity(lrMesh, mMaterials[2], Transform(-0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
     // right wall
-    mEntities.push_back(new Entity(lrMesh, mMaterials[1], Transform(0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
+    boundries.push_back(new Entity(lrMesh, mMaterials[2], Transform(0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
     // floor
-    mEntities.push_back(new Entity(cfMesh, mMaterials[0], Transform(0, -0.5f * roomHeight, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
+    boundries.push_back(new Entity(cfMesh, mMaterials[2], Transform(0, -0.5f * roomHeight, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
     // ceiling
-    mEntities.push_back(new Entity(cfMesh, mMaterials[0], Transform(0, 0.5f * roomHeight, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
+    boundries.push_back(new Entity(cfMesh, mMaterials[2], Transform(0, 0.5f * roomHeight, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
 
+	addEntities(boundries);
 
     //
     // create the camera
@@ -312,7 +285,7 @@ void BasicSceneRenderer::draw()
         if (mVisualizePointLights) {
             const Mesh* lightMesh = mMeshes[0];
             lightMesh->activate();
-            glBindTexture(GL_TEXTURE_2D, mTextures[7]->id());  // use black texture
+            glBindTexture(GL_TEXTURE_2D, mTextures[1]->id());  // use black texture
             prog->sendUniform("u_MatEmissiveColor", lightColor);
             prog->sendUniform("u_ModelviewMatrix", glm::translate(viewMatrix, glm::vec3(lightPos)));
             prog->sendUniform("u_NormalMatrix", glm::mat3(1.0f));
@@ -366,7 +339,7 @@ void BasicSceneRenderer::draw()
 
         // render the point lights as emissive cubes, if desirable
         if (mVisualizePointLights) {
-            glBindTexture(GL_TEXTURE_2D, mTextures[7]->id());  // use black texture
+            glBindTexture(GL_TEXTURE_2D, mTextures[1]->id());  // use black texture
             prog->sendUniform("u_NormalMatrix", glm::mat3(1.0f));
             const Mesh* lightMesh = mMeshes[0];
             lightMesh->activate();
@@ -461,75 +434,19 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 		player->headLook(mCamera->getYaw(), mCamera->getPitch(), dt);
 		player->bodyMove(kb, dt);
 		if (mouse->buttonPressed(MOUSE_BUTTON_LEFT)) {
-			projectiles.push_back(player->shoot());
-			//addEntities(projectiles[projectiles.size() - 1].getEntities());
-
+			projectiles.push_back(player->shoot()[0]);
+			addEntities(projectiles[projectiles.size() - 1]->getEntities());
 		}
 	}
 
+	if (projectiles.size() > 0) {
+		for (int i = 0; i < projectiles.size(); i++) {
+			projectiles[i]->update(dt);
+		}
+	}
 
     if (kb->keyPressed(KC_ESCAPE))
         return false;
-
-    // move forward through our list of entities
-    if (kb->keyPressed(KC_X)) {
-        // compute next entity index
-        ++mActiveEntityIndex;
-        if (mActiveEntityIndex >= (int)mEntities.size())
-            mActiveEntityIndex = 0;
-    }
-
-    // move backward through our list of entities
-    if (kb->keyPressed(KC_Z)) {
-        // compute previous entity index
-        --mActiveEntityIndex;
-        if (mActiveEntityIndex < 0)
-            mActiveEntityIndex = (int)mEntities.size() - 1;
-    }
-
-    // get the entity to manipulate
-    Entity* activeEntity = mEntities[mActiveEntityIndex];
-
-	/*
-    // rotate the entity
-    float rotSpeed = 90;
-    float rotAmount = rotSpeed * dt;
-    if (kb->isKeyDown(KC_LEFT))
-        activeEntity->rotate(rotAmount, 0, 1, 0);
-    if (kb->isKeyDown(KC_RIGHT))
-        activeEntity->rotate(-rotAmount, 0, 1, 0);
-    if (kb->isKeyDown(KC_UP))
-        activeEntity->rotate(rotAmount, 1, 0, 0);
-    if (kb->isKeyDown(KC_DOWN))
-        activeEntity->rotate(-rotAmount, 1, 0, 0);
-	
-    // reset entity orientation
-    if (kb->keyPressed(KC_R))
-        activeEntity->setOrientation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
-
-    float speed = 3;
-    float disp = speed * dt;
-
-    // move entity along world axes
-    if (kb->isKeyDown(KC_I))
-        activeEntity->translate(0, 0, disp);
-    if (kb->isKeyDown(KC_K))
-        activeEntity->translate(0, 0, -disp);
-    if (kb->isKeyDown(KC_L))
-        activeEntity->translate(disp, 0, 0);
-    if (kb->isKeyDown(KC_J))
-        activeEntity->translate(-disp, 0, 0);
-
-    // move entity along entity's local axes
-    if (kb->isKeyDown(KC_T))
-        activeEntity->translateLocal(0, 0, disp);
-    if (kb->isKeyDown(KC_G))
-        activeEntity->translateLocal(0, 0, -disp);
-    if (kb->isKeyDown(KC_F))
-        activeEntity->translateLocal(disp, 0, 0);
-    if (kb->isKeyDown(KC_H))
-        activeEntity->translateLocal(-disp, 0, 0);
-	*/
 
     // change lighting models
     if (kb->keyPressed(KC_1))
@@ -602,7 +519,7 @@ void BasicSceneRenderer::drawHUD(float scale) {
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(0.0, s.SCREEN_WIDTH, s.SCREEN_HEIGHT, 0.0, -1.0, 1.0);
+	glOrtho(0.0, s.SCREEN_WIDTH, s.SCREEN_HEIGHT, 0.0, -10.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glDisable(GL_CULL_FACE);

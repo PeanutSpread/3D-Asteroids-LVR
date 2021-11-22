@@ -2,7 +2,7 @@
 
 Projectile::Projectile(glm::vec3 location, glm::quat orientation)
 	: position(location)
-	, orientation(glm::vec3(NULL))
+	, orientation(orientation)
 	, aligner(new Entity(NULL, NULL, location))
 	, offsets(NULL)
 {
@@ -29,5 +29,32 @@ Projectile::Projectile(glm::vec3 location, glm::quat orientation)
 		relatedLoc.z = entities[i]->getPosition().z - position.z;
 
 		offsets.push_back(relatedLoc);
+	}
+
+	adjustOrientation();
+}
+
+void Projectile::adjustOrientation() {
+
+	aligner->setOrientation(orientation);
+	for (int i = 0; i < entities.size(); i++) {
+		aligner->setPosition(position);
+		aligner->translateLocal(offsets[i]);
+		entities[i]->setPosition(aligner->getPosition());
+		entities[i]->setOrientation(orientation);
+	}
+
+}
+
+void Projectile::update(float dt) {
+	float speed = 75;
+	float disp = speed * dt;
+
+	glm::vec3 displacement(0, 0, 0);
+
+	displacement.y = disp;
+
+	for (int i = 0; i < entities.size(); i++) {
+		entities[i]->translateLocal(displacement);
 	}
 }

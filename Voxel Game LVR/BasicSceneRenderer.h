@@ -36,13 +36,12 @@ class BasicSceneRenderer : public GLApp {
     // scene objects
     std::vector<Entity*>        mEntities;
 	std::vector<Projectile*>	projectiles;
+	std::vector<Entity*>		boundries;
 	Player*						player;
 
     Camera*                     mCamera;
 
     glm::mat4                   mProjMatrix;
-
-    int                         mActiveEntityIndex;
 
     bool                        mVisualizePointLights;
 
