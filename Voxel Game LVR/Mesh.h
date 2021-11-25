@@ -12,6 +12,10 @@ class Mesh {
     GLenum              mMode;          // drawing mode
     GLsizei             mNumVertices;   // number of vertices
 
+	float				xWidth;
+	float				yHeight;
+	float				zDepth;
+
 public:
     Mesh();
     ~Mesh();
@@ -26,6 +30,20 @@ public:
     void deactivate() const;
 
     void draw() const;
+
+	float setXWidth(float value)
+	{ xWidth = value; }
+	float setYHeight(float value)
+	{ yHeight = value; }
+	float setZDepth(float value)
+	{ zDepth = value; }
+
+	float getXWidth() const
+	{ return xWidth; }
+	float getYHeight() const
+	{ return yHeight; }
+	float getZDepth() const
+	{ return zDepth; }
 };
 
 //
