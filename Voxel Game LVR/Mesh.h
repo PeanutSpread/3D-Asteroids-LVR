@@ -31,11 +31,11 @@ public:
 
     void draw() const;
 
-	float setXWidth(float value)
+	void setXWidth(float value)
 	{ xWidth = value; }
-	float setYHeight(float value)
+	void setYHeight(float value)
 	{ yHeight = value; }
-	float setZDepth(float value)
+	void setZDepth(float value)
 	{ zDepth = value; }
 
 	float getXWidth() const

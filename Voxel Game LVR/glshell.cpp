@@ -304,6 +304,7 @@ void GLShell::InitializeKeys()
     smAsciiKeys['\r'] = KC_RETURN;
     smAsciiKeys[27]   = KC_ESCAPE;
     smAsciiKeys[8]    = KC_BACKSPACE;
+	smAsciiKeys[126] = KC_TILDE;
     smAsciiKeys[127]  = KC_DELETE;
 
     smAsciiKeys['1']  = KC_1;

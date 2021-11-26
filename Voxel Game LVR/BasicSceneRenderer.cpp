@@ -13,6 +13,7 @@ BasicSceneRenderer::BasicSceneRenderer()
 	, mAxes(NULL)
 	, mVisualizePointLights(true)
 	, player(NULL)
+	, toBeDrawn()
 {
 }
 
@@ -118,6 +119,7 @@ void BasicSceneRenderer::initialize()
 	// create Player
 	player = new Player(glm::vec3(0, 0, 0));
 	addEntities(player->getEntities());
+	addDrawnHitboxes(player->getHitboxes());
 
     //
     // Create room
@@ -216,6 +218,11 @@ void BasicSceneRenderer::draw()
 
     // get the view matrix from the camera
     glm::mat4 viewMatrix = mCamera->getViewMatrix();
+
+	toBeDrawn.clear();
+	drawEntities(mEntities);
+	if (visualHiboxes)
+		drawEntities(mDrawHitboxes);
 
     //
     // light setup depends on lighting model
@@ -356,9 +363,9 @@ void BasicSceneRenderer::draw()
     }
 
     // render all entities
-    for (unsigned i = 0; i < mEntities.size(); i++) {
+    for (unsigned i = 0; i < toBeDrawn.size(); i++) {
 
-        Entity* ent = mEntities[i];
+        Entity* ent = toBeDrawn[i];
 
         // use the entity's material
         const Material* mat = ent->getMaterial();
@@ -448,6 +455,9 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
     if (kb->keyPressed(KC_ESCAPE))
         return false;
 
+	if (kb->keyPressed(KC_TILDE))
+		visualHiboxes = !visualHiboxes;
+
     // change lighting models
     if (kb->keyPressed(KC_1))
         mLightingModel = PER_VERTEX_DIR_LIGHT;
@@ -512,6 +522,18 @@ void BasicSceneRenderer::addEntities(std::vector<Entity*> entities) {
 		mEntities.push_back(entities[i]);
     }
 
+}
+
+void BasicSceneRenderer::addDrawnHitboxes(std::vector<Entity*> entities) {
+	for (int i = 0; i < entities.size(); i++) {
+		mDrawHitboxes.push_back(entities[i]);
+	}
+}
+
+void BasicSceneRenderer::drawEntities(std::vector<Entity*> entities) {
+	for (int i = 0; i < entities.size(); i++) {
+		toBeDrawn.push_back(entities[i]);
+	}
 }
 
 void BasicSceneRenderer::drawHUD(float scale) {

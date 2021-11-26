@@ -167,8 +167,8 @@ public:
 		selfAligner = selfAligner * mTransform.orientation;
 
 		glm::vec3 itsPosition = entity.getPosition();
-		glm::vec3 itsAligner(entity.getXWidth / 2, entity.getYHeight / 2, entity.getZDepth / 2);
-		itsAligner = itsAligner * entity.getOrientation;
+		glm::vec3 itsAligner(entity.getXWidth() / 2, entity.getYHeight() / 2, entity.getZDepth() / 2);
+		itsAligner = itsAligner * entity.getOrientation();
 		
 		bool xPlane, yPlane, zPlane = false;
 
@@ -202,9 +202,49 @@ public:
 		return xPlane && yPlane && zPlane;
 	}
 
-	// TODO: implement rest of collision scenarios
 	bool doesIntersectAABB_Sphere(Entity entity) {
-		return false;
+		glm::vec3 selfPosition = mTransform.position;
+		glm::vec3 selfAligner(xWidth / 2, yHeight / 2, zDepth / 2);
+		selfAligner = selfAligner * mTransform.orientation;
+
+		glm::vec3 itsPosition = entity.getPosition();
+		glm::vec3 holder(0, 0, 0);
+		float distance = 0;
+
+		// xPlane
+		float selfXMin = selfPosition.x - selfAligner.x;
+		float selfXMax = selfPosition.x + selfAligner.x;
+		
+		holder.x = std::fmax(selfXMin, std::fmin(itsPosition.x, selfXMax));
+
+		// yPlane
+		float selfYMin = selfPosition.y - selfAligner.y;
+		float selfYMax = selfPosition.y + selfAligner.y;
+
+		holder.y = std::fmax(selfYMin, std::fmin(itsPosition.y, selfYMax));
+
+		// zPlane
+		float selfZMin = selfPosition.z - selfAligner.z;
+		float selfZMax = selfPosition.z + selfAligner.z;
+
+		holder.z = std::fmax(selfZMin, std::fmin(itsPosition.z, selfZMax));
+
+		distance = std::sqrtf(pow(holder.x - itsPosition.x, 2) + pow(holder.y - itsPosition.y, 2) + pow(holder.z - itsPosition.z, 2));
+		return distance < (entity.getXWidth()/2);
+	}
+
+	bool doesIntersectSphere_Point(glm::vec3 point) {
+		glm::vec3 selfPosition = mTransform.position;
+		float distance = std::sqrtf(pow(point.x - selfPosition.x, 2) + pow(point.y - selfPosition.y, 2) + pow(point.z - selfPosition.z, 2));
+		return distance < (xWidth/2);
+	}
+
+	bool doesIntersectSphere(Entity entity) {
+		glm::vec3 selfPosition = mTransform.position;
+		glm::vec3 itsPosition = entity.getPosition();
+
+		float distance = std::sqrtf(pow(selfPosition.x - itsPosition.x, 2) + pow(selfPosition.y - itsPosition.y, 2) + pow(selfPosition.z - itsPosition.z, 2));
+		return distance < (xWidth / 2 + entity.getXWidth() / 2);
 	}
 };
 

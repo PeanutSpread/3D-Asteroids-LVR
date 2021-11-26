@@ -35,6 +35,9 @@ class BasicSceneRenderer : public GLApp {
 
     // scene objects
     std::vector<Entity*>        mEntities;
+	std::vector<Entity*>        mDrawHitboxes;
+	std::vector<Entity*>		toBeDrawn;
+
 	std::vector<Projectile*>	projectiles;
 	std::vector<Entity*>		boundries;
 	Player*						player;
@@ -46,6 +49,8 @@ class BasicSceneRenderer : public GLApp {
     bool                        mVisualizePointLights;
 
 	void						addEntities(std::vector<Entity*> entities);
+	void						addDrawnHitboxes(std::vector<Entity*> entities);
+	void						drawEntities(std::vector<Entity*> entities);
 
 	void						drawHUD(float scale);
 
@@ -55,6 +60,8 @@ class BasicSceneRenderer : public GLApp {
     //
     // debug visualization
     //
+
+	bool						visualHiboxes = false;
 
     // shader used to render active entity axes
     ShaderProgram*              mDbgProgram;

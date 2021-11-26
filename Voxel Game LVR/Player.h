@@ -25,6 +25,9 @@ public:
 	std::vector<Entity*> getEntities() const
 	{ return entities; }
 
+	std::vector<Entity*> getHitboxes() const
+	{ return hitboxes; }
+
 	glm::vec3 getPosition() const 
 	{ return position; }
 
