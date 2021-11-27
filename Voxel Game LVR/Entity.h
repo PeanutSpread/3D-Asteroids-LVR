@@ -166,9 +166,9 @@ public:
 		glm::vec3 selfAligner(xWidth / 2, yHeight / 2, zDepth / 2);
 		selfAligner = selfAligner * mTransform.orientation;
 
-		glm::vec3 itsPosition = entity.getPosition();
-		glm::vec3 itsAligner(entity.getXWidth() / 2, entity.getYHeight() / 2, entity.getZDepth() / 2);
-		itsAligner = itsAligner * entity.getOrientation();
+i		glm::vec3 itsPosition = entity->getPosition();
+		glm::vec3 itsAligner(entity->getXWidth() / 2, entity->getYHeight() / 2, entity->getZDepth() / 2);
+		itsAligner = itsAligner * entity->getOrientation();
 		
 		bool xPlane, yPlane, zPlane = false;
 
@@ -207,7 +207,7 @@ public:
 		glm::vec3 selfAligner(xWidth / 2, yHeight / 2, zDepth / 2);
 		selfAligner = selfAligner * mTransform.orientation;
 
-		glm::vec3 itsPosition = entity.getPosition();
+		glm::vec3 itsPosition = entity->getPosition();
 		glm::vec3 holder(0, 0, 0);
 		float distance = 0;
 
@@ -230,7 +230,7 @@ public:
 		holder.z = std::fmax(selfZMin, std::fmin(itsPosition.z, selfZMax));
 
 		distance = std::sqrtf(pow(holder.x - itsPosition.x, 2) + pow(holder.y - itsPosition.y, 2) + pow(holder.z - itsPosition.z, 2));
-		return distance < (entity.getXWidth()/2);
+		return distance < (entity->getXWidth()/2);
 	}
 
 	bool doesIntersectSphere_Point(glm::vec3 point) {
@@ -243,9 +243,9 @@ public:
 		{
 			glm::vec3 selfPosition = mTransform.position;
 
-			glm::vec3 itsPosition = entity.getPosition();
-			glm::vec3 itsAligner(entity.getXWidth() / 2, entity.getYHeight() / 2, entity.getZDepth() / 2);
-			itsAligner = itsAligner * entity.getOrientation();
+			glm::vec3 itsPosition = entity->getPosition();
+			glm::vec3 itsAligner(entity->getXWidth() / 2, entity->getYHeight() / 2, entity->getZDepth() / 2);
+			itsAligner = itsAligner * entity->getOrientation();
 
 			glm::vec3 holder(0, 0, 0);
 			float distance = 0;
@@ -275,10 +275,10 @@ public:
 
 	bool doesIntersectSphere_Sphere(Entity* entity) {
 		glm::vec3 selfPosition = mTransform.position;
-		glm::vec3 itsPosition = entity.getPosition();
+		glm::vec3 itsPosition = entity->getPosition();
 
 		float distance = std::sqrtf(pow(selfPosition.x - itsPosition.x, 2) + pow(selfPosition.y - itsPosition.y, 2) + pow(selfPosition.z - itsPosition.z, 2));
-		return distance < (xWidth / 2 + entity.getXWidth() / 2);
+		return distance < (xWidth / 2 + entity->getXWidth() / 2);
 	}
 };
 
