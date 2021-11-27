@@ -161,7 +161,7 @@ public:
 		return xPlane && yPlane && zPlane;
 	}
 
-	bool doesIntersectAABB_AABB (Entity entity) {
+	bool doesIntersectAABB_AABB (Entity* entity) {
 		glm::vec3 selfPosition = mTransform.position;
 		glm::vec3 selfAligner(xWidth / 2, yHeight / 2, zDepth / 2);
 		selfAligner = selfAligner * mTransform.orientation;
@@ -202,7 +202,7 @@ public:
 		return xPlane && yPlane && zPlane;
 	}
 
-	bool doesIntersectAABB_Sphere(Entity entity) {
+	bool doesIntersectAABB_Sphere(Entity* entity) {
 		glm::vec3 selfPosition = mTransform.position;
 		glm::vec3 selfAligner(xWidth / 2, yHeight / 2, zDepth / 2);
 		selfAligner = selfAligner * mTransform.orientation;
@@ -239,7 +239,41 @@ public:
 		return distance < (xWidth/2);
 	}
 
-	bool doesIntersectSphere(Entity entity) {
+	bool doesIntersectSphere_AABB (Entity* entity) {
+		{
+			glm::vec3 selfPosition = mTransform.position;
+
+			glm::vec3 itsPosition = entity.getPosition();
+			glm::vec3 itsAligner(entity.getXWidth() / 2, entity.getYHeight() / 2, entity.getZDepth() / 2);
+			itsAligner = itsAligner * entity.getOrientation();
+
+			glm::vec3 holder(0, 0, 0);
+			float distance = 0;
+
+			// xPlane
+			float itsXMin = itsPosition.x - itsAligner.x;
+			float itsXMax = itsPosition.x + itsAligner.x;
+
+			holder.x = std::fmax(itsXMin, std::fmin(selfPosition.x, itsXMax));
+
+			// yPlane
+			float itsYMin = itsPosition.y - itsAligner.y;
+			float itsYMax = itsPosition.y + itsAligner.y;
+
+			holder.y = std::fmax(itsYMin, std::fmin(selfPosition.y, itsYMax));
+
+			// zPlane
+			float itsZMin = itsPosition.z - itsAligner.z;
+			float itsZMax = itsPosition.z + itsAligner.z;
+
+			holder.z = std::fmax(itsZMin, std::fmin(selfPosition.z, itsZMax));
+
+			distance = std::sqrtf(pow(holder.x - selfPosition.x, 2) + pow(holder.y - selfPosition.y, 2) + pow(holder.z - selfPosition.z, 2));
+			return distance < (xWidth / 2);
+		}
+	}
+
+	bool doesIntersectSphere_Sphere(Entity* entity) {
 		glm::vec3 selfPosition = mTransform.position;
 		glm::vec3 itsPosition = entity.getPosition();
 

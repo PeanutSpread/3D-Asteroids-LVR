@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Settings.h"
 #include "Projectile.h"
+#include "CollisionType.h"
 #include <vector>
 
 class Player {
@@ -40,7 +41,7 @@ public:
 	void headLook(float yaw, float pitch, float dt);
 	void bodyMove(const Keyboard* kb, float dt);
 	std::vector<Projectile*> shoot();
-	bool hasCollision(std::vector<Entity*> otherHitboxes);
+	bool hasCollision(std::vector<Entity*> otherHitboxes, CollisionType check);
 
 };
 

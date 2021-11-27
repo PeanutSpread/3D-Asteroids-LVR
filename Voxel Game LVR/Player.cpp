@@ -139,8 +139,24 @@ std::vector<Projectile*> Player::shoot() {
 	return  (rockets);
 }
 
-bool Player::hasCollision(std::vector<Entity*> otherHitboxes) {
-	bool collide = false;
+bool Player::hasCollision(std::vector<Entity*> otherHitboxes, CollisionType check) {
+	for (int i = 0; i < hitboxes.size(); i++) {
+		for (int j = 0; j < otherHitboxes.size(); j++) {
 
-	return collide;
+			switch (check) {
+			case AABB_AABB:
+				if (hitboxes[i]->doesIntersectAABB_AABB(otherHitboxes[j]))
+					return true;
+				break;
+			case AABB_Sphere:
+				if (hitboxes[i]->doesIntersectAABB_Sphere(otherHitboxes[j]))
+					return true;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	return false;
 }

@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClCompile Include="BasicSceneRenderer.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CollisionType.h" />
     <ClCompile Include="common.cpp" />
     <ClCompile Include="glshell.cpp" />
     <ClCompile Include="Image.cpp" />
