@@ -6,6 +6,7 @@
 #include "Entity.h"
 #include "Player.h"
 #include "Projectile.h"
+#include "Asteroid.h"
 #include "Settings.h"
 
 #include <vector>
@@ -39,6 +40,7 @@ class BasicSceneRenderer : public GLApp {
 	std::vector<Entity*>		toBeDrawn;
 
 	std::vector<Projectile*>	projectiles;
+	std::vector<Asteroid*>		asteroids;
 	std::vector<Entity*>		boundries;
 	Player*						player;
 
@@ -47,14 +49,17 @@ class BasicSceneRenderer : public GLApp {
     glm::mat4                   mProjMatrix;
 
     bool                        mVisualizePointLights;
+	bool						pause = false;
 
 	void						addEntities(std::vector<Entity*> entities);
 	void						addDrawnHitboxes(std::vector<Entity*> entities);
 	void						drawEntities(std::vector<Entity*> entities);
-
+	
+	std::vector<Entity*>		getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities);
 	void						drawHUD(float scale);
 
 	Settings					s;
+
 	bool						startFix = true;
 
     //

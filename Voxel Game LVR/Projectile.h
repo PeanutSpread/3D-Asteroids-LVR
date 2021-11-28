@@ -18,19 +18,13 @@ public:
 	Projectile(glm::vec3 location, glm::quat orientation);
 
 	std::vector<Entity*> getEntities() const
-	{
-		return entities;
-	}
+	{ return entities; }
 
 	glm::vec3 getPosition() const
-	{
-		return position;
-	}
+	{ return position; }
 
 	glm::quat getOrientation() const
-	{
-		return orientation;
-	}
+	{ return orientation; }
 
 	void update(float dt);
 

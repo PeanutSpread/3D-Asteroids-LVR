@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Asteroid.cpp" />
     <ClCompile Include="BasicSceneRenderer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CollisionType.h" />
@@ -147,6 +148,7 @@
     <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Asteroid.h" />
     <ClInclude Include="BasicSceneRenderer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="common.h" />

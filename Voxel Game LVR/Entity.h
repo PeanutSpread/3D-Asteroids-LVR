@@ -135,7 +135,7 @@ public:
 		glm::vec3 selfAligner(xWidth/2, yHeight/2, zDepth/2);
 		selfAligner = selfAligner * mTransform.orientation;
 
-		bool xPlane, yPlane, zPlane = false;
+		bool xPlane = false, yPlane = false, zPlane = false;
 
 		// xPlane
 		float selfXMin = selfPosition.x - selfAligner.x;
@@ -166,11 +166,11 @@ public:
 		glm::vec3 selfAligner(xWidth / 2, yHeight / 2, zDepth / 2);
 		selfAligner = selfAligner * mTransform.orientation;
 
-i		glm::vec3 itsPosition = entity->getPosition();
+		glm::vec3 itsPosition = entity->getPosition();
 		glm::vec3 itsAligner(entity->getXWidth() / 2, entity->getYHeight() / 2, entity->getZDepth() / 2);
 		itsAligner = itsAligner * entity->getOrientation();
 		
-		bool xPlane, yPlane, zPlane = false;
+		bool xPlane = false, yPlane = false, zPlane = false;
 
 		// xPlane
 		float selfXMin = selfPosition.x - selfAligner.x;

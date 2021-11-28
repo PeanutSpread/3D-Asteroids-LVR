@@ -1,7 +1,6 @@
 #include "BasicSceneRenderer.h"
 #include "Image.h"
 #include "Prefabs.h"
-#include "Projectile.h"
 
 #include <iostream>
 
@@ -120,6 +119,10 @@ void BasicSceneRenderer::initialize()
 	player = new Player(glm::vec3(0, 0, 0));
 	addEntities(player->getEntities());
 	addDrawnHitboxes(player->getHitboxes());
+
+	asteroids.push_back(new Asteroid(glm::vec3(0, 0, -10), glm::vec3(0, 4, 0), 3));
+	addEntities(asteroids[0]->getEntities());
+	addDrawnHitboxes(asteroids[0]->getHitboxes());
 
     //
     // Create room
@@ -440,6 +443,9 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 	if (!mCamera->getFreeLook()) {
 		player->headLook(mCamera->getYaw(), mCamera->getPitch(), dt);
 		player->bodyMove(kb, dt);
+		if (player->hasCollision(getDangersTo(player->getPosition(), asteroids), AABB_AABB)) {
+			printf("big shot\n");
+		}
 		if (mouse->buttonPressed(MOUSE_BUTTON_LEFT)) {
 			projectiles.push_back(player->shoot()[0]);
 			addEntities(projectiles[projectiles.size() - 1]->getEntities());
@@ -452,8 +458,17 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 		}
 	}
 
+	if (asteroids.size() > 0 && !pause) {
+		for (int i = 0; i < asteroids.size(); i++) {
+			asteroids[i]->update();
+		}
+	}
+
     if (kb->keyPressed(KC_ESCAPE))
         return false;
+
+	if (kb->keyPressed(KC_SPACE))
+		pause = !pause;
 
 	if (kb->keyPressed(KC_TILDE))
 		visualHiboxes = !visualHiboxes;
@@ -534,6 +549,23 @@ void BasicSceneRenderer::drawEntities(std::vector<Entity*> entities) {
 	for (int i = 0; i < entities.size(); i++) {
 		toBeDrawn.push_back(entities[i]);
 	}
+}
+
+std::vector<Entity*> BasicSceneRenderer::getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities) {
+	std::vector<Entity*> dangers;
+	glm::vec3 distance;
+	for (int i = 0; i < entities.size(); ++i) {
+		distance.x = pow(point.x - entities[i]->getPosition().x, 2);
+		distance.y = pow(point.y - entities[i]->getPosition().y, 2);
+		distance.z = pow(point.z - entities[i]->getPosition().z, 2);
+
+		if (distance.length() < 25) {
+			for (int j = 0; j < entities[i]->getHitboxes().size(); ++j) {
+				dangers.push_back(entities[i]->getHitboxes()[j]);
+			}
+		}
+	}
+	return dangers;
 }
 
 void BasicSceneRenderer::drawHUD(float scale) {

@@ -64,9 +64,9 @@ Player::Player(glm::vec3 location)
 	}
 
 	for (int i = 0; i < hitboxes.size(); i++) {
-		relatedLoc.x = entities[i]->getPosition().x - position.x;
-		relatedLoc.y = entities[i]->getPosition().y - position.y;
-		relatedLoc.z = entities[i]->getPosition().z - position.z;
+		relatedLoc.x = hitboxes[i]->getPosition().x - position.x;
+		relatedLoc.y = hitboxes[i]->getPosition().y - position.y;
+		relatedLoc.z = hitboxes[i]->getPosition().z - position.z;
 
 		hbOffsets.push_back(relatedLoc);
 	}
