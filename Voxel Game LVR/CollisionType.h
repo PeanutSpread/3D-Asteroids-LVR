@@ -1,3 +1,4 @@
+#pragma once
 enum CollisionType {
 	AABB_Point,
 	AABB_AABB,

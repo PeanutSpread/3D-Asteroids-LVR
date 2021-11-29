@@ -12,9 +12,9 @@ class Mesh {
     GLenum              mMode;          // drawing mode
     GLsizei             mNumVertices;   // number of vertices
 
-	float				xWidth;
-	float				yHeight;
-	float				zDepth;
+	float				xWidth; //used to keep shape sizes for collision
+	float				yHeight; //used to keep shape sizes for collision
+	float				zDepth; //used to keep shape sizes for collision
 
 public:
     Mesh();
@@ -31,6 +31,7 @@ public:
 
     void draw() const;
 
+	//used to keep shape sizes for collision
 	void setXWidth(float value)
 	{ xWidth = value; }
 	void setYHeight(float value)
@@ -38,6 +39,7 @@ public:
 	void setZDepth(float value)
 	{ zDepth = value; }
 
+	//used to keep shape sizes for collision
 	float getXWidth() const
 	{ return xWidth; }
 	float getYHeight() const

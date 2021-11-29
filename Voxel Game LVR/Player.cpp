@@ -1,11 +1,12 @@
 #include "Player.h"
+#include "CollisionType.h"
 
 Player::Player(glm::vec3 location)
-	: position(location)
-	, orientation(glm::vec3(NULL))
-	, aim(NULL)
-	, aligner(new Entity(NULL, NULL, location))
-	, offsets(NULL)
+	: _position(location)
+	, _orientation(glm::vec3(NULL))
+	, _aim(NULL)
+	, _aligner(new Entity(NULL, NULL, location))
+	, _offsets(NULL)
 {
 	std::vector<Texture*> textures;
 	textures.push_back(new Texture("textures/metal_panel.tga", GL_REPEAT, GL_LINEAR));
@@ -23,52 +24,52 @@ Player::Player(glm::vec3 location)
 
 	std::vector<Mesh*> meshes;
 	// Model
-	meshes.push_back(CreateChunkyCone(1.5, 6, 10));
-	meshes.push_back(CreateTexturedCube(2));
-	meshes.push_back(CreateSmoothCylinder(1, 6, 6));
-	meshes.push_back(CreateChunkyCone(0.75, 4, 6));
-	meshes.push_back(CreateTexturedCube(1));
-	meshes.push_back(CreateTexturedQuad(0.6, 2, 1, 1));
+	meshes.push_back(CreateChunkyCone(1.5f, 6.f, 10));
+	meshes.push_back(CreateTexturedCube(2.f));
+	meshes.push_back(CreateSmoothCylinder(1.f, 6.f, 6));
+	meshes.push_back(CreateChunkyCone(0.75f, 4.f, 6));
+	meshes.push_back(CreateTexturedCube(1.f));
+	meshes.push_back(CreateTexturedQuad(0.6f, 2.f, 1.f, 1.f));
 
 	// Hitbox
-	meshes.push_back(CreateWireframeBox(4, 6, 1.5));
-	meshes.push_back(CreateWireframeCube(1));
-	meshes.push_back(CreateWireframeBox(0.25, 2, 0.25));
+	meshes.push_back(CreateWireframeBox(4.f, 6.f, 1.5f));
+	meshes.push_back(CreateWireframeCube(1.f));
+	meshes.push_back(CreateWireframeBox(0.25f, 2.f, 0.25f));
 
 
 	// Model
-	entities.push_back(new Entity(meshes[0], materials[0], Transform(position.x, position.y, position.z))); // Front Cone
-	entities.push_back(new Entity(meshes[5], materials[3], Transform(position.x, position.y - 2, position.z + 1.195))); // Window
-	entities.push_back(new Entity(meshes[1], materials[0], Transform(position.x, position.y - 3.5, position.z - 0.25))); // Body
-	entities.push_back(new Entity(meshes[1], materials[0], Transform(position.x, position.y - 5.4, position.z - 0.25)));
-	entities.push_back(new Entity(meshes[2], materials[1], Transform(position.x - 1.5, position.y - 3.5, position.z))); // Tube
-	entities.push_back(new Entity(meshes[2], materials[1], Transform(position.x + 1.5, position.y - 3.5, position.z))); 
-	entities.push_back(new Entity(meshes[3], materials[2], Transform(position.x - 1.5, position.y - 5.5, position.z))); // Rocket Exhaust
-	entities.push_back(new Entity(meshes[3], materials[2], Transform(position.x + 1.5, position.y - 5.5, position.z)));
-	entities.push_back(new Entity(meshes[4], materials[0], Transform(position.x, position.y - 3.5, position.z + 1))); // Top
-	entities.push_back(new Entity(meshes[4], materials[0], Transform(position.x, position.y - 4.5, position.z + 1)));
+	_entities.push_back(new Entity(meshes[0], materials[0], Transform(_position.x, _position.y, _position.z))); // Front Cone
+	_entities.push_back(new Entity(meshes[5], materials[3], Transform(_position.x, _position.y - 2.f, _position.z + 1.195f))); // Window
+	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y - 3.5f, _position.z - 0.25f))); // Body
+	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y - 5.4f, _position.z - 0.25f)));
+	_entities.push_back(new Entity(meshes[2], materials[1], Transform(_position.x - 1.5f, _position.y - 3.5f, _position.z))); // Tube
+	_entities.push_back(new Entity(meshes[2], materials[1], Transform(_position.x + 1.5f, _position.y - 3.5f, _position.z)));
+	_entities.push_back(new Entity(meshes[3], materials[2], Transform(_position.x - 1.5f, _position.y - 5.5f, _position.z))); // Rocket Exhaust
+	_entities.push_back(new Entity(meshes[3], materials[2], Transform(_position.x + 1.5f, _position.y - 5.5f, _position.z)));
+	_entities.push_back(new Entity(meshes[4], materials[0], Transform(_position.x, _position.y - 3.5f, _position.z + 1.f))); // Top
+	_entities.push_back(new Entity(meshes[4], materials[0], Transform(_position.x, _position.y - 4.5f, _position.z + 1.f)));
 
 	// Hitbox
-	hitboxes.push_back(new Entity(meshes[8], materials[4], Transform(position.x, position.y + 1.4, position.z)));
-	hitboxes.push_back(new Entity(meshes[7], materials[4], Transform(position.x, position.y, position.z)));
-	hitboxes.push_back(new Entity(meshes[6], materials[4], Transform(position.x, position.y - 3.5, position.z)));
+	_hitboxes.push_back(new Entity(meshes[8], materials[4], Transform(_position.x, _position.y + 1.4f, _position.z)));
+	_hitboxes.push_back(new Entity(meshes[7], materials[4], Transform(_position.x, _position.y, _position.z)));
+	_hitboxes.push_back(new Entity(meshes[6], materials[4], Transform(_position.x, _position.y - 3.5f, _position.z)));
 
 	glm::vec3 relatedLoc(0, 0, 0);
 
-	for (int i = 0; i < entities.size(); i++) {
-		relatedLoc.x = entities[i]->getPosition().x - position.x;
-		relatedLoc.y = entities[i]->getPosition().y - position.y;
-		relatedLoc.z = entities[i]->getPosition().z - position.z;
+	for (int i = 0; i < _entities.size(); i++) {
+		relatedLoc.x = _entities[i]->getPosition().x - _position.x;
+		relatedLoc.y = _entities[i]->getPosition().y - _position.y;
+		relatedLoc.z = _entities[i]->getPosition().z - _position.z;
 
-		offsets.push_back(relatedLoc);
+		_offsets.push_back(relatedLoc);
 	}
 
-	for (int i = 0; i < hitboxes.size(); i++) {
-		relatedLoc.x = hitboxes[i]->getPosition().x - position.x;
-		relatedLoc.y = hitboxes[i]->getPosition().y - position.y;
-		relatedLoc.z = hitboxes[i]->getPosition().z - position.z;
+	for (int i = 0; i < _hitboxes.size(); i++) {
+		relatedLoc.x = _hitboxes[i]->getPosition().x - _position.x;
+		relatedLoc.y = _hitboxes[i]->getPosition().y - _position.y;
+		relatedLoc.z = _hitboxes[i]->getPosition().z - _position.z;
 
-		hbOffsets.push_back(relatedLoc);
+		_hbOffsets.push_back(relatedLoc);
 	}
 
 }
@@ -77,39 +78,41 @@ void Player::headLook(float yaw, float pitch, float dt) {
 	float radYaw = (3.14159265f / 180.0f) * yaw;
 	float radPitch = (3.14159265f / 180.0f) * pitch;
 
-	glm::vec3 rotEul = glm::vec3(radPitch - 1.5, radYaw, 0);
-	aligner->setOrientation(glm::quat(rotEul));
+	glm::vec3 rotEul = glm::vec3(radPitch - 1.5f, radYaw, 0.f);
+	_aligner->setOrientation(glm::quat(rotEul));
 	
 
 	// rotating the ship
-	for (int i = 0; i < entities.size(); i++) {
-		aligner->setPosition(position);
-		aligner->translateLocal(offsets[i]);
-		entities[i]->setPosition(aligner->getPosition());
-		entities[i]->setOrientation(glm::quat(rotEul));
+	for (int i = 0; i < _entities.size(); i++) {
+		_aligner->setPosition(_position);
+		_aligner->translateLocal(_offsets[i]);
+		_entities[i]->setPosition(_aligner->getPosition());
+		_entities[i]->setOrientation(glm::quat(rotEul));
 	}
-	entities[1]->rotate(-13.5, glm::vec3(1, 0, 0));
+	_entities[1]->rotate(-13.5, glm::vec3(1, 0, 0));
 
 	// rotating the hitboxes
-	for (int i = 0; i < hitboxes.size(); i++) {
-		aligner->setPosition(position);
-		aligner->translateLocal(hbOffsets[i]);
-		hitboxes[i]->setPosition(aligner->getPosition());
-		hitboxes[i]->setOrientation(glm::quat(rotEul));
+	for (int i = 0; i < _hitboxes.size(); i++) {
+		_aligner->setPosition(_position);
+		_aligner->translateLocal(_hbOffsets[i]);
+		_hitboxes[i]->setPosition(_aligner->getPosition());
+		_hitboxes[i]->setOrientation(glm::quat(rotEul));
 	}
 
-	aligner->setPosition(position);
-	aligner->setOrientation(entities[0]->getOrientation());
-	aligner->translateLocal(0, 0, 3);
-	aim = aligner->getPosition();
+	_aligner->setPosition(_position);
+	_aligner->setOrientation(_entities[0]->getOrientation());
+	_aligner->translateLocal(0, 0, 3);
+	_aim = _aligner->getPosition();
 
-	orientation = entities[0]->getOrientation();
+	_orientation = _entities[0]->getOrientation();
 }
 
 void Player::bodyMove(const Keyboard * kb, float dt) {
 	
-	float speed = 15;
+	float speed = 15.f;
 	float disp = speed * dt;
+
+	_aligner->setPosition(_entities[0]->getPosition());
 
 	glm::vec3 displacement(0, 0, 0);
 	
@@ -125,31 +128,35 @@ void Player::bodyMove(const Keyboard * kb, float dt) {
 	if (kb->isKeyDown(KC_D))
 		displacement.x = disp;
 
-	for (int i = 0; i < entities.size(); i++) {
-		entities[i]->translateLocal(displacement);
-	}
+	_aligner->translateLocal(displacement);
 
-	position = entities[0]->getPosition();
+	/*
+	for (int i = 0; i < _entities.size(); i++) {
+		_entities[i]->translateLocal(displacement);
+	}
+	*/
+
+	_position = _aligner->getPosition();
 }
 
 std::vector<Projectile*> Player::shoot() {
 	std::vector<Projectile*> rockets;
-	rockets.push_back(new Projectile(aim, orientation));
+	rockets.push_back(new Projectile(_aim, _orientation));
 	
 	return  (rockets);
 }
 
 bool Player::hasCollision(std::vector<Entity*> otherHitboxes, CollisionType check) {
-	for (int i = 0; i < hitboxes.size(); i++) {
+	for (int i = 0; i < _hitboxes.size(); i++) {
 		for (int j = 0; j < otherHitboxes.size(); j++) {
 
 			switch (check) {
 			case AABB_AABB:
-				if (hitboxes[i]->doesIntersectAABB_AABB(otherHitboxes[j]))
+				if (_hitboxes[i]->doesIntersectAABB_AABB(otherHitboxes[j]))
 					return true;
 				break;
 			case AABB_Sphere:
-				if (hitboxes[i]->doesIntersectAABB_Sphere(otherHitboxes[j]))
+				if (_hitboxes[i]->doesIntersectAABB_Sphere(otherHitboxes[j]))
 					return true;
 				break;
 			default:

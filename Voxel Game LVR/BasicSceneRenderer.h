@@ -36,37 +36,37 @@ class BasicSceneRenderer : public GLApp {
 
     // scene objects
     std::vector<Entity*>        mEntities;
-	std::vector<Entity*>        mDrawHitboxes;
-	std::vector<Entity*>		toBeDrawn;
+	std::vector<Entity*>		_toBeDrawn;
 
-	std::vector<Projectile*>	projectiles;
-	std::vector<Asteroid*>		asteroids;
-	std::vector<Entity*>		boundries;
-	Player*						player;
+	std::vector<Projectile*>	_projectiles;
+	std::vector<Asteroid*>		_asteroids;
+	std::vector<Entity*>		_boundries;
+	Player*						_player;
 
     Camera*                     mCamera;
 
     glm::mat4                   mProjMatrix;
 
     bool                        mVisualizePointLights;
-	bool						pause = false;
+	bool						_pause = false;
+	bool						_startFix = true;
 
-	void						addEntities(std::vector<Entity*> entities);
-	void						addDrawnHitboxes(std::vector<Entity*> entities);
-	void						drawEntities(std::vector<Entity*> entities);
+	void						_addEntities(std::vector<Entity*> entities);
+	void						_drawEntities(std::vector<Entity*> entities);
+	void						_cleanUpProjectiles();
+	void						_playerDeath();
+	void						_destroyAsteroid(Projectile* projectile);
+
+	std::vector<Entity*>		_flattenProjectiles();
+	std::vector<Entity*>		_flattenAsteroids();
 	
-	std::vector<Entity*>		getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities);
-	void						drawHUD(float scale);
+	std::vector<Entity*>		_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities);
+	void						_drawHUD(float scale);
 
 	Settings					s;
 
-	bool						startFix = true;
-
-    //
     // debug visualization
-    //
-
-	bool						visualHiboxes = false;
+	bool						_visualHiboxes = false;
 
     // shader used to render active entity axes
     ShaderProgram*              mDbgProgram;

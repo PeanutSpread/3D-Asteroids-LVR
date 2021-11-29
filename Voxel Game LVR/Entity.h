@@ -10,9 +10,9 @@ class Entity {
     Transform           mTransform;
     const Mesh*         mMesh;
     const Material*     mMaterial;
-	float				xWidth;
-	float				yHeight;
-	float				zDepth;
+	float				xWidth; //used to keep shape sizes for collision
+	float				yHeight; //used to keep shape sizes for collision
+	float				zDepth; //used to keep shape sizes for collision
 
 public:
     Entity(const Mesh* mesh, const Material* material, const Transform& transform)
@@ -20,13 +20,14 @@ public:
         , mMesh(mesh)
         , mMaterial(material)
     { 
+		//used to keep shape sizes for collision
 		if (mesh != NULL) {
 			xWidth = mesh->getXWidth();
 			yHeight = mesh->getYHeight();
 			zDepth = mesh->getZDepth();
 		}
 		else {
-			xWidth, yHeight, zDepth = 0;
+			xWidth = 0, yHeight = 0, zDepth = 0;
 		}
 	}
 
@@ -130,30 +131,46 @@ public:
 	// Collision with other entities
 	//
 	
+	// Compares this entity as a box with another entity, which is treated as a point
 	bool doesIntersectAABB_Point(glm::vec3 point) {
 		glm::vec3 selfPosition = mTransform.position;
 		glm::vec3 selfAligner(xWidth/2, yHeight/2, zDepth/2);
-		selfAligner = selfAligner * mTransform.orientation;
+		Entity aligner(NULL, NULL, selfPosition);
 
 		bool xPlane = false, yPlane = false, zPlane = false;
 
 		// xPlane
-		float selfXMin = selfPosition.x - selfAligner.x;
-		float selfXMax = selfPosition.x + selfAligner.x;
+		aligner.translateLocal(-selfAligner.x, 0, 0);
+		float selfXMin = aligner.getPosition().x;
+		aligner.setPosition(selfPosition);
+
+		aligner.translateLocal(selfAligner.x, 0, 0);
+		float selfXMax = aligner.getPosition().x;
+		aligner.setPosition(selfPosition);
 
 		if (selfXMin <= point.x && selfXMax >= point.x)
 			xPlane = true;
 
 		// yPlane
-		float selfYMin = selfPosition.y - selfAligner.y;
-		float selfYMax = selfPosition.y + selfAligner.y;
+		aligner.translateLocal(0, -selfAligner.y, 0);
+		float selfYMin = aligner.getPosition().y;
+		aligner.setPosition(selfPosition);
+
+		aligner.translateLocal(0, selfAligner.y, 0);
+		float selfYMax = aligner.getPosition().y;
+		aligner.setPosition(selfPosition);
 
 		if (selfYMin <= point.y && selfYMax >= point.y)
 			yPlane = true;
 
 		// zPlane
-		float selfZMin = selfPosition.z - selfAligner.z;
-		float selfZMax = selfPosition.z + selfAligner.z;
+		aligner.translateLocal(0, 0, -selfAligner.z);
+		float selfZMin = aligner.getPosition().z;
+		aligner.setPosition(selfPosition);
+
+		aligner.translateLocal(0, 0, selfAligner.z);
+		float selfZMax = aligner.getPosition().z;
+		aligner.setPosition(selfPosition);
 
 		if (selfZMin <= point.z && selfZMax >= point.z)
 			zPlane = true;
@@ -161,40 +178,74 @@ public:
 		return xPlane && yPlane && zPlane;
 	}
 
+	// Compares this entity as box with another entity, which is treated as a box
 	bool doesIntersectAABB_AABB (Entity* entity) {
 		glm::vec3 selfPosition = mTransform.position;
 		glm::vec3 selfAligner(xWidth / 2, yHeight / 2, zDepth / 2);
-		selfAligner = selfAligner * mTransform.orientation;
 
 		glm::vec3 itsPosition = entity->getPosition();
 		glm::vec3 itsAligner(entity->getXWidth() / 2, entity->getYHeight() / 2, entity->getZDepth() / 2);
-		itsAligner = itsAligner * entity->getOrientation();
+
+		Entity aligner(NULL, NULL, selfPosition);
 		
 		bool xPlane = false, yPlane = false, zPlane = false;
 
 		// xPlane
-		float selfXMin = selfPosition.x - selfAligner.x;
-		float selfXMax = selfPosition.x + selfAligner.x;
-		float itsXMin = itsPosition.x - itsAligner.x;
-		float itsXMax = itsPosition.x + itsAligner.x;
+		aligner.translateLocal(-selfAligner.x, 0, 0);
+		float selfXMin = aligner.getPosition().x;
+		aligner.setPosition(selfPosition);
+
+		aligner.translateLocal(selfAligner.x, 0, 0);
+		float selfXMax = aligner.getPosition().x;
+		aligner.setPosition(itsPosition);
+
+		aligner.translateLocal(-itsAligner.x, 0, 0);
+		float itsXMin = aligner.getPosition().x;
+		aligner.setPosition(itsPosition);
+
+		aligner.translateLocal(itsAligner.x, 0, 0);
+		float itsXMax = aligner.getPosition().x;
+		aligner.setPosition(selfPosition);
 
 		if (selfXMin <= itsXMax && selfXMax >= itsXMin)
 			xPlane = true;
 
 		// yPlane
-		float selfYMin = selfPosition.y - selfAligner.y;
-		float selfYMax = selfPosition.y + selfAligner.y;
-		float itsYMin = itsPosition.y - itsAligner.y;
-		float itsYMax = itsPosition.y + itsAligner.y;
+		aligner.translateLocal(0, -selfAligner.y, 0);
+		float selfYMin = aligner.getPosition().y;
+		aligner.setPosition(selfPosition);
+
+		aligner.translateLocal(0, selfAligner.y, 0);
+		float selfYMax = aligner.getPosition().y;
+		aligner.setPosition(itsPosition);
+
+		aligner.translateLocal(0, -itsAligner.y, 0);
+		float itsYMin = aligner.getPosition().y;
+		aligner.setPosition(itsPosition);
+
+		aligner.translateLocal(0, itsAligner.y, 0);
+		float itsYMax = aligner.getPosition().y;
+		aligner.setPosition(selfPosition);
 
 		if (selfYMin <= itsYMax && selfYMax >= itsYMin)
 			yPlane = true;
 
 		// zPlane
-		float selfZMin = selfPosition.z - selfAligner.z;
-		float selfZMax = selfPosition.z + selfAligner.z;
-		float itsZMin = itsPosition.z - itsAligner.z;
-		float itsZMax = itsPosition.z + itsAligner.z;
+		aligner.translateLocal(0, 0, -selfAligner.z);
+		float selfZMin = aligner.getPosition().z;
+		aligner.setPosition(selfPosition);
+
+		aligner.translateLocal(0, 0, selfAligner.z);
+		float selfZMax = aligner.getPosition().z;
+		aligner.setPosition(itsPosition);
+
+		aligner.translateLocal(0, 0, -itsAligner.z);
+		float itsZMin = aligner.getPosition().z;
+		aligner.setPosition(itsPosition);
+
+		aligner.translateLocal(0, 0, itsAligner.z);
+		float itsZMax = aligner.getPosition().z;
+		aligner.setPosition(selfPosition);
 
 		if (selfZMin <= itsZMax && selfZMax >= itsZMin)
 			zPlane = true;
@@ -202,30 +253,46 @@ public:
 		return xPlane && yPlane && zPlane;
 	}
 
+	// Compares this entity as box with another entity, which is treated as a sphere
 	bool doesIntersectAABB_Sphere(Entity* entity) {
 		glm::vec3 selfPosition = mTransform.position;
 		glm::vec3 selfAligner(xWidth / 2, yHeight / 2, zDepth / 2);
-		selfAligner = selfAligner * mTransform.orientation;
+		Entity aligner(NULL, NULL, selfPosition);
 
 		glm::vec3 itsPosition = entity->getPosition();
 		glm::vec3 holder(0, 0, 0);
 		float distance = 0;
 
 		// xPlane
-		float selfXMin = selfPosition.x - selfAligner.x;
-		float selfXMax = selfPosition.x + selfAligner.x;
+		aligner.translateLocal(-selfAligner.x, 0, 0);
+		float selfXMin = aligner.getPosition().x;
+		aligner.setPosition(selfPosition);
+
+		aligner.translateLocal(selfAligner.x, 0, 0);
+		float selfXMax = aligner.getPosition().x;
+		aligner.setPosition(selfPosition);
 		
 		holder.x = std::fmax(selfXMin, std::fmin(itsPosition.x, selfXMax));
 
 		// yPlane
-		float selfYMin = selfPosition.y - selfAligner.y;
-		float selfYMax = selfPosition.y + selfAligner.y;
+		aligner.translateLocal(0, -selfAligner.y, 0);
+		float selfYMin = aligner.getPosition().y;
+		aligner.setPosition(selfPosition);
+
+		aligner.translateLocal(0, selfAligner.y, 0);
+		float selfYMax = aligner.getPosition().y;
+		aligner.setPosition(selfPosition);
 
 		holder.y = std::fmax(selfYMin, std::fmin(itsPosition.y, selfYMax));
 
 		// zPlane
-		float selfZMin = selfPosition.z - selfAligner.z;
-		float selfZMax = selfPosition.z + selfAligner.z;
+		aligner.translateLocal(0, 0, -selfAligner.z);
+		float selfZMin = aligner.getPosition().z;
+		aligner.setPosition(selfPosition);
+
+		aligner.translateLocal(0, 0, selfAligner.z);
+		float selfZMax = aligner.getPosition().z;
+		aligner.setPosition(selfPosition);
 
 		holder.z = std::fmax(selfZMin, std::fmin(itsPosition.z, selfZMax));
 
@@ -233,38 +300,56 @@ public:
 		return distance < (entity->getXWidth()/2);
 	}
 
+	// Compares this entity as a sphere with another entity, which is treated as a point
 	bool doesIntersectSphere_Point(glm::vec3 point) {
 		glm::vec3 selfPosition = mTransform.position;
 		float distance = std::sqrtf(pow(point.x - selfPosition.x, 2) + pow(point.y - selfPosition.y, 2) + pow(point.z - selfPosition.z, 2));
 		return distance < (xWidth/2);
 	}
 
+	// Compares this entity as a sphere with another entity, which is treated as a box
 	bool doesIntersectSphere_AABB (Entity* entity) {
 		{
 			glm::vec3 selfPosition = mTransform.position;
 
 			glm::vec3 itsPosition = entity->getPosition();
 			glm::vec3 itsAligner(entity->getXWidth() / 2, entity->getYHeight() / 2, entity->getZDepth() / 2);
-			itsAligner = itsAligner * entity->getOrientation();
+
+			Entity aligner(NULL, NULL, selfPosition);
 
 			glm::vec3 holder(0, 0, 0);
 			float distance = 0;
 
 			// xPlane
-			float itsXMin = itsPosition.x - itsAligner.x;
-			float itsXMax = itsPosition.x + itsAligner.x;
+			aligner.translateLocal(-itsAligner.x, 0, 0);
+			float itsXMin = aligner.getPosition().x;
+			aligner.setPosition(itsPosition);
+
+			aligner.translateLocal(itsAligner.x, 0, 0);
+			float itsXMax = aligner.getPosition().x;
+			aligner.setPosition(itsPosition);
 
 			holder.x = std::fmax(itsXMin, std::fmin(selfPosition.x, itsXMax));
 
 			// yPlane
-			float itsYMin = itsPosition.y - itsAligner.y;
-			float itsYMax = itsPosition.y + itsAligner.y;
+			aligner.translateLocal(0, -itsAligner.y, 0);
+			float itsYMin = aligner.getPosition().y;
+			aligner.setPosition(itsPosition);
+
+			aligner.translateLocal(0, itsAligner.y, 0);
+			float itsYMax = aligner.getPosition().y;
+			aligner.setPosition(itsPosition);
 
 			holder.y = std::fmax(itsYMin, std::fmin(selfPosition.y, itsYMax));
 
 			// zPlane
-			float itsZMin = itsPosition.z - itsAligner.z;
-			float itsZMax = itsPosition.z + itsAligner.z;
+			aligner.translateLocal(0, 0, -itsAligner.z);
+			float itsZMin = aligner.getPosition().z;
+			aligner.setPosition(itsPosition);
+
+			aligner.translateLocal(0, 0, itsAligner.z);
+			float itsZMax = aligner.getPosition().z;
+			aligner.setPosition(selfPosition);
 
 			holder.z = std::fmax(itsZMin, std::fmin(selfPosition.z, itsZMax));
 
@@ -273,6 +358,7 @@ public:
 		}
 	}
 
+	// Compares this entity as a sphere with another entity, which is treated as a sphere
 	bool doesIntersectSphere_Sphere(Entity* entity) {
 		glm::vec3 selfPosition = mTransform.position;
 		glm::vec3 itsPosition = entity->getPosition();

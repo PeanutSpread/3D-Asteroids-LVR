@@ -86,32 +86,16 @@ void Camera::update(float deltaT)
 			}
 	}
 
-	/*
-    // scroll wheel controls FOV
-    int wd = mouse->getWheelDelta();
-    if (wd > 0) {
-        mFOV -= wd * 10.0f;
-        if (mFOV < 20)
-            mFOV = 20;
-    } else if (wd < 0) {
-        mFOV += wd * 10.0f;
-        if (mFOV > 180)
-            mFOV = 180;
-    }
-	*/
-
     // recompute forward, right, and up vectors if needed
     if (mOrientationChanged) {
 		orientationChange();
         mOrientationChanged = false;
     }
 
-	if (!freeLook) {
+	if (!freeLook)
 		thirdPerson();
-	}
-
-	localMove(deltaT);
-
+	else
+		localMove(deltaT);
 }
 
 void Camera::toggleFreelook() {

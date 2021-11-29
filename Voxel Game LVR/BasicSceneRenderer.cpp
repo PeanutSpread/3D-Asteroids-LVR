@@ -1,6 +1,7 @@
 #include "BasicSceneRenderer.h"
 #include "Image.h"
 #include "Prefabs.h"
+#include "CollisionType.h"
 
 #include <iostream>
 
@@ -11,8 +12,8 @@ BasicSceneRenderer::BasicSceneRenderer()
 	, mDbgProgram(NULL)
 	, mAxes(NULL)
 	, mVisualizePointLights(true)
-	, player(NULL)
-	, toBeDrawn()
+	, _player(NULL)
+	, _toBeDrawn()
 {
 }
 
@@ -59,9 +60,9 @@ void BasicSceneRenderer::initialize()
     mMeshes.push_back(CreateChunkyTexturedCylinder(0.5f, 1, 8));
     mMeshes.push_back(CreateSmoothTexturedCylinder(0.5f, 1, 15));
 
-    float roomWidth = 500;
-    float roomHeight = 500;
-    float roomDepth = 500;
+    float roomWidth = s.ROOM_SIZE;
+    float roomHeight = s.ROOM_SIZE;
+    float roomDepth = s.ROOM_SIZE;
     float roomTilesPerUnit = 100.0f;
 
     // front and back walls
@@ -116,38 +117,34 @@ void BasicSceneRenderer::initialize()
     //
 
 	// create Player
-	player = new Player(glm::vec3(0, 0, 0));
-	addEntities(player->getEntities());
-	addDrawnHitboxes(player->getHitboxes());
+	_player = new Player(glm::vec3(0, 0, 0));
 
-	asteroids.push_back(new Asteroid(glm::vec3(0, 0, -10), glm::vec3(0, 4, 0), 3));
-	addEntities(asteroids[0]->getEntities());
-	addDrawnHitboxes(asteroids[0]->getHitboxes());
+	_asteroids.push_back(new Asteroid(glm::vec3(0, 0, -10), glm::vec3(0, 4, 0), 3));
 
     //
     // Create room
     //
 
     // back wall
-    boundries.push_back(new Entity(fbMesh, mMaterials[2], Transform(0, 0, -0.5f * roomDepth)));
+    _boundries.push_back(new Entity(fbMesh, mMaterials[2], Transform(0, 0, -0.5f * roomDepth)));
     // front wall
-    boundries.push_back(new Entity(fbMesh, mMaterials[2], Transform(0, 0, 0.5f * roomDepth, glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
+    _boundries.push_back(new Entity(fbMesh, mMaterials[2], Transform(0, 0, 0.5f * roomDepth, glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
     // left wall
-    boundries.push_back(new Entity(lrMesh, mMaterials[2], Transform(-0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
+    _boundries.push_back(new Entity(lrMesh, mMaterials[2], Transform(-0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
     // right wall
-    boundries.push_back(new Entity(lrMesh, mMaterials[2], Transform(0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
+    _boundries.push_back(new Entity(lrMesh, mMaterials[2], Transform(0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
     // floor
-    boundries.push_back(new Entity(cfMesh, mMaterials[2], Transform(0, -0.5f * roomHeight, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
+    _boundries.push_back(new Entity(cfMesh, mMaterials[2], Transform(0, -0.5f * roomHeight, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
     // ceiling
-    boundries.push_back(new Entity(cfMesh, mMaterials[2], Transform(0, 0.5f * roomHeight, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
+    _boundries.push_back(new Entity(cfMesh, mMaterials[2], Transform(0, 0.5f * roomHeight, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
 
-	addEntities(boundries);
+	_addEntities(_boundries);
 
     //
     // create the camera
     //
 
-    mCamera = new Camera(this, player);
+    mCamera = new Camera(this, _player);
     mCamera->setSpeed(2);
 
 	glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
@@ -222,10 +219,13 @@ void BasicSceneRenderer::draw()
     // get the view matrix from the camera
     glm::mat4 viewMatrix = mCamera->getViewMatrix();
 
-	toBeDrawn.clear();
-	drawEntities(mEntities);
-	if (visualHiboxes)
-		drawEntities(mDrawHitboxes);
+	_toBeDrawn.clear();
+	_drawEntities(mEntities);
+	_drawEntities(_flattenAsteroids());
+	_drawEntities(_flattenProjectiles());
+	_drawEntities(_player->getEntities());
+	if (_visualHiboxes)
+		_drawEntities(_player->getHitboxes());
 
     //
     // light setup depends on lighting model
@@ -366,9 +366,9 @@ void BasicSceneRenderer::draw()
     }
 
     // render all entities
-    for (unsigned i = 0; i < toBeDrawn.size(); i++) {
+    for (unsigned i = 0; i < _toBeDrawn.size(); i++) {
 
-        Entity* ent = toBeDrawn[i];
+        Entity* ent = _toBeDrawn[i];
 
         // use the entity's material
         const Material* mat = ent->getMaterial();
@@ -397,13 +397,15 @@ void BasicSceneRenderer::draw()
     mDbgProgram->activate();
     mDbgProgram->sendUniform("u_ProjectionMatrix", mProjMatrix);
 
-    //Entity* activeEntity = mEntities[mActiveEntityIndex];
-    mDbgProgram->sendUniform("u_ModelviewMatrix", viewMatrix * player->getEntities()[0]->getWorldMatrix());
-    //mAxes->activate();
-    //mAxes->draw();
-	
+    mDbgProgram->sendUniform("u_ModelviewMatrix", viewMatrix * _player->getEntities()[0]->getWorldMatrix());
+
+	if (_visualHiboxes) {
+		mAxes->activate();
+		mAxes->draw();
+	}
+
 	//2D Drawing
-	drawHUD(mCamera->getZoom()/10);
+	_drawHUD(mCamera->getZoom()/10);
 
     CHECK_GL_ERRORS("drawing");
 }
@@ -440,38 +442,48 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 	const Keyboard* kb = getKeyboard();
 	const Mouse* mouse = getMouse();
 
-	if (!mCamera->getFreeLook()) {
-		player->headLook(mCamera->getYaw(), mCamera->getPitch(), dt);
-		player->bodyMove(kb, dt);
-		if (player->hasCollision(getDangersTo(player->getPosition(), asteroids), AABB_AABB)) {
-			printf("big shot\n");
+	if (!mCamera->getFreeLook() && !_pause) {
+		_player->headLook(mCamera->getYaw(), mCamera->getPitch(), dt);
+		_player->bodyMove(kb, dt);
+		if (_player->hasCollision(_getDangersTo(_player->getPosition(), _asteroids), AABB_AABB)) {
+			printf("died\n");
 		}
 		if (mouse->buttonPressed(MOUSE_BUTTON_LEFT)) {
-			projectiles.push_back(player->shoot()[0]);
-			addEntities(projectiles[projectiles.size() - 1]->getEntities());
+			_projectiles.push_back(_player->shoot()[0]);
 		}
 	}
 
-	if (projectiles.size() > 0) {
-		for (int i = 0; i < projectiles.size(); i++) {
-			projectiles[i]->update(dt);
+	if (_projectiles.size() > 0 && !_pause) {
+		for (int i = 0; i < _projectiles.size(); i++) {
+			_projectiles[i]->update(dt);
+			for (int i = 0; i < _projectiles.size(); ++i) {
+				if (_projectiles[i]->hasCollision(_getDangersTo(_projectiles[i]->getPosition(), _asteroids), AABB_Sphere)) {
+					_destroyAsteroid(_projectiles[i]);
+				}
+			}
+			_cleanUpProjectiles();
 		}
 	}
 
-	if (asteroids.size() > 0 && !pause) {
-		for (int i = 0; i < asteroids.size(); i++) {
-			asteroids[i]->update();
+	printf("%d\n", _projectiles.size());
+
+	if (_asteroids.size() > 0 && !_pause) {
+		for (int i = 0; i < _asteroids.size(); i++) {
+			_asteroids[i]->update();
 		}
 	}
 
+	// Quit NOT FINAL
     if (kb->keyPressed(KC_ESCAPE))
         return false;
 
+	// Pause Toggle NOT FINAL
 	if (kb->keyPressed(KC_SPACE))
-		pause = !pause;
+		_pause = !_pause;
 
+	// Show Hitboxes
 	if (kb->keyPressed(KC_TILDE))
-		visualHiboxes = !visualHiboxes;
+		_visualHiboxes = !_visualHiboxes;
 
     // change lighting models
     if (kb->keyPressed(KC_1))
@@ -510,14 +522,17 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 
     // update the camera
 	if (kb->keyPressed(KC_P)) {
+		// Freelook (i.e. not attatched to ship) Will be removed or hidden
 		mCamera->toggleFreelook();
 	}
+
 	if (isFocused()) {
+		// Stop mouse tracking when out of window
 		glutSetCursor(GLUT_CURSOR_NONE);
-		glutWarpPointer(s.SCREEN_WIDTH/2 , s.SCREEN_HEIGHT/2 );
+		glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
 		mCamera->update(dt);
-	}
-	else {
+	} else {
+		// Display mouse cursor over screen when not focused
 		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
 	}
 
@@ -532,26 +547,95 @@ bool BasicSceneRenderer::isFocused() {
 	}
 }
 
-void BasicSceneRenderer::addEntities(std::vector<Entity*> entities) {
+void BasicSceneRenderer::_addEntities(std::vector<Entity*> entities) {
 	for (int i = 0; i < entities.size(); i++) {
 		mEntities.push_back(entities[i]);
     }
 
 }
 
-void BasicSceneRenderer::addDrawnHitboxes(std::vector<Entity*> entities) {
+void BasicSceneRenderer::_drawEntities(std::vector<Entity*> entities) {
 	for (int i = 0; i < entities.size(); i++) {
-		mDrawHitboxes.push_back(entities[i]);
+		_toBeDrawn.push_back(entities[i]);
 	}
 }
 
-void BasicSceneRenderer::drawEntities(std::vector<Entity*> entities) {
-	for (int i = 0; i < entities.size(); i++) {
-		toBeDrawn.push_back(entities[i]);
+void BasicSceneRenderer::_cleanUpProjectiles() {
+	std::vector<Projectile*> newList;
+	for (int i = 0; i < _projectiles.size(); i++) {
+		glm::vec3 position(_projectiles[i]->getPosition());
+		if (position.x <= s.ROOM_SIZE && position.y <= s.ROOM_SIZE && position.z <= s.ROOM_SIZE) {
+			if (position.x >= -s.ROOM_SIZE && position.y >= -s.ROOM_SIZE && position.z >= -s.ROOM_SIZE) {
+				newList.push_back(_projectiles[i]);
+			} else 
+				delete _projectiles[i];
+		} else
+			delete _projectiles[i];
 	}
+	_projectiles.clear();
+	_projectiles = newList;
 }
 
-std::vector<Entity*> BasicSceneRenderer::getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities) {
+void BasicSceneRenderer::_playerDeath() {
+
+}
+
+void BasicSceneRenderer::_destroyAsteroid(Projectile* projectile) {
+	std::vector<Asteroid*> newList;
+	std::vector<Projectile*> holder;
+	for (int i = 0; i < _asteroids.size(); i++) {
+		if (!projectile->hasCollision(_asteroids[i]->getHitboxes(), AABB_Sphere)) {
+			newList.push_back(_asteroids[i]);
+		} else {
+			delete _asteroids[i];
+
+			for (int i = 0; i < _projectiles.size(); i++) {
+				if (_projectiles[i] != projectile) {
+					holder.push_back(_projectiles[i]);
+				} else
+					delete _projectiles[i];
+			}
+			_projectiles.clear();
+			_projectiles = holder;
+		}
+	}
+	_asteroids.clear();
+	_asteroids = newList;
+}
+
+std::vector<Entity*> BasicSceneRenderer::_flattenProjectiles()
+{
+	std::vector<Entity*> entities;
+	for (int i = 0; i < _projectiles.size(); ++i) {
+		for (int j = 0; j < _projectiles[i]->getEntities().size(); ++j) {
+			entities.push_back(_projectiles[i]->getEntities()[j]);
+			if (_visualHiboxes)
+				for (int j = 0; j < _projectiles[i]->getHitboxes().size(); ++j) {
+					entities.push_back(_projectiles[i]->getHitboxes()[j]);
+				}
+		}
+
+	}
+	return entities;
+}
+
+std::vector<Entity*> BasicSceneRenderer::_flattenAsteroids()
+{
+	std::vector<Entity*> entities;
+	for (int i = 0; i < _asteroids.size(); ++i) {
+		for (int j = 0; j < _asteroids[i]->getEntities().size(); ++j) {
+			entities.push_back(_asteroids[i]->getEntities()[j]);
+		}
+		if (_visualHiboxes)
+			for (int j = 0; j < _asteroids[i]->getHitboxes().size(); ++j) {
+				entities.push_back(_asteroids[i]->getHitboxes()[j]);
+			}
+
+	}
+	return entities;
+}
+
+std::vector<Entity*> BasicSceneRenderer::_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities) {
 	std::vector<Entity*> dangers;
 	glm::vec3 distance;
 	for (int i = 0; i < entities.size(); ++i) {
@@ -559,7 +643,7 @@ std::vector<Entity*> BasicSceneRenderer::getDangersTo(glm::vec3 point, std::vect
 		distance.y = pow(point.y - entities[i]->getPosition().y, 2);
 		distance.z = pow(point.z - entities[i]->getPosition().z, 2);
 
-		if (distance.length() < 25) {
+		if (distance.length() < 50) {
 			for (int j = 0; j < entities[i]->getHitboxes().size(); ++j) {
 				dangers.push_back(entities[i]->getHitboxes()[j]);
 			}
@@ -568,7 +652,7 @@ std::vector<Entity*> BasicSceneRenderer::getDangersTo(glm::vec3 point, std::vect
 	return dangers;
 }
 
-void BasicSceneRenderer::drawHUD(float scale) {
+void BasicSceneRenderer::_drawHUD(float scale) {
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();

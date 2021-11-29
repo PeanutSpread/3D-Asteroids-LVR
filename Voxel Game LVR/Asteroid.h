@@ -7,39 +7,39 @@
 #include <vector>
 
 class Asteroid {
-	std::vector<Entity*>	entities;
-	std::vector<glm::vec3>	offsets;
-	std::vector<Entity*>	hitboxes;
-	std::vector<glm::vec3>	hbOffsets;
+	std::vector<Entity*>	_entities; // Collection of enitities for visuals
+	std::vector<glm::vec3>	_offsets; // Keeps track of relative positions of models for visuals
+	std::vector<Entity*>	_hitboxes; // Collection of entities for collision reasons
+	std::vector<glm::vec3>	_hbOffsets; // Keeps track of relative positions of hitboxes for collision
 
-	Entity*					aligner;
-	glm::vec3				position;
-	glm::quat				orientation;
+	Entity*					_aligner; // Do rotations and translations then assign resulting value to other entities
+	glm::vec3				_position;
+	glm::quat				_orientation;
 
-	float					selfSpeed;
-	glm::vec3				selfDirection;
-	int						stage;
+	float					_speed;
+	glm::vec3				_direction;
+	int						_stage; // Help determine if it splits into more asteroids
 
-	void					adjustOrientation(glm::quat orientation);
-	void					spin();
+	void					_adjustOrientation(glm::quat orientation);
+	void					_spin(); // Animate
 
 public:
-	Asteroid(glm::vec3 location, glm::vec3 vectr, int size);
+	Asteroid(glm::vec3 location, glm::vec3 velocity, int size);
 
 	std::vector<Entity*> getEntities() const
-	{ return entities; }
+	{ return _entities; }
 
 	std::vector<Entity*> getHitboxes() const
-	{ return hitboxes; }
+	{ return _hitboxes; }
 
 	glm::vec3 getPosition() const 
-	{ return position; }
+	{ return _position; }
 
 	glm::quat getOrientation() const
-	{ return orientation; }
+	{ return _orientation; }
 
-	void changeDirection();
+	void changeVelocity(); // Change velocity of astreroid when hit or another reason
 
-	void update();
+	void update(); // game loop function
 };
 

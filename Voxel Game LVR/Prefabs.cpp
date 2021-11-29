@@ -69,6 +69,7 @@ Mesh* CreateSolidBox_Nolight(float width, float height, float depth)
                        sizeof(vertices[0]),        // size of each vertex
                        GL_TRIANGLES,               // drawing mode
                        vertices[0].getFormat());   // vertex format
+	//used to keep shape sizes for collision
 	mesh->setXWidth(width);
 	mesh->setYHeight(height);
 	mesh->setZDepth(depth);
@@ -144,6 +145,7 @@ Mesh* CreateSolidBox(float width, float height, float depth)
                        sizeof(vertices[0]),        // size of each vertex
                        GL_TRIANGLES,               // drawing mode
                        vertices[0].getFormat());   // vertex format
+	//used to keep shape sizes for collision
 	mesh->setXWidth(width);
 	mesh->setYHeight(height);
 	mesh->setZDepth(depth);
@@ -195,6 +197,7 @@ Mesh* CreateWireframeBox(float width, float height, float depth)
                        sizeof(vertices[0]),        // size of each vertex
                        GL_LINES,                   // drawing mode
                        vertices[0].getFormat());   // vertex format
+	//used to keep shape sizes for collision
 	mesh->setXWidth(width);
 	mesh->setYHeight(height);
 	mesh->setZDepth(depth);
@@ -265,6 +268,7 @@ Mesh* CreateSmoothCylinder(float radius, float height, int numSegments)
                        sizeof(vertices[0]),        // size of each vertex
                        GL_TRIANGLES,               // drawing mode
                        vertices[0].getFormat());   // vertex format
+	//used to keep shape sizes for collision
 	mesh->setXWidth(radius*2);
 	mesh->setYHeight(height);
 	mesh->setZDepth(radius*2);
@@ -322,6 +326,7 @@ Mesh* CreateChunkyCylinder(float radius, float height, int numSegments)
                        sizeof(vertices[0]),        // size of each vertex
                        GL_TRIANGLES,               // drawing mode
                        vertices[0].getFormat());   // vertex format
+	//used to keep shape sizes for collision
 	mesh->setXWidth(radius * 2);
 	mesh->setYHeight(height);
 	mesh->setZDepth(radius * 2);
@@ -372,6 +377,7 @@ Mesh* CreateChunkyCone(float radius, float height, int numSegments)
                        sizeof(vertices[0]),        // size of each vertex
                        GL_TRIANGLES,               // drawing mode
                        vertices[0].getFormat());   // vertex format
+	//used to keep shape sizes for collision
 	mesh->setXWidth(radius * 2);
 	mesh->setYHeight(height);
 	mesh->setZDepth(radius * 2);
@@ -448,6 +454,7 @@ Mesh* CreateTexturedCube(float width)
                        sizeof(vertices[0]),        // size of each vertex
                        GL_TRIANGLES,               // drawing mode
                        vertices[0].getFormat());   // vertex format
+	//used to keep shape sizes for collision
 	mesh->setXWidth(width);
 	mesh->setYHeight(width);
 	mesh->setZDepth(width);
@@ -511,6 +518,7 @@ Mesh* CreateSmoothTexturedCylinder(float radius, float height, int numSegments)
                        sizeof(vertices[0]),        // size of each vertex
                        GL_TRIANGLES,               // drawing mode
                        vertices[0].getFormat());   // vertex format
+	//used to keep shape sizes for collision
 	mesh->setXWidth(radius * 2);
 	mesh->setYHeight(height);
 	mesh->setZDepth(radius * 2);
@@ -578,6 +586,7 @@ Mesh* CreateChunkyTexturedCylinder(float radius, float height, int numSegments)
                        sizeof(vertices[0]),        // size of each vertex
                        GL_TRIANGLES,               // drawing mode
                        vertices[0].getFormat());   // vertex format
+	//used to keep shape sizes for collision
 	mesh->setXWidth(radius * 2);
 	mesh->setYHeight(height);
 	mesh->setZDepth(radius * 2);
@@ -662,6 +671,7 @@ Mesh* CreateTexturedQuad(float width, float height, float uTile, float vTile)
                        sizeof(vertices[0]),        // size of each vertex
                        GL_TRIANGLE_STRIP,          // drawing mode
                        vertices[0].getFormat());   // vertex format
+	//used to keep shape sizes for collision
 	mesh->setXWidth(width);
 	mesh->setYHeight(height);
 	mesh->setZDepth(0);
@@ -691,6 +701,7 @@ Mesh* CreateAxes(float scale)
                        sizeof(vertices[0]),        // size of each vertex
                        GL_LINES,                   // drawing mode
                        vertices[0].getFormat());   // vertex format
+	//used to keep shape sizes for collision
 	mesh->setXWidth(1);
 	mesh->setYHeight(1);
 	mesh->setZDepth(1);

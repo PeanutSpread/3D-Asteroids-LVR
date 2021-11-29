@@ -1,4 +1,3 @@
 Bugs To Fix:
-movement shifts ship and crosshair away from center.
 look is confined to first person constraints
-movement isn't similar to asteroids
+movement isn't similar to asteroids (i.e. only accelerate and change directions)

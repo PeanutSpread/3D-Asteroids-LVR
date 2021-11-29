@@ -8,15 +8,15 @@
 #include <vector>
 
 class Player {
-	std::vector<Entity*>	entities;
-	std::vector<glm::vec3>	offsets;
-	std::vector<Entity*>	hitboxes;
-	std::vector<glm::vec3>	hbOffsets;
+	std::vector<Entity*>	_entities;
+	std::vector<glm::vec3>	_offsets;
+	std::vector<Entity*>	_hitboxes;
+	std::vector<glm::vec3>	_hbOffsets;
 	
-	Entity*					aligner;
-	glm::vec3				position;
-	glm::quat				orientation;
-	glm::vec3				aim;
+	Entity*					_aligner;
+	glm::vec3				_position;
+	glm::quat				_orientation;
+	glm::vec3				_aim;
 
 	Settings				s;
 
@@ -24,19 +24,19 @@ public:
 	Player(glm::vec3 location);
 
 	std::vector<Entity*> getEntities() const
-	{ return entities; }
+	{ return _entities; }
 
 	std::vector<Entity*> getHitboxes() const
-	{ return hitboxes; }
+	{ return _hitboxes; }
 
 	glm::vec3 getPosition() const 
-	{ return position; }
+	{ return _position; }
 
 	glm::quat getOrientation() const
-	{ return orientation; }
+	{ return _orientation; }
 
 	glm::vec3 getAim() const
-	{ return aim; }
+	{ return _aim; }
 	
 	void headLook(float yaw, float pitch, float dt);
 	void bodyMove(const Keyboard* kb, float dt);
