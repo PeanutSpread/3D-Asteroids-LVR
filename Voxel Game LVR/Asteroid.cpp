@@ -85,7 +85,7 @@ void Asteroid::_adjustOrientation(glm::quat orientation) {
 // Rotation Animation
 void Asteroid::_spin() {
 	_aligner->setOrientation(_entities[0]->getOrientation());
-	_aligner->rotate(2 * _speed, glm::vec3(0,0,1));
+	_aligner->rotate(2 * _speed, glm::vec3(1, 0, 0));
 	_adjustOrientation(_aligner->getOrientation());
 }
 

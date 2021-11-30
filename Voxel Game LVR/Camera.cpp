@@ -30,7 +30,8 @@ void Camera::lookAt(const glm::vec3& target)
 
 void Camera::yaw(float degrees)
 {
-    mYaw += degrees;
+	mYaw += degrees;
+
     // keep angle in standard range
     if (mYaw >= 180.0f)
         mYaw -= 360.0f;
@@ -42,11 +43,12 @@ void Camera::yaw(float degrees)
 void Camera::pitch(float degrees)
 {
     mPitch += degrees;
+	printf("%f\n", mPitch);
     // limit pitch range
-    if (mPitch > 80.0f)
-        mPitch = 80.0f;
-    else if (mPitch < -80.0f)
-        mPitch = -80.0f;
+	if (mPitch >= 180.0f)
+		mPitch -= 360.0f;
+	else if (mPitch < -180.0f)
+		mPitch += 360.0f;
     mOrientationChanged = true;
 }
 
@@ -56,6 +58,11 @@ void Camera::update(float deltaT)
     const Mouse* mouse = mApp->getMouse();
 
 	bool orientationChanged = false;
+
+	if (mPitch <= 90 && mPitch > -90)
+		_inverse = false;
+	else
+		_inverse = true;
 
     // freelook with mouse
 	if (_isFocused()) {
@@ -73,7 +80,12 @@ void Camera::update(float deltaT)
 		}
 
 		if (_dx != 0.0) {
-			yaw(-_dx * mMouseSpeed);
+
+			if (_inverse) 
+				yaw(_dx * mMouseSpeed);
+			else 
+				yaw(-_dx * mMouseSpeed);
+
 			_dx += -_dx / 5;
 		}
 		if (_dy != 0.0) {
@@ -106,9 +118,6 @@ void Camera::toggleFreelook() {
 void Camera::_thirdPerson() {
 	mPosition = mPlayer->getAim();
 	_localMoveTo(glm::vec3(0.0f, 0.0f, -mDistance));
-
-	lookAt(mPlayer->getAim());
-	
 }
 
 void Camera::_localMove(float deltaT) {
@@ -170,7 +179,6 @@ void Camera::_orientationChange() {
 	// sin and cos functions eat radians, not degrees
 	float radYaw = (3.14159265f / 180.0f) * mYaw;
 	float radPitch = (3.14159265f / 180.0f) * mPitch;
-
 
 	// some angle measures needed to compute the orientation vectors
 	float sinYaw = std::sin(radYaw);

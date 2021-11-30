@@ -27,6 +27,7 @@ class Camera {
 	void _orientationChange();
 
 	bool _isFocused();
+	bool _inverse = false;
 	bool _freeLook;
 
 	void _thirdPerson();
