@@ -39,6 +39,7 @@ public:
 	{ return _orientation; }
 
 	void changeVelocity(); // Change velocity of astreroid when hit or another reason
+	void explode();
 
 	void update(); // game loop function
 };

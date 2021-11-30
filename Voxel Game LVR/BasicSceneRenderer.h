@@ -55,7 +55,9 @@ class BasicSceneRenderer : public GLApp {
 	void						_drawEntities(std::vector<Entity*> entities);
 	void						_cleanUpProjectiles();
 	void						_playerDeath();
+	void						_projectileCheck();
 	void						_destroyAsteroid(Projectile* projectile);
+	void						_createAsteroids();
 
 	std::vector<Entity*>		_flattenProjectiles();
 	std::vector<Entity*>		_flattenAsteroids();

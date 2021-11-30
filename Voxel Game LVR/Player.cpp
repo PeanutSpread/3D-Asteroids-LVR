@@ -25,7 +25,7 @@ Player::Player(glm::vec3 location)
 	std::vector<Mesh*> meshes;
 	// Model
 	meshes.push_back(CreateChunkyCone(1.5f, 6.f, 10));
-	meshes.push_back(CreateTexturedCube(2.f));
+	meshes.push_back(CreateTexturedCube(2.0125f));
 	meshes.push_back(CreateSmoothCylinder(1.f, 6.f, 6));
 	meshes.push_back(CreateChunkyCone(0.75f, 4.f, 6));
 	meshes.push_back(CreateTexturedCube(1.f));
@@ -41,7 +41,7 @@ Player::Player(glm::vec3 location)
 	_entities.push_back(new Entity(meshes[0], materials[0], Transform(_position.x, _position.y, _position.z))); // Front Cone
 	_entities.push_back(new Entity(meshes[5], materials[3], Transform(_position.x, _position.y - 2.f, _position.z + 1.195f))); // Window
 	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y - 3.5f, _position.z - 0.25f))); // Body
-	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y - 5.4f, _position.z - 0.25f)));
+	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y - 5.51f, _position.z - 0.25f)));
 	_entities.push_back(new Entity(meshes[2], materials[1], Transform(_position.x - 1.5f, _position.y - 3.5f, _position.z))); // Tube
 	_entities.push_back(new Entity(meshes[2], materials[1], Transform(_position.x + 1.5f, _position.y - 3.5f, _position.z)));
 	_entities.push_back(new Entity(meshes[3], materials[2], Transform(_position.x - 1.5f, _position.y - 5.5f, _position.z))); // Rocket Exhaust

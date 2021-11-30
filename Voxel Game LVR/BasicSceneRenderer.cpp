@@ -3,6 +3,7 @@
 #include "Prefabs.h"
 #include "CollisionType.h"
 
+#include <time.h>
 #include <iostream>
 
 BasicSceneRenderer::BasicSceneRenderer()
@@ -112,14 +113,17 @@ void BasicSceneRenderer::initialize()
 	mMaterials[2]->specular = glm::vec3(0.5f, 0.0f, 0.5f);  // orange hightlights
 	mMaterials[2]->shininess = 32;
 
+	//
+	// Setup Random
+	//
+	srand(time(NULL));
+
     //
-    // Create entities
+    // Create permanent entities
     //
 
 	// create Player
 	_player = new Player(glm::vec3(0, 0, 0));
-
-	_asteroids.push_back(new Asteroid(glm::vec3(0, 0, -10), glm::vec3(0, 4, 0), 3));
 
     //
     // Create room
@@ -446,7 +450,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 		_player->headLook(mCamera->getYaw(), mCamera->getPitch(), dt);
 		_player->bodyMove(kb, dt);
 		if (_player->hasCollision(_getDangersTo(_player->getPosition(), _asteroids), AABB_AABB)) {
-			printf("died\n");
+			_playerDeath();
 		}
 		if (mouse->buttonPressed(MOUSE_BUTTON_LEFT)) {
 			_projectiles.push_back(_player->shoot()[0]);
@@ -456,16 +460,14 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 	if (_projectiles.size() > 0 && !_pause) {
 		for (int i = 0; i < _projectiles.size(); i++) {
 			_projectiles[i]->update(dt);
-			for (int i = 0; i < _projectiles.size(); ++i) {
-				if (_projectiles[i]->hasCollision(_getDangersTo(_projectiles[i]->getPosition(), _asteroids), AABB_Sphere)) {
-					_destroyAsteroid(_projectiles[i]);
-				}
-			}
+			_projectileCheck();
 			_cleanUpProjectiles();
 		}
 	}
 
-	printf("%d\n", _projectiles.size());
+	if (_asteroids.size() == 0) {
+		_createAsteroids();
+	}
 
 	if (_asteroids.size() > 0 && !_pause) {
 		for (int i = 0; i < _asteroids.size(); i++) {
@@ -577,30 +579,56 @@ void BasicSceneRenderer::_cleanUpProjectiles() {
 }
 
 void BasicSceneRenderer::_playerDeath() {
+	//TODO: Special animation or somthing
+	// Delete Player
+	printf("died\n");
+}
 
+void BasicSceneRenderer::_projectileCheck() {
+	// Check projectiles for collisions
+	int holder = -1;
+	for (int i = 0; i < _projectiles.size(); ++i) {
+		if (_projectiles[i]->hasCollision(_getDangersTo(_projectiles[i]->getPosition(), _asteroids), AABB_Sphere)) {
+			_destroyAsteroid(_projectiles[i]);
+			holder = i;
+		}
+	}
+
+	if (holder >= 0) {
+		_projectiles[holder]->destroy();
+		delete _projectiles[holder];
+		_projectiles.erase(_projectiles.begin() + holder);
+	}
 }
 
 void BasicSceneRenderer::_destroyAsteroid(Projectile* projectile) {
-	std::vector<Asteroid*> newList;
-	std::vector<Projectile*> holder;
+	
+	int asteroidHolder = 0;
 	for (int i = 0; i < _asteroids.size(); i++) {
-		if (!projectile->hasCollision(_asteroids[i]->getHitboxes(), AABB_Sphere)) {
-			newList.push_back(_asteroids[i]);
-		} else {
-			delete _asteroids[i];
-
-			for (int i = 0; i < _projectiles.size(); i++) {
-				if (_projectiles[i] != projectile) {
-					holder.push_back(_projectiles[i]);
-				} else
-					delete _projectiles[i];
-			}
-			_projectiles.clear();
-			_projectiles = holder;
+		if (projectile->hasCollision(_asteroids[i]->getHitboxes(), AABB_Sphere)) {
+			asteroidHolder = i;
 		}
 	}
-	_asteroids.clear();
-	_asteroids = newList;
+	_asteroids[asteroidHolder]->explode();
+	delete _asteroids[asteroidHolder];
+	_asteroids.erase(_asteroids.begin() + asteroidHolder);
+}
+
+void BasicSceneRenderer::_createAsteroids() {
+	int totalAsteroids = rand() % s.VARIANCE_ASTEROIDS + s.MIN_ASTEROIDS;
+	int size = 0;
+	glm::vec3 location, velocity;
+	for (int i = 0; i < totalAsteroids; ++i) {
+		location = glm::vec3(rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE/2, rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE / 2, rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE/2);
+		velocity = glm::vec3(rand() % s.VARIANCE_XYZ + s.MIN_XYZ, rand() % s.VARIANCE_ASTEROIDS + s.MIN_XYZ, rand() % s.VARIANCE_XYZ + s.MIN_XYZ);
+		size = rand() % s.ASTEROID_SCALES + 1;
+
+		// Remove asteroids that are too close too the player
+		if (sqrt(pow(_player->getPosition().x - location.x, 2)) > s.SAFE_DISTANCE)
+			if (sqrt(pow(_player->getPosition().y - location.y, 2)) > s.SAFE_DISTANCE)
+				if (sqrt(pow(_player->getPosition().z - location.z, 2)) > s.SAFE_DISTANCE)
+					_asteroids.push_back(new Asteroid(location, velocity, size));
+	}
 }
 
 std::vector<Entity*> BasicSceneRenderer::_flattenProjectiles()

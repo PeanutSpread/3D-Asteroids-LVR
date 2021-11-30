@@ -20,20 +20,20 @@ Asteroid::Asteroid(glm::vec3 location, glm::vec3 velocity, int size)
 
 	std::vector<Mesh*> meshes;
 	// Model
-	meshes.push_back(CreateTexturedCube(4.f));
-	meshes.push_back(CreateTexturedCube(2.f));
+	meshes.push_back(CreateTexturedCube(4.f * size));
+	meshes.push_back(CreateTexturedCube(2.f * size));
 
 	// Hitbox
-	meshes.push_back(CreateWireframeBox(5.f, 5.f, 5.f));
+	meshes.push_back(CreateWireframeBox(4.5f * size, 4.5f * size, 4.5f * size));
 
 	// Model
 	_entities.push_back(new Entity(meshes[0], materials[0], Transform(_position.x, _position.y, _position.z))); // Base
-	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x + 1.5f, _position.y, _position.z))); // Bumps
-	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x - 1.5f, _position.y, _position.z)));
-	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y + 1.5f, _position.z)));
-	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y - 1.5f, _position.z)));
-	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y, _position.z + 1.5f)));
-	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y, _position.z - 1.5f)));
+	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x + 1.5f * size, _position.y, _position.z))); // Bumps
+	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x - 1.5f * size, _position.y, _position.z)));
+	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y + 1.5f * size, _position.z)));
+	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y - 1.5f * size, _position.z)));
+	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y, _position.z + 1.5f * size)));
+	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y, _position.z - 1.5f * size)));
 	
 	// Hitbox
 	_hitboxes.push_back(new Entity(meshes[2], materials[1], Transform(_position.x, _position.y, _position.z)));
@@ -87,6 +87,11 @@ void Asteroid::_spin() {
 	_aligner->setOrientation(_entities[0]->getOrientation());
 	_aligner->rotate(2 * _speed, glm::vec3(0,0,1));
 	_adjustOrientation(_aligner->getOrientation());
+}
+
+void Asteroid::explode() {
+	// TODO: memory management
+	// Splintering
 }
 
 void Asteroid::update() {

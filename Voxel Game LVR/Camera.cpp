@@ -7,14 +7,14 @@ Camera::Camera(GLApp* app, Player* player)
 	, mRight(1.0f, 0.0f, 0.0f)
 	, mUp(0.0f, 1.0f, 0.0f)
 	, mFOV(50.0f)
-	, dx(0.0f)
-	, dy(0.0f)
+	, _dx(0.0f)
+	, _dy(0.0f)
 	, mYaw(0.0f)
 	, mPitch(0.0f)
 	, mSpeed(0.5)                         // world units / second
 	, mMouseSpeed(180.0f / 1000.0f)     // degrees / pixel
 	, mOrientationChanged(false)
-	, freeLook(false)
+	, _freeLook(false)
 	, mPlayer(player)
 	,mDistance(10.0f)
 {
@@ -58,26 +58,27 @@ void Camera::update(float deltaT)
 	bool orientationChanged = false;
 
     // freelook with mouse
-	if (isFocused()) {
+	if (_isFocused()) {
 
-		dx += (mouse->getX() - s.SCREEN_WIDTH / 2);
-		dy += (mouse->getY() - s.SCREEN_HEIGHT / 2);
+		// Had issues with actual center of screen, and this gives a cool delayed affect to the camera
+		_dx += (mouse->getX() - s.SCREEN_WIDTH / 2);
+		_dy += (mouse->getY() - s.SCREEN_HEIGHT / 2);
 
-		if (startFix) {
+		if (_startFix) {
 			if (mouse->getX() != 0.0 and mouse->getY() != 0.0) {
-				startFix = false;
+				_startFix = false;
 			}
-			dx = 0;
-			dy = 0;
+			_dx = 0;
+			_dy = 0;
 		}
 
-		if (dx != 0.0) {
-			yaw(-dx * mMouseSpeed);
-			dx += -dx / 5;
+		if (_dx != 0.0) {
+			yaw(-_dx * mMouseSpeed);
+			_dx += -_dx / 5;
 		}
-		if (dy != 0.0) {
-			pitch(-dy * mMouseSpeed);
-			dy += -dy / 5;
+		if (_dy != 0.0) {
+			pitch(-_dy * mMouseSpeed);
+			_dy += -_dy / 5;
 		}
 
 		float dw = mDistance - mouse->getWheelDelta();
@@ -88,29 +89,29 @@ void Camera::update(float deltaT)
 
     // recompute forward, right, and up vectors if needed
     if (mOrientationChanged) {
-		orientationChange();
+		_orientationChange();
         mOrientationChanged = false;
     }
 
-	if (!freeLook)
-		thirdPerson();
+	if (!_freeLook)
+		_thirdPerson();
 	else
-		localMove(deltaT);
+		_localMove(deltaT);
 }
 
 void Camera::toggleFreelook() {
-	freeLook = !freeLook;
+	_freeLook = !_freeLook;
 }
 
-void Camera::thirdPerson() {
+void Camera::_thirdPerson() {
 	mPosition = mPlayer->getAim();
-	localMoveTo(glm::vec3(0.0f, 0.0f, -mDistance));
+	_localMoveTo(glm::vec3(0.0f, 0.0f, -mDistance));
 
 	lookAt(mPlayer->getAim());
 	
 }
 
-void Camera::localMove(float deltaT) {
+void Camera::_localMove(float deltaT) {
 	const Keyboard* kb = mApp->getKeyboard();
 	
 	// move vector determined from key states
@@ -152,7 +153,7 @@ void Camera::localMove(float deltaT) {
 	}
 }
 
-void Camera::localMoveTo(glm::vec3 movement) {
+void Camera::_localMoveTo(glm::vec3 movement) {
 
 	glm::vec3 localMoveVec = movement;
 
@@ -165,7 +166,7 @@ void Camera::localMoveTo(glm::vec3 movement) {
 	}
 }
 
-void Camera::orientationChange() {
+void Camera::_orientationChange() {
 	// sin and cos functions eat radians, not degrees
 	float radYaw = (3.14159265f / 180.0f) * mYaw;
 	float radPitch = (3.14159265f / 180.0f) * mPitch;
@@ -192,7 +193,7 @@ void Camera::orientationChange() {
 	mUp = glm::normalize(mUp);
 }
 
-bool Camera::isFocused() {
+bool Camera::_isFocused() {
 
 	if (GetActiveWindow()) {
 		return true;

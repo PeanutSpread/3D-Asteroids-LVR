@@ -15,7 +15,7 @@ class Camera {
 
     float mFOV;  // field of view
 
-	float dx, dy;
+	float _dx, _dy;
     float mYaw;
     float mPitch;
 	float mDistance;
@@ -24,17 +24,17 @@ class Camera {
     float mMouseSpeed;
 
     bool mOrientationChanged;
-	void orientationChange();
+	void _orientationChange();
 
-	bool isFocused();
-	bool freeLook;
+	bool _isFocused();
+	bool _freeLook;
 
-	void thirdPerson();
-	void localMove(float deltaT);
-	void localMoveTo(glm::vec3 movement);
+	void _thirdPerson();
+	void _localMove(float deltaT);
+	void _localMoveTo(glm::vec3 movement);
+	bool _startFix = true;
 
 	Settings s;
-	bool startFix = true;
 
 public:
     Camera(GLApp* app, Player* player);
@@ -55,6 +55,9 @@ public:
 
     float getSpeed() const
     { return mSpeed; }
+
+	float getDistance() const
+	{ return mDistance; }
 
     void setSpeed(float speed)
     { mSpeed = speed; }
@@ -86,7 +89,7 @@ public:
 
 	void toggleFreelook();
 	bool getFreeLook() const 
-	{ return freeLook; }
+	{ return _freeLook; }
 
 	void setZoom(float distance) 
 	{ mDistance = distance; }

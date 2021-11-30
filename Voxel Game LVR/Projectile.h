@@ -34,6 +34,7 @@ public:
 
 	void update(float dt);
 	bool hasCollision(std::vector<Entity*> otherHitboxes, CollisionType check);
+	void destroy();
 
 };
 

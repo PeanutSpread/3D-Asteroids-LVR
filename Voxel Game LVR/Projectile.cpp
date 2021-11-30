@@ -70,7 +70,7 @@ void Projectile::_adjustOrientation() {
 }
 
 void Projectile::update(float dt) {
-	float speed = 50;
+	float speed = 75;
 	float disp = speed * dt;
 
 	glm::vec3 displacement(0, 0, 0);
@@ -103,4 +103,8 @@ bool Projectile::hasCollision(std::vector<Entity*> otherHitboxes, CollisionType 
 	}
 
 	return false;
+}
+
+void Projectile::destroy() {
+	// TODO: Memory management
 }
