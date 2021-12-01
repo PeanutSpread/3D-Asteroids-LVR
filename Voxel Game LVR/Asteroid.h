@@ -23,6 +23,8 @@ class Asteroid {
 	void					_adjustOrientation(glm::quat orientation);
 	void					_spin(); // Animate
 
+	Settings				s;
+
 public:
 	Asteroid(glm::vec3 location, glm::vec3 velocity, int scale);
 
@@ -43,7 +45,8 @@ public:
 
 	void changeVelocity(); // Change velocity of astreroid when hit or another reason
 	void setPosition(glm::vec3 value);
-	void explode();
+
+	std::vector<Asteroid*> explode();
 
 	void update(float dt); // game loop function
 };

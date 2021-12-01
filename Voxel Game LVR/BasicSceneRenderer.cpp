@@ -231,145 +231,7 @@ void BasicSceneRenderer::draw()
 	if (_visualHiboxes)
 		_drawEntities(_player->getHitboxes());
 
-    //
-    // light setup depends on lighting model
-    //
-
-	/*
-    if (mLightingModel == PER_VERTEX_DIR_LIGHT) {
-
-        //----------------------------------------------------------------------------------//
-        //                                                                                  //
-        // Basic directional light (no ambient, specular, or emissive contributions)        //
-        //                                                                                  //
-        //----------------------------------------------------------------------------------//
-
-        // direction to light
-        glm::vec4 lightDir = glm::normalize(glm::vec4(1, 3, 2, 0));
-
-        // send light direction in eye space
-        prog->sendUniform("u_LightDir", glm::vec3(viewMatrix * lightDir));
-
-        // send light color/intensity
-        prog->sendUniform("u_LightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-
-    } else if (mLightingModel == BLINN_PHONG_PER_FRAGMENT_DIR_LIGHT) {
-
-        //----------------------------------------------------------------------------------//
-        //                                                                                  //
-        // Directional light with ambient, specular, and emissive contributions             //
-        //                                                                                  //
-        //----------------------------------------------------------------------------------//
-
-        prog->sendUniform("u_AmbientLightColor", glm::vec3(0.2f, 0.2f, 0.2f));
-
-        // direction to light
-        glm::vec4 lightDir = glm::normalize(glm::vec4(1, 3, 2, 0));
-
-        // send light direction in eye space
-        prog->sendUniform("u_LightDir", glm::vec3(viewMatrix * lightDir));
-
-        // send light color/intensity
-        prog->sendUniform("u_LightColor", glm::vec3(0.8f, 0.8f, 0.8f));
-
-    } else if (mLightingModel == BLINN_PHONG_PER_FRAGMENT_POINT_LIGHT) {
-
-        //----------------------------------------------------------------------------------//
-        //                                                                                  //
-        // Point light with ambient, specular, and emissive contributions, and attenuation  //
-        //                                                                                  //
-        //----------------------------------------------------------------------------------//
-
-        prog->sendUniform("u_AmbientLightColor", glm::vec3(0.1f, 0.1f, 0.1f));
-
-        // point light position
-        glm::vec3 lightPos = glm::vec3(0, 7, 0);
-        glm::vec3 lightColor = glm::vec3(1.0f, 0.9f, 0.8f);
-
-        // send light position in eye space
-        prog->sendUniform("u_LightPos", glm::vec3(viewMatrix * glm::vec4(lightPos, 1)));
-
-        // send light color/intensity
-        prog->sendUniform("u_LightColor", lightColor);
-
-        prog->sendUniform("u_AttQuat", 0.005f);
-        prog->sendUniform("u_AttLin", 0.05f);
-        prog->sendUniform("u_AttConst", 1.0f);
-
-        // render the light as an emissive cube, if desired
-        if (mVisualizePointLights) {
-            const Mesh* lightMesh = mMeshes[0];
-            lightMesh->activate();
-            glBindTexture(GL_TEXTURE_2D, mTextures[1]->id());  // use black texture
-            prog->sendUniform("u_MatEmissiveColor", lightColor);
-            prog->sendUniform("u_ModelviewMatrix", glm::translate(viewMatrix, glm::vec3(lightPos)));
-            prog->sendUniform("u_NormalMatrix", glm::mat3(1.0f));
-            lightMesh->draw();
-        }
-
-    } else if (mLightingModel == BLINN_PHONG_PER_FRAGMENT_MULTI_LIGHT) {
-
-        //----------------------------------------------------------------------------------//
-        //                                                                                  //
-        // Multiple directional/point lights                                                //
-        //                                                                                  //
-        //----------------------------------------------------------------------------------//
-
-        prog->sendUniform("u_AmbientLightColor", glm::vec3(0.1f, 0.1f, 0.1f));
-
-        prog->sendUniformInt("u_NumDirLights", 1);
-        prog->sendUniformInt("u_NumPointLights", 3);
-
-        // directional light
-        glm::vec4 lightDir = glm::normalize(glm::vec4(1, 3, 2, 0));
-        prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
-        prog->sendUniform("u_DirLights[0].color", glm::vec3(0.3f, 0.3f, 0.3f));
-
-        // point light
-        glm::vec3 lightPos1 = glm::vec3(-7, 5, -12);
-        glm::vec3 lightColor1 = glm::vec3(1.0f, 0.0f, 0.0f);
-        prog->sendUniform("u_PointLights[0].pos", glm::vec3(viewMatrix * glm::vec4(lightPos1, 1)));
-        prog->sendUniform("u_PointLights[0].color", lightColor1);
-        prog->sendUniform("u_PointLights[0].attQuat", 0.01f);
-        prog->sendUniform("u_PointLights[0].attLin", 0.1f);
-        prog->sendUniform("u_PointLights[0].attConst", 1.0f);
-
-        // point light
-        glm::vec3 lightPos2 = glm::vec3(7, 5, -12);
-        glm::vec3 lightColor2 = glm::vec3(0.0f, 0.0f, 1.0f);
-        prog->sendUniform("u_PointLights[1].pos", glm::vec3(viewMatrix * glm::vec4(lightPos2, 1)));
-        prog->sendUniform("u_PointLights[1].color", lightColor2);
-        prog->sendUniform("u_PointLights[1].attQuat", 0.01f);
-        prog->sendUniform("u_PointLights[1].attLin", 0.1f);
-        prog->sendUniform("u_PointLights[1].attConst", 1.0f);
-
-        // point light
-        glm::vec3 lightPos3 = glm::vec3(-7, -5, 15);
-        glm::vec3 lightColor3 = glm::vec3(0.0f, 1.0f, 0.0f);
-        prog->sendUniform("u_PointLights[2].pos", glm::vec3(viewMatrix * glm::vec4(lightPos3, 1)));
-        prog->sendUniform("u_PointLights[2].color", lightColor3);
-        prog->sendUniform("u_PointLights[2].attQuat", 0.01f);
-        prog->sendUniform("u_PointLights[2].attLin", 0.1f);
-        prog->sendUniform("u_PointLights[2].attConst", 1.0f);
-
-        // render the point lights as emissive cubes, if desirable
-        if (mVisualizePointLights) {
-            glBindTexture(GL_TEXTURE_2D, mTextures[1]->id());  // use black texture
-            prog->sendUniform("u_NormalMatrix", glm::mat3(1.0f));
-            const Mesh* lightMesh = mMeshes[0];
-            lightMesh->activate();
-            prog->sendUniform("u_MatEmissiveColor", lightColor1);
-            prog->sendUniform("u_ModelviewMatrix", glm::translate(viewMatrix, glm::vec3(lightPos1)));
-            lightMesh->draw();
-            prog->sendUniform("u_MatEmissiveColor", lightColor2);
-            prog->sendUniform("u_ModelviewMatrix", glm::translate(viewMatrix, glm::vec3(lightPos2)));
-            lightMesh->draw();
-            prog->sendUniform("u_MatEmissiveColor", lightColor3);
-            prog->sendUniform("u_ModelviewMatrix", glm::translate(viewMatrix, glm::vec3(lightPos3)));
-            lightMesh->draw();
-        }
-    }
-	*/
+	// Lighting
 
 	prog->sendUniform("u_AmbientLightColor", glm::vec3(0.1f, 0.1f, 0.1f));
 	prog->sendUniformInt("u_NumPointLights", _player->getLights().size());
@@ -659,7 +521,9 @@ void BasicSceneRenderer::_destroyAsteroid(Projectile* projectile) {
 			asteroidHolder = i;
 		}
 	}
-	_asteroids[asteroidHolder]->explode();
+	std::vector<Asteroid*> splits = _asteroids[asteroidHolder]->explode();
+	for (int i = 0; i < splits.size(); ++i)
+		_asteroids.push_back(splits[i]);
 	delete _asteroids[asteroidHolder];
 	_asteroids.erase(_asteroids.begin() + asteroidHolder);
 }

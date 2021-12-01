@@ -1,6 +1,8 @@
 #include "Asteroid.h"
 #include "Prefabs.h"
 
+#include <time.h>
+
 Asteroid::Asteroid(glm::vec3 location, glm::vec3 velocity, int scale)
 	: _position(location)
 	, _orientation(glm::vec3(NULL))
@@ -10,6 +12,7 @@ Asteroid::Asteroid(glm::vec3 location, glm::vec3 velocity, int scale)
 	, _speed((float) velocity.length())
 	, _stage(scale)
 {
+
 	std::vector<Texture*> textures;
 	textures.push_back(new Texture("textures/rocky.tga", GL_REPEAT, GL_LINEAR));
 	textures.push_back(new Texture("textures/debug2.tga", GL_CLAMP_TO_EDGE, GL_LINEAR)); // Hitbox Debug Texture
@@ -98,14 +101,33 @@ void Asteroid::_spin() {
 	_adjustOrientation(_aligner->getOrientation());
 }
 
+void Asteroid::changeVelocity()
+{
+}
+
 void Asteroid::setPosition(glm::vec3 value) {
 	_position = value;
 	_adjustOrientation(_orientation);
 }
 
-void Asteroid::explode() {
-	// TODO: memory management
-	// Splintering
+std::vector<Asteroid*> Asteroid::explode() {
+	std::vector<Asteroid*> splits;
+	if (_stage > 0) {
+		for (int i = 0; i < s.ASTEROID_SPLITS; ++i) {
+			glm::vec3 angle(rand() % s.ASTEROID_ANGLE + s.ASTEROID_MIN_ANGLE, rand() % s.ASTEROID_ANGLE + s.ASTEROID_MIN_ANGLE, rand() % s.ASTEROID_ANGLE + s.ASTEROID_MIN_ANGLE);
+			angle.x *= s.ASTEROID_SPEED_SPLIT;
+			angle.y *= s.ASTEROID_SPEED_SPLIT;
+			angle.z *= s.ASTEROID_SPEED_SPLIT;
+
+			glm::vec3 spawn(_position);
+			spawn.x += rand() % s.VARIANCE_XYZ * 2 + s.MIN_XYZ * 2;
+			spawn.y += rand() % s.VARIANCE_XYZ * 2 + s.MIN_XYZ * 2;
+			spawn.z += rand() % s.VARIANCE_XYZ * 2 + s.MIN_XYZ * 2;
+
+			splits.push_back(new Asteroid(spawn, (_direction + angle), _stage - 1));
+		}
+	}
+	return splits;
 }
 
 void Asteroid::update(float dt) {

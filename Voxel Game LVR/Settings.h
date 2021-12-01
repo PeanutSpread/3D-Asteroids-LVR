@@ -16,5 +16,9 @@ public:
 	const int MIN_XYZ = -5;
 	const int VARIANCE_XYZ = 11;
 	const int ASTEROID_SCALES = 3;
+	const int ASTEROID_MIN_ANGLE = -5;
+	const int ASTEROID_ANGLE = 11;
+	const int ASTEROID_SPLITS = 2;
+	const int ASTEROID_SPEED_SPLIT = 2;
 };
 
