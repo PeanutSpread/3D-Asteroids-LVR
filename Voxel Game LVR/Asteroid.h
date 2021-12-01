@@ -38,9 +38,13 @@ public:
 	glm::quat getOrientation() const
 	{ return _orientation; }
 
+	void adjustSpeed(float value)
+	{ _speed += value; }
+
 	void changeVelocity(); // Change velocity of astreroid when hit or another reason
+	void setPosition(glm::vec3 value);
 	void explode();
 
-	void update(); // game loop function
+	void update(float dt); // game loop function
 };
 

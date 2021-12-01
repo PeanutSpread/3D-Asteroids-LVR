@@ -12,11 +12,15 @@ class Player {
 	std::vector<glm::vec3>	_offsets;
 	std::vector<Entity*>	_hitboxes;
 	std::vector<glm::vec3>	_hbOffsets;
+	std::vector<Entity*>	_lights;
+	std::vector<glm::vec3>	_litOffsets;
 	
 	Entity*					_aligner;
 	glm::vec3				_position;
 	glm::quat				_orientation;
 	glm::vec3				_aim;
+	float					_acceleration = 0;
+	bool					_throttle = false;
 
 	Settings				s;
 
@@ -29,6 +33,9 @@ public:
 	std::vector<Entity*> getHitboxes() const
 	{ return _hitboxes; }
 
+	std::vector<Entity*> getLights() const
+	{ return _lights; }
+
 	glm::vec3 getPosition() const 
 	{ return _position; }
 
@@ -37,6 +44,9 @@ public:
 
 	glm::vec3 getAim() const
 	{ return _aim; }
+
+	bool getThrottle() const
+	{ return _throttle; }
 	
 	void headLook(float yaw, float pitch, float dt);
 	void bodyMove(const Keyboard* kb, float dt);

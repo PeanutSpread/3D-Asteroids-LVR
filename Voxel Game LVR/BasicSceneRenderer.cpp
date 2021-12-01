@@ -7,7 +7,7 @@
 #include <iostream>
 
 BasicSceneRenderer::BasicSceneRenderer()
-	: mLightingModel(PER_VERTEX_DIR_LIGHT)
+	: mLightingModel(BLINN_PHONG_PER_FRAGMENT_MULTI_LIGHT)
 	, mCamera(NULL)
 	, mProjMatrix(1.0f)
 	, mDbgProgram(NULL)
@@ -235,6 +235,7 @@ void BasicSceneRenderer::draw()
     // light setup depends on lighting model
     //
 
+	/*
     if (mLightingModel == PER_VERTEX_DIR_LIGHT) {
 
         //----------------------------------------------------------------------------------//
@@ -368,6 +369,40 @@ void BasicSceneRenderer::draw()
             lightMesh->draw();
         }
     }
+	*/
+
+	prog->sendUniform("u_AmbientLightColor", glm::vec3(0.1f, 0.1f, 0.1f));
+	prog->sendUniformInt("u_NumPointLights", _player->getLights().size());
+	glm::vec3 lightColor = glm::vec3(1.0f, 0.9f, 0.8f);
+	glm::vec3 EngineColor = glm::vec3(0.6f, 0.6f, 1.0f);
+
+	std::string text;
+	for (int i = 0; i < _player->getLights().size(); i++) {
+		// point light position
+		glm::vec3 lightPos = _player->getLights()[i]->getPosition();
+
+		text = "u_PointLights[" + std::to_string(i) + "]";
+
+		// send light position in eye space
+		prog->sendUniform(text + ".pos", glm::vec3(viewMatrix * glm::vec4(lightPos, 1)));
+
+		// send light color/intensity
+		prog->sendUniform(text + ".color", lightColor);
+		prog->sendUniform(text + ".attQuat", 1.0f);
+		prog->sendUniform(text + ".attLin", 0.35f);
+		prog->sendUniform(text + ".attConst", 0.025f);
+
+		// render the light as an emissive cube
+		/*
+		const Mesh* lightMesh = _player->getLights()[i]->getMesh();
+		lightMesh->activate();
+		glBindTexture(GL_TEXTURE_2D, mTextures[1]->id());  // use black texture
+		prog->sendUniform("u_MatEmissiveColor", lightColor);
+		prog->sendUniform("u_ModelviewMatrix", glm::translate(viewMatrix, lightPos));
+		prog->sendUniform("u_NormalMatrix", glm::mat3(1.0f));
+		lightMesh->draw();
+		*/
+	}
 
     // render all entities
     for (unsigned i = 0; i < _toBeDrawn.size(); i++) {
@@ -460,8 +495,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 	if (_projectiles.size() > 0 && !_pause) {
 		for (int i = 0; i < _projectiles.size(); i++) {
 			_projectiles[i]->update(dt);
-			_projectileCheck();
-			_cleanUpProjectiles();
+			_projectileCheck(i);
 		}
 	}
 
@@ -471,9 +505,12 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 
 	if (_asteroids.size() > 0 && !_pause) {
 		for (int i = 0; i < _asteroids.size(); i++) {
-			_asteroids[i]->update();
+			_asteroids[i]->update(dt);
+			_asteroidCheck(i);
 		}
 	}
+
+	_cleanUpProjectiles();
 
 	// Quit NOT FINAL
     if (kb->keyPressed(KC_ESCAPE))
@@ -563,19 +600,14 @@ void BasicSceneRenderer::_drawEntities(std::vector<Entity*> entities) {
 }
 
 void BasicSceneRenderer::_cleanUpProjectiles() {
-	std::vector<Projectile*> newList;
-	for (int i = 0; i < _projectiles.size(); i++) {
-		glm::vec3 position(_projectiles[i]->getPosition());
-		if (position.x <= s.ROOM_SIZE && position.y <= s.ROOM_SIZE && position.z <= s.ROOM_SIZE) {
-			if (position.x >= -s.ROOM_SIZE && position.y >= -s.ROOM_SIZE && position.z >= -s.ROOM_SIZE) {
-				newList.push_back(_projectiles[i]);
-			} else 
-				delete _projectiles[i];
-		} else
-			delete _projectiles[i];
+	int index = 0;
+	for (int i = 0; i < _projectileIndexBin.size(); ++i) {
+		index = _projectileIndexBin[i];
+		_projectiles[index]->destroy();
+		delete _projectiles[index];
+		_projectiles.erase(_projectiles.begin() + index);
 	}
-	_projectiles.clear();
-	_projectiles = newList;
+	_projectileIndexBin.clear();
 }
 
 void BasicSceneRenderer::_playerDeath() {
@@ -584,20 +616,44 @@ void BasicSceneRenderer::_playerDeath() {
 	printf("died\n");
 }
 
-void BasicSceneRenderer::_projectileCheck() {
+void BasicSceneRenderer::_projectileCheck(int index) {
 	// Check projectiles for collisions
-	int holder = -1;
-	for (int i = 0; i < _projectiles.size(); ++i) {
-		if (_projectiles[i]->hasCollision(_getDangersTo(_projectiles[i]->getPosition(), _asteroids), AABB_Sphere)) {
-			_destroyAsteroid(_projectiles[i]);
-			holder = i;
-		}
+
+	glm::vec3 position(_projectiles[index]->getPosition());
+	std::vector<Entity*> dangers = _getDangersTo(_projectiles[index]->getPosition(), _asteroids);
+	if (_projectiles[index]->hasCollision(dangers, AABB_Sphere)) {
+		_destroyAsteroid(_projectiles[index]);
+		_projectileIndexBin.push_back(index);
 	}
 
-	if (holder >= 0) {
-		_projectiles[holder]->destroy();
-		delete _projectiles[holder];
-		_projectiles.erase(_projectiles.begin() + holder);
+	int boundry = (s.ROOM_SIZE / 2) + s.BUFFER*2;
+	if (position.x > boundry || position.y > boundry || position.z > boundry || position.x < -boundry || position.y < -boundry || position.z < -boundry)
+		_projectileIndexBin.push_back(index);
+}
+
+void BasicSceneRenderer::_asteroidCheck(int index) {
+	// Repositioning asteroids so that they stay inside boundries
+	glm::vec3 position(_asteroids[index]->getPosition());
+	int boundry = (s.ROOM_SIZE / 2) + s.BUFFER;
+	bool hasChanged = true;
+
+	if (position.x > boundry)
+		_asteroids[index]->setPosition(glm::vec3(-boundry, position.y, position.z));
+	else if (position.y > boundry)
+		_asteroids[index]->setPosition(glm::vec3(position.x, -boundry, position.z));
+	else if (position.z > boundry)
+		_asteroids[index]->setPosition(glm::vec3(position.x, position.y, -boundry));
+	else if (position.x < -boundry)
+		_asteroids[index]->setPosition(glm::vec3(boundry, position.y, position.z));
+	else if (position.y < -boundry)
+		_asteroids[index]->setPosition(glm::vec3(position.x, boundry, position.z));
+	else if (position.z < -boundry)
+		_asteroids[index]->setPosition(glm::vec3(position.x, position.y, boundry));
+	else
+		hasChanged = false;
+
+	if (hasChanged) {
+		_asteroids[index]->adjustSpeed(0.5);
 	}
 }
 

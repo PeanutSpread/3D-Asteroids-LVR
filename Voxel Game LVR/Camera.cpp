@@ -43,7 +43,6 @@ void Camera::yaw(float degrees)
 void Camera::pitch(float degrees)
 {
     mPitch += degrees;
-	printf("%f\n", mPitch);
     // limit pitch range
 	if (mPitch >= 180.0f)
 		mPitch -= 360.0f;

@@ -41,6 +41,7 @@ class BasicSceneRenderer : public GLApp {
 	std::vector<Projectile*>	_projectiles;
 	std::vector<Asteroid*>		_asteroids;
 	std::vector<Entity*>		_boundries;
+	std::vector<int>			_projectileIndexBin;
 	Player*						_player;
 
     Camera*                     mCamera;
@@ -55,7 +56,8 @@ class BasicSceneRenderer : public GLApp {
 	void						_drawEntities(std::vector<Entity*> entities);
 	void						_cleanUpProjectiles();
 	void						_playerDeath();
-	void						_projectileCheck();
+	void						_projectileCheck(int index);
+	void						_asteroidCheck(int index);
 	void						_destroyAsteroid(Projectile* projectile);
 	void						_createAsteroids();
 

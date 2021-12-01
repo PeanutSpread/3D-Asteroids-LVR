@@ -70,7 +70,7 @@ void Projectile::_adjustOrientation() {
 }
 
 void Projectile::update(float dt) {
-	float speed = 75;
+	float speed = 100;
 	float disp = speed * dt;
 
 	glm::vec3 displacement(0, 0, 0);

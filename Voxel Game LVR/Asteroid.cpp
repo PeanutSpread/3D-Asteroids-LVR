@@ -80,13 +80,23 @@ void Asteroid::_adjustOrientation(glm::quat orientation) {
 		_hitboxes[i]->setOrientation(orientation);
 	}
 
+	_orientation = _entities[0]->getOrientation();
+
 }
 
 // Rotation Animation
 void Asteroid::_spin() {
+	float speed = _speed / 4;
 	_aligner->setOrientation(_entities[0]->getOrientation());
-	_aligner->rotate(2 * _speed, glm::vec3(1, 0, 0));
+	_aligner->rotate(_direction.x * speed, glm::vec3(1, 0, 0));
+	_aligner->rotate(_direction.y * speed, glm::vec3(0, 1, 0));
+	_aligner->rotate(_direction.z * speed, glm::vec3(0, 0, 1));
 	_adjustOrientation(_aligner->getOrientation());
+}
+
+void Asteroid::setPosition(glm::vec3 value) {
+	_position = value;
+	_adjustOrientation(_orientation);
 }
 
 void Asteroid::explode() {
@@ -94,6 +104,16 @@ void Asteroid::explode() {
 	// Splintering
 }
 
-void Asteroid::update() {
+void Asteroid::update(float dt) {
+	float disp = _speed * dt;
+
+	glm::vec3 displacement(_direction);
+	displacement.x *= disp;
+	displacement.y *= disp;
+	displacement.z *= disp;
+
+	_entities[0]->translateLocal(displacement);
+
+	_position = _entities[0]->getPosition();
 	_spin();
 }
