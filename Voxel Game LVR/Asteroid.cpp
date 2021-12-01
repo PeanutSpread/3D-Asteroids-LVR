@@ -1,14 +1,14 @@
 #include "Asteroid.h"
 #include "Prefabs.h"
 
-Asteroid::Asteroid(glm::vec3 location, glm::vec3 velocity, int size)
+Asteroid::Asteroid(glm::vec3 location, glm::vec3 velocity, int scale)
 	: _position(location)
 	, _orientation(glm::vec3(NULL))
 	, _aligner(new Entity(NULL, NULL, location))
 	, _offsets(NULL)
 	, _direction(NULL)
 	, _speed((float) velocity.length())
-	, _stage(size)
+	, _stage(scale)
 {
 	std::vector<Texture*> textures;
 	textures.push_back(new Texture("textures/rocky.tga", GL_REPEAT, GL_LINEAR));
@@ -17,6 +17,10 @@ Asteroid::Asteroid(glm::vec3 location, glm::vec3 velocity, int size)
 	std::vector<Material*> materials;
 	materials.push_back(new Material(textures[0]));
 	materials.push_back(new Material(textures[1]));
+
+	materials[0]->emissive = glm::vec3(0.05f, 0.05f, 0.05f);
+
+	float size = 4.0f * (float)scale;
 
 	std::vector<Mesh*> meshes;
 	// Model

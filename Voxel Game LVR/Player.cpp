@@ -14,6 +14,7 @@ Player::Player(glm::vec3 location)
 	textures.push_back(new Texture("textures/metal_panel_dark.tga", GL_REPEAT, GL_LINEAR));
 	textures.push_back(new Texture("textures/metal_window.tga", GL_REPEAT, GL_LINEAR));
 	textures.push_back(new Texture("textures/debug2.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
+	textures.push_back(new Texture("textures/engine_light.tga", GL_MIRRORED_REPEAT, GL_LINEAR));
 
 	std::vector<Material*> materials;
 	materials.push_back(new Material(textures[0]));
@@ -21,6 +22,10 @@ Player::Player(glm::vec3 location)
 	materials.push_back(new Material(textures[2]));
 	materials.push_back(new Material(textures[3]));
 	materials.push_back(new Material(textures[4]));
+	materials.push_back(new Material(textures[5]));
+
+	materials[5]->shininess = 164;
+	materials[5]->emissive = glm::vec3(0.6f, 0.6f, 1.0f);;
 
 	std::vector<Mesh*> meshes;
 	// Model
@@ -37,7 +42,7 @@ Player::Player(glm::vec3 location)
 	meshes.push_back(CreateWireframeBox(0.25f, 2.f, 0.25f));
 
 	// Lights
-	meshes.push_back(CreateTexturedCube(0.5f));
+	meshes.push_back(CreateChunkyCone(0.5f, 0.5f, 4));
 
 	// Model
 	_entities.push_back(new Entity(meshes[0], materials[0], Transform(_position.x, _position.y, _position.z))); // Front Cone
@@ -57,14 +62,14 @@ Player::Player(glm::vec3 location)
 	_hitboxes.push_back(new Entity(meshes[6], materials[4], Transform(_position.x, _position.y - 3.5f, _position.z)));
 
 	// Lights
-	_lights.push_back(new Entity(meshes[9], NULL, Transform(_position.x - 1.5f, _position.y - 0.25f, _position.z)));
-	_lights.push_back(new Entity(meshes[9], NULL, Transform(_position.x + 1.5f, _position.y - 0.25f, _position.z)));
-	_lights.push_back(new Entity(meshes[9], NULL, Transform(_position.x - 1.5f, _position.y - 1.25f, _position.z)));
-	_lights.push_back(new Entity(meshes[9], NULL, Transform(_position.x + 1.5f, _position.y - 1.25f, _position.z)));
-	_lights.push_back(new Entity(meshes[9], NULL, Transform(_position.x - 1.5f, _position.y - 2.25f, _position.z)));
-	_lights.push_back(new Entity(meshes[9], NULL, Transform(_position.x + 1.5f, _position.y - 2.25f, _position.z)));
-	_lights.push_back(new Entity(meshes[9], NULL, Transform(_position.x - 1.5f, _position.y - 8.f, _position.z)));
-	_lights.push_back(new Entity(meshes[9], NULL, Transform(_position.x + 1.5f, _position.y - 8.f, _position.z)));
+	_lights.push_back(new Entity(NULL, NULL, Transform(_position.x - 1.5f, _position.y - 0.25f, _position.z)));
+	_lights.push_back(new Entity(NULL, NULL, Transform(_position.x + 1.5f, _position.y - 0.25f, _position.z)));
+	_lights.push_back(new Entity(NULL, NULL, Transform(_position.x - 1.5f, _position.y + 2.25f, _position.z)));
+	_lights.push_back(new Entity(NULL, NULL, Transform(_position.x + 1.5f, _position.y + 2.25f, _position.z)));
+	_lights.push_back(new Entity(NULL, NULL, Transform(_position.x - 1.5f, _position.y + 4.75f, _position.z)));
+	_lights.push_back(new Entity(NULL, NULL, Transform(_position.x + 1.5f, _position.y + 4.75f, _position.z)));
+	_lights.push_back(new Entity(meshes[9], materials[5], Transform(_position.x - 1.5f, _position.y - 7.75f, _position.z)));
+	_lights.push_back(new Entity(meshes[9], materials[5], Transform(_position.x + 1.5f, _position.y - 7.75f, _position.z)));
 
 	glm::vec3 relatedLoc(0, 0, 0);
 
@@ -92,6 +97,18 @@ Player::Player(glm::vec3 location)
 		_litOffsets.push_back(relatedLoc);
 	}
 
+}
+
+std::vector<Entity*> Player::getEntities()
+{
+	if (_throttle) {
+		std::vector<Entity*> withlights = _entities;
+		withlights.push_back(_lights[_lights.size() - 2]);
+		withlights.push_back(_lights[_lights.size() - 1]);
+		return withlights;
+	}	
+
+	return _entities;
 }
 
 void Player::headLook(float yaw, float pitch, float dt) {
@@ -125,6 +142,8 @@ void Player::headLook(float yaw, float pitch, float dt) {
 		_aligner->translateLocal(_litOffsets[i]);
 		_lights[i]->setPosition(_aligner->getPosition());
 		_lights[i]->setOrientation(glm::quat(rotEul));
+		_lights[i]->rotate(90, 0, 1, 0);
+		_lights[i]->rotate(180, 1, 0, 0);
 	}
 
 	_aligner->setPosition(_position);
@@ -136,7 +155,6 @@ void Player::headLook(float yaw, float pitch, float dt) {
 }
 
 void Player::bodyMove(const Keyboard * kb, float dt) {
-	printf("%f\n", _acceleration);
 	float speed = 0.5f;
 	if (_acceleration <= 0)
 		_acceleration = 0;

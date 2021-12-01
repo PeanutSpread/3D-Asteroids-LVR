@@ -64,7 +64,7 @@ void BasicSceneRenderer::initialize()
     float roomWidth = s.ROOM_SIZE;
     float roomHeight = s.ROOM_SIZE;
     float roomDepth = s.ROOM_SIZE;
-    float roomTilesPerUnit = 100.0f;
+    float roomTilesPerUnit = 0.05f;
 
     // front and back walls
     Mesh* fbMesh = CreateTexturedQuad(roomWidth, roomHeight, roomWidth * roomTilesPerUnit, roomHeight * roomTilesPerUnit);
@@ -84,7 +84,6 @@ void BasicSceneRenderer::initialize()
     texNames.push_back("textures/white.tga");
     texNames.push_back("textures/black.tga");
 	texNames.push_back("textures/space.tga");
-	texNames.push_back("textures/rocky.tga");
 
     for (unsigned i = 0; i < texNames.size(); i++)
         mTextures.push_back(new Texture(texNames[i], GL_REPEAT, GL_LINEAR));
@@ -110,8 +109,9 @@ void BasicSceneRenderer::initialize()
     mMaterials[1]->shininess = 16;
 
 	// space
-	mMaterials[2]->specular = glm::vec3(0.5f, 0.0f, 0.5f);  // orange hightlights
-	mMaterials[2]->shininess = 32;
+	mMaterials[2]->specular = glm::vec3(0.1f, 0.1f, 0.1f);
+	mMaterials[2]->shininess = 100;
+	mMaterials[2]->emissive = glm::vec3(0.025f, 0.025f, 0.025f);
 
 	//
 	// Setup Random
@@ -373,8 +373,14 @@ void BasicSceneRenderer::draw()
 
 	prog->sendUniform("u_AmbientLightColor", glm::vec3(0.1f, 0.1f, 0.1f));
 	prog->sendUniformInt("u_NumPointLights", _player->getLights().size());
+	prog->sendUniformInt("u_NumDirLights", 1);
 	glm::vec3 lightColor = glm::vec3(1.0f, 0.9f, 0.8f);
-	glm::vec3 EngineColor = glm::vec3(0.6f, 0.6f, 1.0f);
+	glm::vec3 engineColor = glm::vec3(0.6f, 0.6f, 1.0f);
+
+	// direction light
+	glm::vec4 lightDir = glm::normalize(glm::vec4(_player->getAim().x, _player->getAim().y, _player->getAim().z, 0));
+	prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
+	prog->sendUniform("u_DirLights[0].color", glm::vec3(0.0f, 0.0f, 0.05f));
 
 	std::string text;
 	for (int i = 0; i < _player->getLights().size(); i++) {
@@ -387,21 +393,23 @@ void BasicSceneRenderer::draw()
 		prog->sendUniform(text + ".pos", glm::vec3(viewMatrix * glm::vec4(lightPos, 1)));
 
 		// send light color/intensity
-		prog->sendUniform(text + ".color", lightColor);
-		prog->sendUniform(text + ".attQuat", 1.0f);
-		prog->sendUniform(text + ".attLin", 0.35f);
-		prog->sendUniform(text + ".attConst", 0.025f);
+		if (_player->getThrottle() && i > _player->getLights().size() - 3) {
+			prog->sendUniform(text + ".color", engineColor);
+			prog->sendUniform(text + ".attQuat", 0.725f);
+			prog->sendUniform(text + ".attLin", 0.25f);
+			prog->sendUniform(text + ".attConst", 0.025f);
+		} else if (i > 5) {
+			prog->sendUniform(text + ".color", lightColor);
+			prog->sendUniform(text + ".attQuat", 1.0f);
+			prog->sendUniform(text + ".attLin", 1.0f);
+			prog->sendUniform(text + ".attConst", 1.0f);
+		} else {
+			prog->sendUniform(text + ".color", lightColor);
+			prog->sendUniform(text + ".attQuat", 1.0f);
+			prog->sendUniform(text + ".attLin", 0.35f);
+			prog->sendUniform(text + ".attConst", 0.025f);
+		}
 
-		// render the light as an emissive cube
-		/*
-		const Mesh* lightMesh = _player->getLights()[i]->getMesh();
-		lightMesh->activate();
-		glBindTexture(GL_TEXTURE_2D, mTextures[1]->id());  // use black texture
-		prog->sendUniform("u_MatEmissiveColor", lightColor);
-		prog->sendUniform("u_ModelviewMatrix", glm::translate(viewMatrix, lightPos));
-		prog->sendUniform("u_NormalMatrix", glm::mat3(1.0f));
-		lightMesh->draw();
-		*/
 	}
 
     // render all entities
@@ -524,20 +532,6 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 	if (kb->keyPressed(KC_TILDE))
 		_visualHiboxes = !_visualHiboxes;
 
-    // change lighting models
-    if (kb->keyPressed(KC_1))
-        mLightingModel = PER_VERTEX_DIR_LIGHT;
-    if (kb->keyPressed(KC_2))
-        mLightingModel = BLINN_PHONG_PER_FRAGMENT_DIR_LIGHT;
-    if (kb->keyPressed(KC_3))
-        mLightingModel = BLINN_PHONG_PER_FRAGMENT_POINT_LIGHT;
-    if (kb->keyPressed(KC_4))
-        mLightingModel = BLINN_PHONG_PER_FRAGMENT_MULTI_LIGHT;
-
-    // toggle visualization of point lights
-    if (kb->keyPressed(KC_TAB))
-        mVisualizePointLights = !mVisualizePointLights;
-
 	/*
 	//
 	// start spline
@@ -601,7 +595,7 @@ void BasicSceneRenderer::_drawEntities(std::vector<Entity*> entities) {
 
 void BasicSceneRenderer::_cleanUpProjectiles() {
 	int index = 0;
-	for (int i = 0; i < _projectileIndexBin.size(); ++i) {
+	for (int i = _projectileIndexBin.size() - 1; i >= 0; --i) {
 		index = _projectileIndexBin[i];
 		_projectiles[index]->destroy();
 		delete _projectiles[index];
@@ -634,7 +628,7 @@ void BasicSceneRenderer::_projectileCheck(int index) {
 void BasicSceneRenderer::_asteroidCheck(int index) {
 	// Repositioning asteroids so that they stay inside boundries
 	glm::vec3 position(_asteroids[index]->getPosition());
-	int boundry = (s.ROOM_SIZE / 2) + s.BUFFER;
+	int boundry = (s.ROOM_SIZE / 2) + s.BUFFER * 2;
 	bool hasChanged = true;
 
 	if (position.x > boundry)

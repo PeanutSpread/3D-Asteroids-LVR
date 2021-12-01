@@ -27,8 +27,7 @@ class Player {
 public:
 	Player(glm::vec3 location);
 
-	std::vector<Entity*> getEntities() const
-	{ return _entities; }
+	std::vector<Entity*> getEntities();
 
 	std::vector<Entity*> getHitboxes() const
 	{ return _hitboxes; }
@@ -44,6 +43,9 @@ public:
 
 	glm::vec3 getAim() const
 	{ return _aim; }
+
+	float getAcceleration() const
+	{ return _acceleration; }
 
 	bool getThrottle() const
 	{ return _throttle; }

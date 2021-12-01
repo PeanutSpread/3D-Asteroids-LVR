@@ -116,7 +116,7 @@ void Camera::toggleFreelook() {
 
 void Camera::_thirdPerson() {
 	mPosition = mPlayer->getAim();
-	_localMoveTo(glm::vec3(0.0f, 0.0f, -mDistance));
+	_localMoveTo(glm::vec3(0.0f, 0.0f, -mDistance - mPlayer->getAcceleration() / 20));
 }
 
 void Camera::_localMove(float deltaT) {

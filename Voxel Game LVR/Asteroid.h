@@ -24,7 +24,7 @@ class Asteroid {
 	void					_spin(); // Animate
 
 public:
-	Asteroid(glm::vec3 location, glm::vec3 velocity, int size);
+	Asteroid(glm::vec3 location, glm::vec3 velocity, int scale);
 
 	std::vector<Entity*> getEntities() const
 	{ return _entities; }

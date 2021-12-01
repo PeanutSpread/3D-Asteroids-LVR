@@ -7,12 +7,14 @@ Projectile::Projectile(glm::vec3 location, glm::quat orientation)
 	, _offsets(NULL)
 {
 	std::vector<Texture*> textures;
-	textures.push_back(new Texture("textures/debug.tga", GL_REPEAT, GL_LINEAR));
+	textures.push_back(new Texture("textures/paint_red.tga", GL_REPEAT, GL_LINEAR));
+	textures.push_back(new Texture("textures/rusted_gold.tga", GL_REPEAT, GL_LINEAR));
 	textures.push_back(new Texture("textures/debug2.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
 
 	std::vector<Material*> materials;
 	materials.push_back(new Material(textures[0]));
 	materials.push_back(new Material(textures[1]));
+	materials.push_back(new Material(textures[2]));
 
 	std::vector<Mesh*> meshes;
 	meshes.push_back(CreateChunkyCone(0.5f, 0.75f, 8.f));
@@ -24,10 +26,10 @@ Projectile::Projectile(glm::vec3 location, glm::quat orientation)
 
 	_entities.push_back(new Entity(meshes[0], materials[0], Transform(_position.x, _position.y, _position.z))); // Front Cone
 	_entities.push_back(new Entity(meshes[1], materials[0], Transform(_position.x, _position.y - 1.1f, _position.z)));
-	_entities.push_back(new Entity(meshes[2], materials[0], Transform(_position.x, _position.y - 2.0f, _position.z)));
+	_entities.push_back(new Entity(meshes[2], materials[1], Transform(_position.x, _position.y - 2.0f, _position.z)));
 
 	// Hitbox
-	_hitboxes.push_back(new Entity(meshes[3], materials[1], Transform(_position.x, _position.y - 1.f, _position.z)));
+	_hitboxes.push_back(new Entity(meshes[3], materials[2], Transform(_position.x, _position.y - 1.f, _position.z)));
 
 	glm::vec3 relatedLoc(0, 0, 0);
 
@@ -70,7 +72,7 @@ void Projectile::_adjustOrientation() {
 }
 
 void Projectile::update(float dt) {
-	float speed = 100;
+	float speed = 150;
 	float disp = speed * dt;
 
 	glm::vec3 displacement(0, 0, 0);
