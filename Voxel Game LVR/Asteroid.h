@@ -22,6 +22,7 @@ class Asteroid {
 
 	void					_adjustOrientation(glm::quat orientation);
 	void					_spin(); // Animate
+	void					_destroy(); // Memory Management
 
 	Settings				s;
 
@@ -40,10 +41,12 @@ public:
 	glm::quat getOrientation() const
 	{ return _orientation; }
 
+	int getStage() const
+	{ return _stage; }
+
 	void adjustSpeed(float value)
 	{ _speed += value; }
 
-	void changeVelocity(); // Change velocity of astreroid when hit or another reason
 	void setPosition(glm::vec3 value);
 
 	std::vector<Asteroid*> explode();

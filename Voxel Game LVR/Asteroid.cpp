@@ -101,8 +101,8 @@ void Asteroid::_spin() {
 	_adjustOrientation(_aligner->getOrientation());
 }
 
-void Asteroid::changeVelocity()
-{
+void Asteroid::_destroy() {
+
 }
 
 void Asteroid::setPosition(glm::vec3 value) {
@@ -112,7 +112,7 @@ void Asteroid::setPosition(glm::vec3 value) {
 
 std::vector<Asteroid*> Asteroid::explode() {
 	std::vector<Asteroid*> splits;
-	if (_stage > 0) {
+	if (_stage > 1) {
 		for (int i = 0; i < s.ASTEROID_SPLITS; ++i) {
 			glm::vec3 angle(rand() % s.ASTEROID_ANGLE + s.ASTEROID_MIN_ANGLE, rand() % s.ASTEROID_ANGLE + s.ASTEROID_MIN_ANGLE, rand() % s.ASTEROID_ANGLE + s.ASTEROID_MIN_ANGLE);
 			angle.x *= s.ASTEROID_SPEED_SPLIT;
@@ -127,6 +127,8 @@ std::vector<Asteroid*> Asteroid::explode() {
 			splits.push_back(new Asteroid(spawn, (_direction + angle), _stage - 1));
 		}
 	}
+
+	_destroy();
 	return splits;
 }
 

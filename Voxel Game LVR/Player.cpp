@@ -180,24 +180,16 @@ void Player::bodyMove(const Keyboard * kb, float dt) {
 		disp = _acceleration * speed * dt;
 		displacement.y = disp;
 	}
-	/*
-	if (kb->isKeyDown(KC_S))
-		displacement.y = -disp;
-
-	// strafe left and right
-	if (kb->isKeyDown(KC_A))
-		displacement.x = -disp;
-	if (kb->isKeyDown(KC_D))
-		displacement.x = disp;
-	*/
 
 	_aligner->translateLocal(displacement);
-
-	/*
-	for (int i = 0; i < _entities.size(); i++) {
-		_entities[i]->translateLocal(displacement);
-	}
-	*/
+	glm::vec3 position(_aligner->getPosition());
+	int boundry = (s.ROOM_SIZE / 2) - s.BUFFER * 4;
+	if (position.x > boundry || position.x < -boundry)
+		_aligner->setPosition(boundry, position.y, position.z);
+	if (position.y > boundry || position.y < -boundry)
+		_aligner->setPosition(position.x, boundry, position.z);
+	if (position.z > boundry || position.z < -boundry)
+		_aligner->setPosition(position.x, position.y, boundry);
 
 	_position = _aligner->getPosition();
 }
