@@ -9,6 +9,7 @@
 #include "Asteroid.h"
 #include "Settings.h"
 
+#include <ctime>
 #include <vector>
 #include <math.h>
 
@@ -48,9 +49,17 @@ class BasicSceneRenderer : public GLApp {
 
     glm::mat4                   mProjMatrix;
 
+	clock_t						_respawnTimer;
+	clock_t						_projectileTimer;
+
     bool                        mVisualizePointLights;
 	bool						_pause = false;
 	bool						_startFix = true;
+	bool						_dieing = false;
+	bool						_projectileReady = true;
+	bool						_spawnSafety = true;
+	bool						_gameOver = false;
+	int							_lives = 5;
 
 	void						_addEntities(std::vector<Entity*> entities);
 	void						_drawEntities(std::vector<Entity*> entities);
@@ -61,12 +70,15 @@ class BasicSceneRenderer : public GLApp {
 	void						_asteroidCheck(int index);
 	void						_destroyAsteroid(Projectile* projectile);
 	void						_createAsteroids();
+	bool						_timerCheck(clock_t timer, float elapsedTime);
+	bool						_timerIntervalCheck(clock_t timer, int interval);
 
 	std::vector<Entity*>		_flattenProjectiles();
 	std::vector<Entity*>		_flattenAsteroids();
 	
 	std::vector<Entity*>		_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities);
 	void						_drawHUD(float scale);
+
 
 	Settings					s;
 

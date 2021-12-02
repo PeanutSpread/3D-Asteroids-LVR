@@ -238,11 +238,15 @@ void BasicSceneRenderer::draw()
 	prog->sendUniformInt("u_NumDirLights", 1);
 	glm::vec3 lightColor = glm::vec3(1.0f, 0.9f, 0.8f);
 	glm::vec3 engineColor = glm::vec3(0.6f, 0.6f, 1.0f);
+	glm::vec3 spawnColor = glm::vec3(1.0f, 1.0f, 0.0f);
+	glm::vec3 dieingColor = glm::vec3(1.0f, 0.0f, 0.0f);
 
 	// direction light
 	glm::vec4 lightDir = glm::normalize(glm::vec4(_player->getAim().x, _player->getAim().y, _player->getAim().z, 0));
 	prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
 	prog->sendUniform("u_DirLights[0].color", glm::vec3(0.0f, 0.0f, 0.05f));
+
+	bool flip = _timerIntervalCheck(_respawnTimer, s.LIGHT_FLASH_INTERVAL);
 
 	std::string text;
 	for (int i = 0; i < _player->getLights().size(); i++) {
@@ -255,7 +259,19 @@ void BasicSceneRenderer::draw()
 		prog->sendUniform(text + ".pos", glm::vec3(viewMatrix * glm::vec4(lightPos, 1)));
 
 		// send light color/intensity
-		if (_player->getThrottle() && i > _player->getLights().size() - 3) {
+		if (_dieing  && flip) {
+			prog->sendUniform(text + ".color", dieingColor);
+			prog->sendUniform(text + ".attQuat", 0.75f);
+			prog->sendUniform(text + ".attLin", 0.75f);
+			prog->sendUniform(text + ".attConst", 0.75f);
+
+		} else if (_spawnSafety && flip) {
+			prog->sendUniform(text + ".color", spawnColor);
+			prog->sendUniform(text + ".attQuat", 0.75f);
+			prog->sendUniform(text + ".attLin", 0.75f);
+			prog->sendUniform(text + ".attConst", 0.75f);
+
+		} else if (_player->getThrottle() && i > _player->getLights().size() - 3) {
 			prog->sendUniform(text + ".color", engineColor);
 			prog->sendUniform(text + ".attQuat", 0.725f);
 			prog->sendUniform(text + ".attLin", 0.25f);
@@ -351,36 +367,61 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 	const Keyboard* kb = getKeyboard();
 	const Mouse* mouse = getMouse();
 
-	if (!mCamera->getFreeLook() && !_pause) {
-		_player->headLook(mCamera->getYaw(), mCamera->getPitch(), dt);
-		_player->bodyMove(kb, dt);
-		if (_player->hasCollision(_getDangersTo(_player->getPosition(), _asteroids), AABB_AABB)) {
-			_playerDeath();
+	if (!_pause) {
+		if (_dieing) {
+			_player->death();
+			if (_timerCheck(_respawnTimer, s.RESPAWN_INTERVAL)) {
+				_spawnSafety = true;
+				_dieing = false;
+				_respawnTimer = clock();
+			}
 		}
-		if (mouse->buttonPressed(MOUSE_BUTTON_LEFT)) {
-			_projectiles.push_back(_player->shoot()[0]);
+
+		if (_spawnSafety)
+			if (_timerCheck(_respawnTimer, s.RESPAWN_INTERVAL))
+				_spawnSafety = false;
+
+		if (!_gameOver) {
+			if (!mCamera->getFreeLook() && !_dieing) {
+				_player->headLook(mCamera->getYaw(), mCamera->getPitch(), dt);
+				_player->bodyMove(kb, dt);
+				if (!_spawnSafety) {
+					if (_player->hasCollision(_getDangersTo(_player->getPosition(), _asteroids), AABB_AABB)) {
+						_playerDeath();
+					}
+				}
+				if (!_projectileReady)
+					if (_timerCheck(_projectileTimer, s.PROJECTILE_INTERVAL))
+						_projectileReady = true;
+
+				if (mouse->buttonPressed(MOUSE_BUTTON_LEFT) && _projectileReady) {
+					_projectiles.push_back(_player->shoot()[0]);
+					_projectileReady = false;
+					_projectileTimer = clock();
+				}
+			}
 		}
-	}
 
-	if (_projectiles.size() > 0 && !_pause) {
-		for (int i = 0; i < _projectiles.size(); i++) {
-			_projectiles[i]->update(dt);
-			_projectileCheck(i);
+		if (_projectiles.size() > 0) {
+			for (int i = 0; i < _projectiles.size(); i++) {
+				_projectiles[i]->update(dt);
+				_projectileCheck(i);
+			}
 		}
-	}
 
-	if (_asteroids.size() == 0) {
-		_createAsteroids();
-	}
-
-	if (_asteroids.size() > 0 && !_pause) {
-		for (int i = 0; i < _asteroids.size(); i++) {
-			_asteroids[i]->update(dt);
-			_asteroidCheck(i);
+		if (_asteroids.size() == 0) {
+			_createAsteroids();
 		}
-	}
 
-	_cleanUpProjectiles();
+		if (_asteroids.size() > 0) {
+			for (int i = 0; i < _asteroids.size(); i++) {
+				_asteroids[i]->update(dt);
+				_asteroidCheck(i);
+			}
+		}
+
+		_cleanUpProjectiles();
+	}
 
 	// Quit NOT FINAL
     if (kb->keyPressed(KC_ESCAPE))
@@ -467,9 +508,15 @@ void BasicSceneRenderer::_cleanUpProjectiles() {
 }
 
 void BasicSceneRenderer::_playerDeath() {
-	//TODO: Special animation or somthing
+	//TODO: Special animation or something
 	// Delete Player
-	printf("died\n");
+	if (_lives > 0) {
+		--_lives;
+		_dieing = true;
+		_respawnTimer = clock();
+	}
+	
+	_player->death();
 }
 
 void BasicSceneRenderer::_projectileCheck(int index) {
@@ -545,6 +592,21 @@ void BasicSceneRenderer::_createAsteroids() {
 	}
 }
 
+bool BasicSceneRenderer::_timerCheck(clock_t timer, float elapsedTime) {
+	timer = clock() - timer;
+	if ((float)timer / CLOCKS_PER_SEC >= elapsedTime)
+		return true;
+	return false;
+}
+
+bool BasicSceneRenderer::_timerIntervalCheck(clock_t timer, int interval) {
+	bool toggle = false;
+	timer = clock() - timer;
+	if ((timer / CLOCKS_PER_SEC) % interval == 0)
+		toggle = !toggle;
+	return toggle;
+}
+
 std::vector<Entity*> BasicSceneRenderer::_flattenProjectiles()
 {
 	std::vector<Entity*> entities;
@@ -607,7 +669,7 @@ void BasicSceneRenderer::_drawHUD(float scale) {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	glBegin(GL_TRIANGLES);
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor3f(0.0f, 0.0f, 1.0f);
 	glVertex3f(0.025 * scale, 0.0, 3.0);
 	glVertex3f(0.5 * scale, 0.0, 3.0 - (0.075 * scale));
 	glVertex3f(0.5 * scale, 0.0, 3.0 + (0.075 * scale));
@@ -616,8 +678,6 @@ void BasicSceneRenderer::_drawHUD(float scale) {
 	glVertex3f(-0.5 * scale, 0.0, 3.0 - (0.075 * scale));
 	glVertex3f(-0.5 * scale, 0.0, 3.0 + (0.075 * scale));
 	glEnd();
-
-
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();

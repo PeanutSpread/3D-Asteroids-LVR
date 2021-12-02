@@ -52,6 +52,7 @@ public:
 	
 	void headLook(float yaw, float pitch, float dt);
 	void bodyMove(const Keyboard* kb, float dt);
+	void death();
 	std::vector<Projectile*> shoot();
 	bool hasCollision(std::vector<Entity*> otherHitboxes, CollisionType check);
 

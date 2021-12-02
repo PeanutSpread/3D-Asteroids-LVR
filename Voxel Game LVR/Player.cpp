@@ -184,14 +184,52 @@ void Player::bodyMove(const Keyboard * kb, float dt) {
 	_aligner->translateLocal(displacement);
 	glm::vec3 position(_aligner->getPosition());
 	int boundry = (s.ROOM_SIZE / 2) - s.BUFFER * 4;
-	if (position.x > boundry || position.x < -boundry)
+	if (position.x > boundry)
 		_aligner->setPosition(boundry, position.y, position.z);
-	if (position.y > boundry || position.y < -boundry)
+	else if (position.x < -boundry)
+		_aligner->setPosition(-boundry, position.y, position.z);
+	if (position.y > boundry)
 		_aligner->setPosition(position.x, boundry, position.z);
-	if (position.z > boundry || position.z < -boundry)
+	else if (position.y < -boundry)
+		_aligner->setPosition(position.x, -boundry, position.z);
+	if (position.z > boundry)
 		_aligner->setPosition(position.x, position.y, boundry);
+	else if (position.z < -boundry)
+		_aligner->setPosition(position.x, position.y, -boundry);
 
 	_position = _aligner->getPosition();
+}
+
+void Player::death() {
+	_throttle = false;
+	for (int i = 0; i < _entities.size(); ++i) {
+		float angle = (float)(rand() % s.ANGLE - s.ANGLE_MIN);
+		_entities[i]->rotate(angle, 1, 0, 0);
+		_entities[i]->rotate(angle, 0, 1, 0);
+		_entities[i]->rotate(angle, 0, 0, 1);
+
+		glm::vec3 distance = _offsets[i];
+		distance.x /= s.BREAK_OFF;
+		distance.y /= s.BREAK_OFF;
+		distance.z /= s.BREAK_OFF;
+
+		if (i % 2 == 0)
+			distance = -distance;
+		if (i % 3 == 0) {
+			float holder = distance.y;
+			distance.y = distance.z;
+			distance.z = holder;
+		}
+
+		if (i % 4 == 0) {
+			float holder = distance.y;
+			distance.y = distance.x;
+			distance.x = holder;
+		}
+
+		_entities[i]->translateLocal(distance);
+
+	}
 }
 
 std::vector<Projectile*> Player::shoot() {
