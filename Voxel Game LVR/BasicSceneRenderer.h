@@ -77,7 +77,7 @@ class BasicSceneRenderer : public GLApp {
 	std::vector<Entity*>		_flattenAsteroids();
 	
 	std::vector<Entity*>		_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities);
-	void						_drawHUD(float scale);
+	void						_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix);
 
 
 	Settings					s;
@@ -90,6 +90,9 @@ class BasicSceneRenderer : public GLApp {
 
     // geometry of axes
     Mesh*                       mAxes;
+
+	// Rendering
+	void						_render(ShaderProgram* prog, glm::mat4 viewMatrix, std::vector<Entity*> entitie);
 
 public:
                         BasicSceneRenderer();

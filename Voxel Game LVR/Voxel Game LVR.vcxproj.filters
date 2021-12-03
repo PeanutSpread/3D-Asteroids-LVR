@@ -21,6 +21,12 @@
     <Filter Include="Header Files\Entities">
       <UniqueIdentifier>{0dfaa42d-9e39-4a3d-96f0-6de66c3b701f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Menu">
+      <UniqueIdentifier>{f46bd212-9da5-4984-a868-8568b137ea5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Menu">
+      <UniqueIdentifier>{df8e3198-0753-44fd-8257-34f98f4f9802}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BasicSceneRenderer.cpp">
@@ -56,12 +62,6 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StateManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
@@ -73,6 +73,12 @@
     </ClCompile>
     <ClCompile Include="Asteroid.cpp">
       <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenu.cpp">
+      <Filter>Source Files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="StateManager.cpp">
+      <Filter>Source Files\Menu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -115,12 +121,6 @@
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MainMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StateManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
@@ -135,6 +135,12 @@
     </ClInclude>
     <ClInclude Include="Asteroid.h">
       <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="StateManager.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenu.h">
+      <Filter>Header Files\Menu</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -209,6 +215,15 @@
       <Filter>textures</Filter>
     </Image>
     <Image Include="textures\rocky.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\blue.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\crosshair.tga">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\life.tga">
       <Filter>textures</Filter>
     </Image>
   </ItemGroup>

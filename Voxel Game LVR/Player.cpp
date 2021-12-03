@@ -199,17 +199,17 @@ void Player::bodyMove(const Keyboard * kb, float dt) {
 	_aligner->translateLocal(displacement);
 	glm::vec3 position(_aligner->getPosition());
 	int boundry = (s.ROOM_SIZE / 2) - s.BUFFER * 4;
-	if (position.x > boundry)
+	if (position.x >= boundry)
 		_aligner->setPosition(boundry, position.y, position.z);
-	else if (position.x < -boundry)
+	else if (position.x <= -boundry)
 		_aligner->setPosition(-boundry, position.y, position.z);
-	if (position.y > boundry)
+	if (position.y >= boundry)
 		_aligner->setPosition(position.x, boundry, position.z);
-	else if (position.y < -boundry)
+	else if (position.y <= -boundry)
 		_aligner->setPosition(position.x, -boundry, position.z);
-	if (position.z > boundry)
+	if (position.z >= boundry)
 		_aligner->setPosition(position.x, position.y, boundry);
-	else if (position.z < -boundry)
+	else if (position.z <= -boundry)
 		_aligner->setPosition(position.x, position.y, -boundry);
 
 	_position = _aligner->getPosition();
@@ -273,7 +273,8 @@ void Player::death(float dt) {
 		// start spline
 		glm::vec3 vPos = _splinePointOnCurve(dt, positions[0], finalDestination, positions[1], finalDestination);
 
-		_entities[i]->setPosition(vPos);
+		if (i != 0)
+			_entities[i]->setPosition(vPos);
 
 	}
 }

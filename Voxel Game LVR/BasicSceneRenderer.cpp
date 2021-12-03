@@ -36,13 +36,13 @@ void BasicSceneRenderer::initialize()
     glEnable(GL_CULL_FACE);
 
     // enable blending (needed for textures with alpha channel)
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     mPrograms.resize(NUM_LIGHTING_MODELS);
 
-    mPrograms[PER_VERTEX_DIR_LIGHT] = new ShaderProgram("shaders/PerVertexDirLight-vs.glsl",
-                                                                "shaders/PerVertexDirLight-fs.glsl");
+	mPrograms[PER_VERTEX_DIR_LIGHT] = new ShaderProgram("shaders/PerVertexDirLight-vs.glsl",
+														"shaders/PerVertexDirLight-fs.glsl");
     
     mPrograms[BLINN_PHONG_PER_FRAGMENT_DIR_LIGHT] = new ShaderProgram("shaders/BlinnPhongPerFragment-vs.glsl",
                                                                       "shaders/BlinnPhongPerFragmentDirLight-fs.glsl");
@@ -295,34 +295,10 @@ void BasicSceneRenderer::draw()
 	}
 
     // render all entities
-    for (unsigned i = 0; i < _toBeDrawn.size(); i++) {
+	_render(prog, viewMatrix, _toBeDrawn);
 
-        Entity* ent = _toBeDrawn[i];
+	_drawHUD(prog, viewMatrix);
 
-        // use the entity's material
-        const Material* mat = ent->getMaterial();
-        glBindTexture(GL_TEXTURE_2D, mat->tex->id());   // bind texture
-        prog->sendUniform("u_Tint", mat->tint);     // send tint color
-
-        // send the Blinn-Phong parameters, if required
-        if (mLightingModel > PER_VERTEX_DIR_LIGHT) {
-            prog->sendUniform("u_MatEmissiveColor", mat->emissive);
-            prog->sendUniform("u_MatSpecularColor", mat->specular);
-            prog->sendUniform("u_MatShininess", mat->shininess);
-        }
-
-        // compute modelview matrix
-        glm::mat4 modelview = viewMatrix * ent->getWorldMatrix();
-
-        // send the entity's modelview and normal matrix
-        prog->sendUniform("u_ModelviewMatrix", modelview);
-        prog->sendUniform("u_NormalMatrix", glm::transpose(glm::inverse(glm::mat3(modelview))));
-
-        // use the entity's mesh
-        const Mesh* mesh = ent->getMesh();
-        mesh->activate();
-        mesh->draw();
-    }
     mDbgProgram->activate();
     mDbgProgram->sendUniform("u_ProjectionMatrix", mProjMatrix);
 
@@ -333,43 +309,53 @@ void BasicSceneRenderer::draw()
 		mAxes->draw();
 	}
 
-	//2D Drawing
-	_drawHUD(mCamera->getZoom()/10);
-
     CHECK_GL_ERRORS("drawing");
 }
 
-static float t;
-void SplineInit()
-{
-	t = 0.0f;
-}
+void BasicSceneRenderer::_render(ShaderProgram* prog, glm::mat4 viewMatrix, std::vector<Entity*> entities) {
+	for (unsigned i = 0; i < entities.size(); i++) {
 
-glm::vec3 SplinePointOnCurve(float dt, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3)
-{
-	//
-	//	The spline passes through all of the control points.
-	//	The spline is C1 continuous, meaning that there are no discontinuities in the tangent direction and magnitude.
-	//	The spline is not C2 continuous.  The second derivative is linearly interpolated within each segment, causing the curvature to vary linearly over the length of the segment.
-	//	Points on a segment may lie outside of the domain of P1 -> P2.
-	glm::vec3 vOut = glm::vec3(0.0f, 0.0f, 0.0f);
+		Entity* ent = entities[i];
+		// use the entity's material
+		const Material* mat = ent->getMaterial();
+		glBindTexture(GL_TEXTURE_2D, mat->tex->id());   // bind texture
+		prog->sendUniform("u_Tint", mat->tint);     // send tint color
 
-	// update state
-	t += dt;
-	if (t > 1.0f)
-		t = 1.0f;
-	float t2 = t * t;
-	float t3 = t2 * t;
+		// send the Blinn-Phong parameters, if required
+		if (mLightingModel > PER_VERTEX_DIR_LIGHT) {
+			prog->sendUniform("u_MatEmissiveColor", mat->emissive);
+			prog->sendUniform("u_MatSpecularColor", mat->specular);
+			prog->sendUniform("u_MatShininess", mat->shininess);
+		}
 
-	vOut = 0.5f * ((2.0f * p1) + (-p0 + p2) * t + (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t2 + (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3);
+		// compute modelview matrix
+		glm::mat4 modelview = viewMatrix * ent->getWorldMatrix();
 
-	return vOut;
+		// send the entity's modelview and normal matrix
+		prog->sendUniform("u_ModelviewMatrix", modelview);
+		prog->sendUniform("u_NormalMatrix", glm::transpose(glm::inverse(glm::mat3(modelview))));
+
+		// use the entity's mesh
+		const Mesh* mesh = ent->getMesh();
+		mesh->activate();
+		mesh->draw();
+	}
 }
 
 bool BasicSceneRenderer::update(float dt) // GAME LOOP
 {
 	const Keyboard* kb = getKeyboard();
 	const Mouse* mouse = getMouse();
+
+
+	// Pause Toggle
+	if (kb->keyPressed(KC_ESCAPE)) {
+		_pause = !_pause;
+		glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
+	}
+
+	if (kb->keyPressed(KC_SPACE) && _pause)
+		return false;
 
 	if (!_pause) {
 		if (_dieing) {
@@ -442,19 +428,15 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 		}
 
 	}
-
-	// Pause Toggle
-	if (kb->keyPressed(KC_ESCAPE))
-		_pause = !_pause;
-
-	if (kb->keyPressed(KC_SPACE) && _pause)
-		return false;
 		
 
 	if (isFocused()) {
 		// Stop mouse tracking when out of window
-		glutSetCursor(GLUT_CURSOR_NONE);
-		glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
+		if (!_pause) {
+			glutSetCursor(GLUT_CURSOR_NONE);
+			glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
+		} else 
+			glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
 		mCamera->update(dt);
 	} else {
 		// Display mouse cursor over screen when not focused
@@ -645,30 +627,61 @@ std::vector<Entity*> BasicSceneRenderer::_getDangersTo(glm::vec3 point, std::vec
 	return dangers;
 }
 
-void BasicSceneRenderer::_drawHUD(float scale) {
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0, s.SCREEN_WIDTH, s.SCREEN_HEIGHT, 0.0, -10.0, 1.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glDisable(GL_CULL_FACE);
-
+void BasicSceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	glClear(GL_DEPTH_BUFFER_BIT);
+	glBlendFunc(GL_DST_ALPHA, GL_ONE);
 
-	glBegin(GL_TRIANGLES);
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(0.025 * scale, 0.0, 3.0);
-	glVertex3f(0.5 * scale, 0.0, 3.0 - (0.075 * scale));
-	glVertex3f(0.5 * scale, 0.0, 3.0 + (0.075 * scale));
-	//--------------------------
-	glVertex3f(-0.025 * scale, 0.0, 3.0);
-	glVertex3f(-0.5 * scale, 0.0, 3.0 - (0.075 * scale));
-	glVertex3f(-0.5 * scale, 0.0, 3.0 + (0.075 * scale));
-	glEnd();
+	glm::vec3 vP = mCamera->getPosition();
+	Entity aligner = Entity(NULL, NULL, Transform(vP));
+	float radYaw = (3.14159265f / 180.0f) * mCamera->getYaw();
+	float radPitch = (3.14159265f / 180.0f) * mCamera->getPitch();
+	aligner.setOrientation(glm::quat(glm::vec3(radPitch - 1.5f, radYaw, 0.f)));
+	aligner.setPosition(_player->getEntities()[0]->getPosition());
+	aligner.translateLocal(0, 0, 3);
+	vP = aligner.getPosition();
+	float scale = mCamera->getZoom() + (_player->getAcceleration() / 20);
+	glm::quat viewOrientation(glm::vec3(radPitch, radYaw, 0.f));
 
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	std::vector<Texture*> textures;
+	textures.push_back(new Texture("textures/crosshair.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
+	textures.push_back(new Texture("textures/life.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
+
+	std::vector<Material*> materials;
+	materials.push_back(new Material(textures[0]));
+	materials.push_back(new Material(textures[1]));
+
+	std::vector<Mesh*> meshes;
+	meshes.push_back(CreateTexturedQuad(0.05f * scale, 0.025f * scale, 1.f, 1.f)); // Crosshair
+	meshes.push_back(CreateTexturedQuad(0.05f * scale, 0.1f * scale, 1.f, 1.f)); // Life
+
+	std::vector<Entity*> entities;
+	if (!_pause) {
+		if (!_dieing) {
+			aligner.translateLocal(-0.035 * scale, 0, 0);
+			entities.push_back(new Entity(meshes[0], materials[0], Transform(aligner.getPosition())));
+			aligner.setPosition(vP);
+
+			aligner.translateLocal(0.035 * scale, 0, 0);
+			entities.push_back(new Entity(meshes[0], materials[0], Transform(aligner.getPosition())));
+			aligner.setPosition(vP);
+		}
+
+		for (int i = 0; i < _lives; ++i) {
+			aligner.translateLocal((0.25 + 0.07 * i)* scale, 0, 0.38 * scale);
+			entities.push_back(new Entity(meshes[1], materials[1], Transform(aligner.getPosition())));
+			aligner.setPosition(vP);
+		}
+	}
+
+	for (int i = 0; i < entities.size(); ++i) {
+		entities[i]->setOrientation(viewOrientation);
+		if (i == 1 && !_pause && !_dieing) {
+			entities[1]->rotate(180, 0, 0, 1);
+		}
+	}
+
+	glDepthMask(GL_FALSE);
+	_render(prog, viewMatrix, entities);
+	glDepthMask(GL_TRUE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

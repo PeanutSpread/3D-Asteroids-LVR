@@ -183,10 +183,13 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\black.tga" />
+    <Image Include="textures\blue.tga" />
+    <Image Include="textures\crosshair.tga" />
     <Image Include="textures\debug.tga" />
     <Image Include="textures\debug2.tga" />
     <Image Include="textures\debug3.tga" />
     <Image Include="textures\engine_light.tga" />
+    <Image Include="textures\life.tga" />
     <Image Include="textures\metal_panel.tga" />
     <Image Include="textures\metal_panel_corrugated.tga" />
     <Image Include="textures\metal_panel_dark.tga" />
