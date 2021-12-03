@@ -246,7 +246,11 @@ void BasicSceneRenderer::draw()
 	prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
 	prog->sendUniform("u_DirLights[0].color", glm::vec3(0.0f, 0.0f, 0.05f));
 
+	static bool cond;
 	bool flip = _timerIntervalCheck(_respawnTimer, s.LIGHT_FLASH_INTERVAL);
+	if (_pause)
+		flip = cond;
+	cond = flip;
 
 	std::string text;
 	for (int i = 0; i < _player->getLights().size(); i++) {
@@ -421,29 +425,31 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 		}
 
 		_cleanUpProjectiles();
+
+
+		// Commiting Suicide
+		if (kb->keyPressed(KC_RETURN))
+			_playerDeath(dt);
+
+		// Show Hitboxes
+		if (kb->keyPressed(KC_TILDE))
+			_visualHitboxes = !_visualHitboxes;
+
+		// update the camera
+		if (kb->keyPressed(KC_P)) {
+			// Freelook (i.e. not attatched to ship) Will be removed or hidden
+			mCamera->toggleFreelook();
+		}
+
 	}
 
-	// Commiting Suicide in VC
-	if (kb->keyPressed(KC_RETURN))
-		_playerDeath(dt);
-
-	// Quit NOT FINAL
-    if (kb->keyPressed(KC_ESCAPE))
-        return false;
-
-	// Pause Toggle NOT FINAL
-	if (kb->keyPressed(KC_SPACE))
+	// Pause Toggle
+	if (kb->keyPressed(KC_ESCAPE))
 		_pause = !_pause;
 
-	// Show Hitboxes
-	if (kb->keyPressed(KC_TILDE))
-		_visualHitboxes = !_visualHitboxes;
-
-    // update the camera
-	if (kb->keyPressed(KC_P)) {
-		// Freelook (i.e. not attatched to ship) Will be removed or hidden
-		mCamera->toggleFreelook();
-	}
+	if (kb->keyPressed(KC_SPACE) && _pause)
+		return false;
+		
 
 	if (isFocused()) {
 		// Stop mouse tracking when out of window

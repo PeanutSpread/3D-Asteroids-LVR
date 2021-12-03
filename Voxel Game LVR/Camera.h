@@ -34,6 +34,7 @@ class Camera {
 	void _localMove(float deltaT);
 	void _localMoveTo(glm::vec3 movement);
 	bool _startFix = true;
+	bool _pause = false;
 
 	Settings s;
 

@@ -63,51 +63,55 @@ void Camera::update(float deltaT)
 	else
 		_inverse = true;
 
-    // freelook with mouse
-	if (_isFocused()) {
+	if (kb->keyPressed(KC_ESCAPE))
+		_pause = !_pause;
 
-		// Had issues with actual center of screen, and this gives a cool delayed affect to the camera
-		_dx += (mouse->getX() - s.SCREEN_WIDTH / 2);
-		_dy += (mouse->getY() - s.SCREEN_HEIGHT / 2);
+	if (!_pause) {
+		if (_isFocused()) {
 
-		if (_startFix) {
-			if (mouse->getX() != 0.0 and mouse->getY() != 0.0) {
-				_startFix = false;
+			// Had issues with actual center of screen, and this gives a cool delayed affect to the camera
+			_dx += (mouse->getX() - s.SCREEN_WIDTH / 2);
+			_dy += (mouse->getY() - s.SCREEN_HEIGHT / 2);
+
+			if (_startFix) {
+				if (mouse->getX() != 0.0 and mouse->getY() != 0.0) {
+					_startFix = false;
+				}
+				_dx = 0;
+				_dy = 0;
 			}
-			_dx = 0;
-			_dy = 0;
-		}
 
-		if (_dx != 0.0) {
+			if (_dx != 0.0) {
 
-			if (_inverse) 
-				yaw(_dx * mMouseSpeed);
-			else 
-				yaw(-_dx * mMouseSpeed);
+				if (_inverse)
+					yaw(_dx * mMouseSpeed);
+				else
+					yaw(-_dx * mMouseSpeed);
 
-			_dx += -_dx / 5;
-		}
-		if (_dy != 0.0) {
-			pitch(-_dy * mMouseSpeed);
-			_dy += -_dy / 5;
-		}
+				_dx += -_dx / 5;
+			}
+			if (_dy != 0.0) {
+				pitch(-_dy * mMouseSpeed);
+				_dy += -_dy / 5;
+			}
 
-		float dw = mDistance - mouse->getWheelDelta();
+			float dw = mDistance - mouse->getWheelDelta();
 			if (dw >= 6 && dw <= 18) {
 				mDistance -= mouse->getWheelDelta();
 			}
+		}
+
+		// recompute forward, right, and up vectors if needed
+		if (mOrientationChanged) {
+			_orientationChange();
+			mOrientationChanged = false;
+		}
+
+		if (!_freeLook)
+			_thirdPerson();
+		else
+			_localMove(deltaT);
 	}
-
-    // recompute forward, right, and up vectors if needed
-    if (mOrientationChanged) {
-		_orientationChange();
-        mOrientationChanged = false;
-    }
-
-	if (!_freeLook)
-		_thirdPerson();
-	else
-		_localMove(deltaT);
 }
 
 void Camera::toggleFreelook() {

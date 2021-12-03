@@ -226,7 +226,7 @@ void Player::death(float dt) {
 		_entities[i]->rotate(angle, 0, 0, 1);
 
 		glm::vec3 distance = _offsets[i];
-		glm::vec3 finalDestination(0, 0, 0);
+		glm::vec3 finalDestination(_position);
 
 		distance.x /= s.BREAK_OFF;
 		distance.y /= s.BREAK_OFF;
@@ -235,9 +235,9 @@ void Player::death(float dt) {
 		if (i % 2 == 0) {
 			distance = -distance;
 			if (flip)
-				finalDestination.x = 0.5;
+				finalDestination.x += 0.5;
 			else
-				finalDestination.x = -0.5;
+				finalDestination.x += -0.5;
 		}
 		
 		if (i % 3 == 0) {
@@ -245,9 +245,9 @@ void Player::death(float dt) {
 			distance.y = distance.z;
 			distance.z = holder;
 			if (flip)
-				finalDestination.y = 0.5;
+				finalDestination.y += 0.5;
 			else
-				finalDestination.y = -0.5;
+				finalDestination.y += -0.5;
 		}
 		
 		if (i % 4 == 0) {
@@ -255,9 +255,9 @@ void Player::death(float dt) {
 			distance.y = distance.x;
 			distance.x = holder;
 			if (flip)
-				finalDestination.z = 0.5;
+				finalDestination.z += 0.5;
 			else
-				finalDestination.z = -0.5;
+				finalDestination.z += -0.5;
 		}
 
 		_aligner->setPosition(_entities[i]->getPosition());
