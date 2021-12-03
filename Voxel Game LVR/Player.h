@@ -20,7 +20,10 @@ class Player {
 	glm::quat				_orientation;
 	glm::vec3				_aim;
 	float					_acceleration = 0;
+	float					t = 0;
 	bool					_throttle = false;
+
+	glm::vec3				_splinePointOnCurve(float dt, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
 
 	Settings				s;
 
@@ -52,7 +55,7 @@ public:
 	
 	void headLook(float yaw, float pitch, float dt);
 	void bodyMove(const Keyboard* kb, float dt);
-	void death();
+	void death(float dt);
 	std::vector<Projectile*> shoot();
 	bool hasCollision(std::vector<Entity*> otherHitboxes, CollisionType check);
 

@@ -36,8 +36,8 @@ void BasicSceneRenderer::initialize()
     glEnable(GL_CULL_FACE);
 
     // enable blending (needed for textures with alpha channel)
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     mPrograms.resize(NUM_LIGHTING_MODELS);
 
@@ -228,7 +228,7 @@ void BasicSceneRenderer::draw()
 	_drawEntities(_flattenAsteroids());
 	_drawEntities(_flattenProjectiles());
 	_drawEntities(_player->getEntities());
-	if (_visualHiboxes)
+	if (_visualHitboxes)
 		_drawEntities(_player->getHitboxes());
 
 	// Lighting
@@ -324,7 +324,7 @@ void BasicSceneRenderer::draw()
 
     mDbgProgram->sendUniform("u_ModelviewMatrix", viewMatrix * _player->getEntities()[0]->getWorldMatrix());
 
-	if (_visualHiboxes) {
+	if (_visualHitboxes) {
 		mAxes->activate();
 		mAxes->draw();
 	}
@@ -369,7 +369,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 
 	if (!_pause) {
 		if (_dieing) {
-			_player->death();
+			_player->death(dt);
 			if (_timerCheck(_respawnTimer, s.RESPAWN_INTERVAL)) {
 				_spawnSafety = true;
 				_dieing = false;
@@ -387,7 +387,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 				_player->bodyMove(kb, dt);
 				if (!_spawnSafety) {
 					if (_player->hasCollision(_getDangersTo(_player->getPosition(), _asteroids), AABB_AABB)) {
-						_playerDeath();
+						_playerDeath(dt);
 					}
 				}
 				if (!_projectileReady)
@@ -423,6 +423,10 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 		_cleanUpProjectiles();
 	}
 
+	// Commiting Suicide in VC
+	if (kb->keyPressed(KC_RETURN))
+		_playerDeath(dt);
+
 	// Quit NOT FINAL
     if (kb->keyPressed(KC_ESCAPE))
         return false;
@@ -433,28 +437,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 
 	// Show Hitboxes
 	if (kb->keyPressed(KC_TILDE))
-		_visualHiboxes = !_visualHiboxes;
-
-	/*
-	//
-	// start spline
-	//
-	static bool bSplineStart = false;
-	if (kb->keyPressed(KC_S))
-	{
-		SplineInit();
-		bSplineStart = true;
-	}
-	if (bSplineStart)
-	{
-		glm::vec3 vPos = SplinePointOnCurve(dt, mEntities[0]->getPosition(),
-			mEntities[1]->getPosition(),
-			mEntities[2]->getPosition(),
-			mEntities[3]->getPosition());
-
-		mEntities[4]->setPosition(vPos);
-	}
-	*/
+		_visualHitboxes = !_visualHitboxes;
 
     // update the camera
 	if (kb->keyPressed(KC_P)) {
@@ -507,7 +490,7 @@ void BasicSceneRenderer::_cleanUpProjectiles() {
 	_projectileIndexBin.clear();
 }
 
-void BasicSceneRenderer::_playerDeath() {
+void BasicSceneRenderer::_playerDeath(float dt) {
 	//TODO: Special animation or something
 	// Delete Player
 	if (_lives > 0) {
@@ -516,7 +499,7 @@ void BasicSceneRenderer::_playerDeath() {
 		_respawnTimer = clock();
 	}
 	
-	_player->death();
+	_player->death(dt);
 }
 
 void BasicSceneRenderer::_projectileCheck(int index) {
@@ -613,7 +596,7 @@ std::vector<Entity*> BasicSceneRenderer::_flattenProjectiles()
 	for (int i = 0; i < _projectiles.size(); ++i) {
 		for (int j = 0; j < _projectiles[i]->getEntities().size(); ++j) {
 			entities.push_back(_projectiles[i]->getEntities()[j]);
-			if (_visualHiboxes)
+			if (_visualHitboxes)
 				for (int j = 0; j < _projectiles[i]->getHitboxes().size(); ++j) {
 					entities.push_back(_projectiles[i]->getHitboxes()[j]);
 				}
@@ -630,7 +613,7 @@ std::vector<Entity*> BasicSceneRenderer::_flattenAsteroids()
 		for (int j = 0; j < _asteroids[i]->getEntities().size(); ++j) {
 			entities.push_back(_asteroids[i]->getEntities()[j]);
 		}
-		if (_visualHiboxes)
+		if (_visualHitboxes)
 			for (int j = 0; j < _asteroids[i]->getHitboxes().size(); ++j) {
 				entities.push_back(_asteroids[i]->getHitboxes()[j]);
 			}

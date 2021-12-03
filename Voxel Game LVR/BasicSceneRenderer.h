@@ -64,7 +64,7 @@ class BasicSceneRenderer : public GLApp {
 	void						_addEntities(std::vector<Entity*> entities);
 	void						_drawEntities(std::vector<Entity*> entities);
 	void						_cleanUpProjectiles();
-	void						_playerDeath();
+	void						_playerDeath(float dt);
 
 	void						_projectileCheck(int index);
 	void						_asteroidCheck(int index);
@@ -83,7 +83,7 @@ class BasicSceneRenderer : public GLApp {
 	Settings					s;
 
     // debug visualization
-	bool						_visualHiboxes = false;
+	bool						_visualHitboxes = false;
 
     // shader used to render active entity axes
     ShaderProgram*              mDbgProgram;

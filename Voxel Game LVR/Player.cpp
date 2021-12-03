@@ -99,6 +99,21 @@ Player::Player(glm::vec3 location)
 
 }
 
+glm::vec3 Player::_splinePointOnCurve(float dt, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
+	glm::vec3 vOut = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	// update state
+	t += dt;
+	if (t > 1.0f)
+		t = 1.0f;
+	float t2 = t * t;
+	float t3 = t2 * t;
+
+	vOut = 0.5f * ((2.0f * p1) + (-p0 + p2) * t + (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t2 + (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3);
+
+	return vOut;
+}
+
 std::vector<Entity*> Player::getEntities()
 {
 	if (_throttle) {
@@ -200,8 +215,10 @@ void Player::bodyMove(const Keyboard * kb, float dt) {
 	_position = _aligner->getPosition();
 }
 
-void Player::death() {
+void Player::death(float dt) {
 	_throttle = false;
+
+	bool flip = false;
 	for (int i = 0; i < _entities.size(); ++i) {
 		float angle = (float)(rand() % s.ANGLE - s.ANGLE_MIN);
 		_entities[i]->rotate(angle, 1, 0, 0);
@@ -209,25 +226,54 @@ void Player::death() {
 		_entities[i]->rotate(angle, 0, 0, 1);
 
 		glm::vec3 distance = _offsets[i];
+		glm::vec3 finalDestination(0, 0, 0);
+
 		distance.x /= s.BREAK_OFF;
 		distance.y /= s.BREAK_OFF;
 		distance.z /= s.BREAK_OFF;
 
-		if (i % 2 == 0)
+		if (i % 2 == 0) {
 			distance = -distance;
+			if (flip)
+				finalDestination.x = 0.5;
+			else
+				finalDestination.x = -0.5;
+		}
+		
 		if (i % 3 == 0) {
 			float holder = distance.y;
 			distance.y = distance.z;
 			distance.z = holder;
+			if (flip)
+				finalDestination.y = 0.5;
+			else
+				finalDestination.y = -0.5;
 		}
-
+		
 		if (i % 4 == 0) {
 			float holder = distance.y;
 			distance.y = distance.x;
 			distance.x = holder;
+			if (flip)
+				finalDestination.z = 0.5;
+			else
+				finalDestination.z = -0.5;
 		}
 
-		_entities[i]->translateLocal(distance);
+		_aligner->setPosition(_entities[i]->getPosition());
+
+		std::vector<glm::vec3> positions;
+		for (int j = 0; j < 2; ++j) {
+			positions.push_back(_aligner->getPosition());
+			glm::vec3 altered = distance;
+			altered.y += 0.1 * j;
+			_aligner->translateLocal(altered);
+		}
+
+		// start spline
+		glm::vec3 vPos = _splinePointOnCurve(dt, positions[0], finalDestination, positions[1], finalDestination);
+
+		_entities[i]->setPosition(vPos);
 
 	}
 }
