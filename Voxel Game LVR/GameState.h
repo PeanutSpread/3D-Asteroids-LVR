@@ -24,7 +24,7 @@ enum LightingModel {
 };
 
 
-class BasicSceneRenderer : public GLApp {
+class GameState : public GLApp {
 
     LightingModel               mLightingModel;
 
@@ -98,7 +98,7 @@ class BasicSceneRenderer : public GLApp {
 	void						_render(ShaderProgram* prog, glm::mat4 viewMatrix, std::vector<Entity*> entitie);
 
 public:
-                        BasicSceneRenderer();
+                        GameState();
 
     void                initialize();
     void                shutdown();

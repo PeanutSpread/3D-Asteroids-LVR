@@ -1,4 +1,4 @@
-#include "BasicSceneRenderer.h"
+#include "GameState.h"
 #include "Image.h"
 #include "Prefabs.h"
 #include "CollisionType.h"
@@ -6,7 +6,7 @@
 #include <time.h>
 #include <iostream>
 
-BasicSceneRenderer::BasicSceneRenderer()
+GameState::GameState()
 	: mLightingModel(BLINN_PHONG_PER_FRAGMENT_MULTI_LIGHT)
 	, mCamera(NULL)
 	, mProjMatrix(1.0f)
@@ -18,7 +18,7 @@ BasicSceneRenderer::BasicSceneRenderer()
 {
 }
 
-void BasicSceneRenderer::initialize()
+void GameState::initialize()
 {
     // print usage instructions
     std::cout << "Usage:" << std::endl;
@@ -167,7 +167,7 @@ void BasicSceneRenderer::initialize()
     CHECK_GL_ERRORS("initialization");
 }
 
-void BasicSceneRenderer::shutdown()
+void GameState::shutdown()
 {
     for (unsigned i = 0; i < mPrograms.size(); i++)
         delete mPrograms[i];
@@ -202,7 +202,7 @@ void BasicSceneRenderer::shutdown()
     mAxes = NULL;
 }
 
-void BasicSceneRenderer::resize(int width, int height)
+void GameState::resize(int width, int height)
 {
     glViewport(0, 0, width, height);
 
@@ -210,7 +210,7 @@ void BasicSceneRenderer::resize(int width, int height)
     mProjMatrix = glm::perspective(glm::radians(50.f), width / (float)height, 0.1f, 1000.0f);
 }
 
-void BasicSceneRenderer::draw()
+void GameState::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -323,7 +323,7 @@ void BasicSceneRenderer::draw()
     CHECK_GL_ERRORS("drawing");
 }
 
-void BasicSceneRenderer::_render(ShaderProgram* prog, glm::mat4 viewMatrix, std::vector<Entity*> entities) {
+void GameState::_render(ShaderProgram* prog, glm::mat4 viewMatrix, std::vector<Entity*> entities) {
 	for (unsigned i = 0; i < entities.size(); i++) {
 
 		Entity* ent = entities[i];
@@ -353,7 +353,7 @@ void BasicSceneRenderer::_render(ShaderProgram* prog, glm::mat4 viewMatrix, std:
 	}
 }
 
-bool BasicSceneRenderer::update(float dt) // GAME LOOP
+bool GameState::update(float dt) // GAME LOOP
 {
 	const Keyboard* kb = getKeyboard();
 	const Mouse* mouse = getMouse();
@@ -463,7 +463,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
     return true;
 }
 
-bool BasicSceneRenderer::isFocused() {
+bool GameState::isFocused() {
 	if (GetActiveWindow()) {
 		return true;
 	} else {
@@ -471,20 +471,20 @@ bool BasicSceneRenderer::isFocused() {
 	}
 }
 
-void BasicSceneRenderer::_addEntities(std::vector<Entity*> entities) {
+void GameState::_addEntities(std::vector<Entity*> entities) {
 	for (int i = 0; i < entities.size(); i++) {
 		mEntities.push_back(entities[i]);
     }
 
 }
 
-void BasicSceneRenderer::_drawEntities(std::vector<Entity*> entities) {
+void GameState::_drawEntities(std::vector<Entity*> entities) {
 	for (int i = 0; i < entities.size(); i++) {
 		_toBeDrawn.push_back(entities[i]);
 	}
 }
 
-void BasicSceneRenderer::_cleanUpProjectiles() {
+void GameState::_cleanUpProjectiles() {
 	int index = 0;
 	for (int i = _projectileIndexBin.size() - 1; i >= 0; --i) {
 		index = _projectileIndexBin[i];
@@ -495,7 +495,7 @@ void BasicSceneRenderer::_cleanUpProjectiles() {
 	_projectileIndexBin.clear();
 }
 
-void BasicSceneRenderer::_playerDeath(float dt) {
+void GameState::_playerDeath(float dt) {
 	//TODO: Special animation or something
 	// Delete Player
 	if (_lives > 0) {
@@ -507,7 +507,7 @@ void BasicSceneRenderer::_playerDeath(float dt) {
 	_player->death(dt);
 }
 
-void BasicSceneRenderer::_projectileCheck(int index) {
+void GameState::_projectileCheck(int index) {
 	// Check projectiles for collisions
 
 	glm::vec3 position(_projectiles[index]->getPosition());
@@ -522,7 +522,7 @@ void BasicSceneRenderer::_projectileCheck(int index) {
 		_projectileIndexBin.push_back(index);
 }
 
-void BasicSceneRenderer::_asteroidCheck(int index) {
+void GameState::_asteroidCheck(int index) {
 	// Repositioning asteroids so that they stay inside boundries
 	glm::vec3 position(_asteroids[index]->getPosition());
 	int boundry = (s.ROOM_SIZE / 2) + s.BUFFER * 2;
@@ -548,7 +548,7 @@ void BasicSceneRenderer::_asteroidCheck(int index) {
 	}
 }
 
-void BasicSceneRenderer::_destroyAsteroid(Projectile* projectile) {
+void GameState::_destroyAsteroid(Projectile* projectile) {
 	
 	int asteroidHolder = 0;
 	for (int i = 0; i < _asteroids.size(); i++) {
@@ -563,7 +563,7 @@ void BasicSceneRenderer::_destroyAsteroid(Projectile* projectile) {
 	_asteroids.erase(_asteroids.begin() + asteroidHolder);
 }
 
-void BasicSceneRenderer::_createAsteroids() {
+void GameState::_createAsteroids() {
 	int totalAsteroids = rand() % s.VARIANCE_ASTEROIDS + s.MIN_ASTEROIDS;
 	int size = 0;
 	glm::vec3 location, velocity;
@@ -580,14 +580,14 @@ void BasicSceneRenderer::_createAsteroids() {
 	}
 }
 
-bool BasicSceneRenderer::_timerCheck(clock_t timer, float elapsedTime) {
+bool GameState::_timerCheck(clock_t timer, float elapsedTime) {
 	timer = clock() - timer;
 	if ((float)timer / CLOCKS_PER_SEC >= elapsedTime)
 		return true;
 	return false;
 }
 
-bool BasicSceneRenderer::_timerIntervalCheck(clock_t timer, int interval) {
+bool GameState::_timerIntervalCheck(clock_t timer, int interval) {
 	bool toggle = false;
 	timer = clock() - timer;
 	if ((timer / CLOCKS_PER_SEC) % interval == 0)
@@ -595,7 +595,7 @@ bool BasicSceneRenderer::_timerIntervalCheck(clock_t timer, int interval) {
 	return toggle;
 }
 
-std::vector<Entity*> BasicSceneRenderer::_flattenProjectiles()
+std::vector<Entity*> GameState::_flattenProjectiles()
 {
 	std::vector<Entity*> entities;
 	for (int i = 0; i < _projectiles.size(); ++i) {
@@ -611,7 +611,7 @@ std::vector<Entity*> BasicSceneRenderer::_flattenProjectiles()
 	return entities;
 }
 
-std::vector<Entity*> BasicSceneRenderer::_flattenAsteroids()
+std::vector<Entity*> GameState::_flattenAsteroids()
 {
 	std::vector<Entity*> entities;
 	for (int i = 0; i < _asteroids.size(); ++i) {
@@ -627,7 +627,7 @@ std::vector<Entity*> BasicSceneRenderer::_flattenAsteroids()
 	return entities;
 }
 
-std::vector<Entity*> BasicSceneRenderer::_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities) {
+std::vector<Entity*> GameState::_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities) {
 	std::vector<Entity*> dangers;
 	glm::vec3 distance;
 	for (int i = 0; i < entities.size(); ++i) {
@@ -644,7 +644,7 @@ std::vector<Entity*> BasicSceneRenderer::_getDangersTo(glm::vec3 point, std::vec
 	return dangers;
 }
 
-void BasicSceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
+void GameState::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glBlendFunc(GL_DST_ALPHA, GL_ONE);
 
