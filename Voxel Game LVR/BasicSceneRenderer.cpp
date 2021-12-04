@@ -153,6 +153,10 @@ void BasicSceneRenderer::initialize()
 
 	glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
 
+	// 2D Elements
+	_menuAligner = new Entity(NULL, NULL, Transform(0, 0, 0));
+	_pauseMenu = new PauseMenu(_menuAligner, _menuAligner->getOrientation(), 0);
+
     // create shader program for debug geometry
     mDbgProgram = new ShaderProgram("shaders/vpc-vs.glsl",
                                     "shaders/vcolor-fs.glsl");
@@ -632,15 +636,16 @@ void BasicSceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	glBlendFunc(GL_DST_ALPHA, GL_ONE);
 
 	glm::vec3 vP = mCamera->getPosition();
-	Entity aligner = Entity(NULL, NULL, Transform(vP));
+	_menuAligner->setPosition(vP);
 	float radYaw = (3.14159265f / 180.0f) * mCamera->getYaw();
 	float radPitch = (3.14159265f / 180.0f) * mCamera->getPitch();
-	aligner.setOrientation(glm::quat(glm::vec3(radPitch - 1.5f, radYaw, 0.f)));
-	aligner.setPosition(_player->getEntities()[0]->getPosition());
-	aligner.translateLocal(0, 0, 3);
-	vP = aligner.getPosition();
+	_menuAligner->setOrientation(glm::quat(glm::vec3(radPitch - 1.5f, radYaw, 0.f)));
+	_menuAligner->setPosition(_player->getEntities()[0]->getPosition());
+	_menuAligner->translateLocal(0, 0, 3);
+	vP = _menuAligner->getPosition();
 	float scale = mCamera->getZoom() + (_player->getAcceleration() / 20);
 	glm::quat viewOrientation(glm::vec3(radPitch, radYaw, 0.f));
+	_pauseMenu->update(viewOrientation, scale);
 
 	std::vector<Texture*> textures;
 	textures.push_back(new Texture("textures/crosshair.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
@@ -657,19 +662,19 @@ void BasicSceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	std::vector<Entity*> entities;
 	if (!_pause) {
 		if (!_dieing) {
-			aligner.translateLocal(-0.035 * scale, 0, 0);
-			entities.push_back(new Entity(meshes[0], materials[0], Transform(aligner.getPosition())));
-			aligner.setPosition(vP);
+			_menuAligner->translateLocal(-0.035 * scale, 0, 0);
+			entities.push_back(new Entity(meshes[0], materials[0], Transform(_menuAligner->getPosition())));
+			_menuAligner->setPosition(vP);
 
-			aligner.translateLocal(0.035 * scale, 0, 0);
-			entities.push_back(new Entity(meshes[0], materials[0], Transform(aligner.getPosition())));
-			aligner.setPosition(vP);
+			_menuAligner->translateLocal(0.035 * scale, 0, 0);
+			entities.push_back(new Entity(meshes[0], materials[0], Transform(_menuAligner->getPosition())));
+			_menuAligner->setPosition(vP);
 		}
 
 		for (int i = 0; i < _lives; ++i) {
-			aligner.translateLocal((0.25 + 0.07 * i)* scale, 0, 0.38 * scale);
-			entities.push_back(new Entity(meshes[1], materials[1], Transform(aligner.getPosition())));
-			aligner.setPosition(vP);
+			_menuAligner->translateLocal((0.25 + 0.07 * i)* scale, 0, 0.38 * scale);
+			entities.push_back(new Entity(meshes[1], materials[1], Transform(_menuAligner->getPosition())));
+			_menuAligner->setPosition(vP);
 		}
 	}
 
@@ -678,6 +683,15 @@ void BasicSceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 		if (i == 1 && !_pause && !_dieing) {
 			entities[1]->rotate(180, 0, 0, 1);
 		}
+	}
+
+
+
+	if (_pause) {
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		std::vector<Entity*> menuEntities = _pauseMenu->getMenu();
+		for (int i = 0; i < menuEntities.size(); ++i)
+			entities.push_back(menuEntities[i]);
 	}
 
 	glDepthMask(GL_FALSE);

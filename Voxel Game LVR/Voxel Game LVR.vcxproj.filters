@@ -27,6 +27,12 @@
     <Filter Include="Header Files\Menu">
       <UniqueIdentifier>{df8e3198-0753-44fd-8257-34f98f4f9802}</UniqueIdentifier>
     </Filter>
+    <Filter Include="textures\Debug">
+      <UniqueIdentifier>{0636aa2e-7a23-47e1-a68a-31999158f09b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="textures\Menu">
+      <UniqueIdentifier>{1b235c6d-9ad4-49c0-b941-bd33d90db114}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BasicSceneRenderer.cpp">
@@ -78,6 +84,9 @@
       <Filter>Source Files\Menu</Filter>
     </ClCompile>
     <ClCompile Include="StateManager.cpp">
+      <Filter>Source Files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseMenu.cpp">
       <Filter>Source Files\Menu</Filter>
     </ClCompile>
   </ItemGroup>
@@ -142,6 +151,9 @@
     <ClInclude Include="MainMenu.h">
       <Filter>Header Files\Menu</Filter>
     </ClInclude>
+    <ClInclude Include="PauseMenu.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="freeglut.dll" />
@@ -176,18 +188,6 @@
       <Filter>textures</Filter>
     </Image>
     <Image Include="textures\white.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\mogus.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\debug.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\debug2.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\debug3.tga">
       <Filter>textures</Filter>
     </Image>
     <Image Include="textures\space.tga">
@@ -225,6 +225,36 @@
     </Image>
     <Image Include="textures\life.tga">
       <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\debug.tga">
+      <Filter>textures\Debug</Filter>
+    </Image>
+    <Image Include="textures\debug2.tga">
+      <Filter>textures\Debug</Filter>
+    </Image>
+    <Image Include="textures\debug3.tga">
+      <Filter>textures\Debug</Filter>
+    </Image>
+    <Image Include="textures\mogus.tga">
+      <Filter>textures\Debug</Filter>
+    </Image>
+    <Image Include="textures\button.tga">
+      <Filter>textures\Menu</Filter>
+    </Image>
+    <Image Include="textures\button_controls.tga">
+      <Filter>textures\Menu</Filter>
+    </Image>
+    <Image Include="textures\button_exit.tga">
+      <Filter>textures\Menu</Filter>
+    </Image>
+    <Image Include="textures\button_menu.tga">
+      <Filter>textures\Menu</Filter>
+    </Image>
+    <Image Include="textures\button_resume.tga">
+      <Filter>textures\Menu</Filter>
+    </Image>
+    <Image Include="textures\banner.tga">
+      <Filter>textures\Menu</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

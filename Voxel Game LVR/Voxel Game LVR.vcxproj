@@ -139,6 +139,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Prefabs.cpp" />
     <ClCompile Include="Projectile.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Prefabs.h" />
     <ClInclude Include="Projectile.h" />
@@ -182,8 +184,14 @@
     <None Include="shaders\vpc-vs.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="textures\banner.tga" />
     <Image Include="textures\black.tga" />
     <Image Include="textures\blue.tga" />
+    <Image Include="textures\button.tga" />
+    <Image Include="textures\button_controls.tga" />
+    <Image Include="textures\button_exit.tga" />
+    <Image Include="textures\button_menu.tga" />
+    <Image Include="textures\button_resume.tga" />
     <Image Include="textures\crosshair.tga" />
     <Image Include="textures\debug.tga" />
     <Image Include="textures\debug2.tga" />

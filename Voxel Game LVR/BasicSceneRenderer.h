@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Entity.h"
 #include "Player.h"
+#include "PauseMenu.h"
 #include "Projectile.h"
 #include "Asteroid.h"
 #include "Settings.h"
@@ -78,6 +79,8 @@ class BasicSceneRenderer : public GLApp {
 	
 	std::vector<Entity*>		_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities);
 	void						_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix);
+	Entity*						_menuAligner;
+	PauseMenu*					_pauseMenu;
 
 
 	Settings					s;
