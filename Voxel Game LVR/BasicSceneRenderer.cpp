@@ -151,7 +151,7 @@ void BasicSceneRenderer::initialize()
     mCamera = new Camera(this, _player);
     mCamera->setSpeed(2);
 
-	glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
+	glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
 
 	// 2D Elements
 	_menuAligner = new Entity(NULL, NULL, Transform(0, 0, 0));
@@ -230,10 +230,12 @@ void BasicSceneRenderer::draw()
 	_toBeDrawn.clear();
 	_drawEntities(mEntities);
 	_drawEntities(_flattenAsteroids());
-	_drawEntities(_flattenProjectiles());
-	_drawEntities(_player->getEntities());
-	if (_visualHitboxes)
-		_drawEntities(_player->getHitboxes());
+	if (!_pause) {
+		_drawEntities(_flattenProjectiles());
+		_drawEntities(_player->getEntities());
+		if (_visualHitboxes)
+			_drawEntities(_player->getHitboxes());
+	}
 
 	// Lighting
 
@@ -246,10 +248,15 @@ void BasicSceneRenderer::draw()
 	glm::vec3 dieingColor = glm::vec3(1.0f, 0.0f, 0.0f);
 
 	// direction light
-	glm::vec4 lightDir = glm::normalize(glm::vec4(_player->getAim().x, _player->getAim().y, _player->getAim().z, 0));
-	prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
-	prog->sendUniform("u_DirLights[0].color", glm::vec3(0.0f, 0.0f, 0.05f));
-
+	if (!_pause) {
+		glm::vec4 lightDir = glm::normalize(glm::vec4(_player->getAim().x, _player->getAim().y, _player->getAim().z, 0));
+		prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
+		prog->sendUniform("u_DirLights[0].color", glm::vec3(0.0f, 0.0f, 0.05f));
+	} else {
+		glm::vec4 lightDir = glm::normalize(glm::vec4(mCamera->getPosition(), 0));
+		prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
+		prog->sendUniform("u_DirLights[0].color", glm::vec3(0.5f, 0.5f, 0.5f));
+	}
 	static bool cond;
 	bool flip = _timerIntervalCheck(_respawnTimer, s.LIGHT_FLASH_INTERVAL);
 	if (_pause)
@@ -355,7 +362,7 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 	// Pause Toggle
 	if (kb->keyPressed(KC_ESCAPE)) {
 		_pause = !_pause;
-		glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
+		glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
 	}
 
 	if (kb->keyPressed(KC_SPACE) && _pause)
@@ -431,16 +438,22 @@ bool BasicSceneRenderer::update(float dt) // GAME LOOP
 			mCamera->toggleFreelook();
 		}
 
+	} else {
+		mCamera->setPosition(0, -s.ROOM_SIZE/2, 0);
+		mCamera->lookAt(0, 0, 0);
+
+		_pauseMenu->interaction(mouse);
+
+		// Menu Operations
+		if (_pauseMenu->getExitButton())
+			return false;
 	}
-		
 
 	if (isFocused()) {
 		// Stop mouse tracking when out of window
-		if (!_pause) {
-			glutSetCursor(GLUT_CURSOR_NONE);
-			glutWarpPointer(s.SCREEN_WIDTH / 2, s.SCREEN_HEIGHT / 2);
-		} else 
-			glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+		if (!_pause)
+			glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
+		glutSetCursor(GLUT_CURSOR_NONE);
 		mCamera->update(dt);
 	} else {
 		// Display mouse cursor over screen when not focused
@@ -647,20 +660,22 @@ void BasicSceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	glm::quat viewOrientation(glm::vec3(radPitch, radYaw, 0.f));
 	_pauseMenu->update(viewOrientation, scale);
 
-	std::vector<Texture*> textures;
-	textures.push_back(new Texture("textures/crosshair.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
-	textures.push_back(new Texture("textures/life.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
-
-	std::vector<Material*> materials;
-	materials.push_back(new Material(textures[0]));
-	materials.push_back(new Material(textures[1]));
-
-	std::vector<Mesh*> meshes;
-	meshes.push_back(CreateTexturedQuad(0.05f * scale, 0.025f * scale, 1.f, 1.f)); // Crosshair
-	meshes.push_back(CreateTexturedQuad(0.05f * scale, 0.1f * scale, 1.f, 1.f)); // Life
-
 	std::vector<Entity*> entities;
 	if (!_pause) {
+
+		std::vector<Texture*> textures;
+		textures.push_back(new Texture("textures/crosshair.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
+		textures.push_back(new Texture("textures/life.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
+
+		std::vector<Material*> materials;
+		materials.push_back(new Material(textures[0]));
+		materials.push_back(new Material(textures[1]));
+
+		std::vector<Mesh*> meshes;
+		meshes.push_back(CreateTexturedQuad(0.05f * scale, 0.025f * scale, 1.f, 1.f)); // Crosshair
+		meshes.push_back(CreateTexturedQuad(0.05f * scale, 0.1f * scale, 1.f, 1.f)); // Life
+
+
 		if (!_dieing) {
 			_menuAligner->translateLocal(-0.035 * scale, 0, 0);
 			entities.push_back(new Entity(meshes[0], materials[0], Transform(_menuAligner->getPosition())));
@@ -676,6 +691,7 @@ void BasicSceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 			entities.push_back(new Entity(meshes[1], materials[1], Transform(_menuAligner->getPosition())));
 			_menuAligner->setPosition(vP);
 		}
+
 	}
 
 	for (int i = 0; i < entities.size(); ++i) {
@@ -688,6 +704,19 @@ void BasicSceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 
 
 	if (_pause) {
+		mCamera->orientationChange();
+		glm::vec3 vP = mCamera->getPosition();
+		_menuAligner->setPosition(vP);
+		float radYaw = (3.14159265f / 180.0f) * mCamera->getYaw();
+		float radPitch = (3.14159265f / 180.0f) * mCamera->getPitch();
+		glm::quat viewOrientation(glm::vec3(radPitch, radYaw, 0.f));
+		_menuAligner->setOrientation(viewOrientation);
+		_menuAligner->translateLocal(0, 0, -10);
+		vP = _menuAligner->getPosition();
+
+		_pauseMenu->update(viewOrientation, 10);
+
+
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		std::vector<Entity*> menuEntities = _pauseMenu->getMenu();
 		for (int i = 0; i < menuEntities.size(); ++i)
@@ -696,6 +725,14 @@ void BasicSceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 
 	glDepthMask(GL_FALSE);
 	_render(prog, viewMatrix, entities);
+
+	if (_pause) {
+		glBlendFunc(GL_DST_ALPHA, GL_ONE);
+		std::vector<Entity*> cursorAdapter;
+		cursorAdapter.push_back(_pauseMenu->getCursor());
+		_render(prog, viewMatrix, cursorAdapter);
+	}
+
 	glDepthMask(GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

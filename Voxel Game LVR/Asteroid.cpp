@@ -102,7 +102,12 @@ void Asteroid::_spin() {
 }
 
 void Asteroid::_destroy() {
+	for (int i = 0; i < _entities.size(); ++i)
+		delete _entities[i];
+	for (int i = 0; i < _hitboxes.size(); ++i)
+		delete _hitboxes[i];
 
+	delete _aligner;
 }
 
 void Asteroid::setPosition(glm::vec3 value) {

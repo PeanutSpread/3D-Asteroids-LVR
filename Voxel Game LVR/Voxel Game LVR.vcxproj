@@ -193,6 +193,7 @@
     <Image Include="textures\button_menu.tga" />
     <Image Include="textures\button_resume.tga" />
     <Image Include="textures\crosshair.tga" />
+    <Image Include="textures\cursor.tga" />
     <Image Include="textures\debug.tga" />
     <Image Include="textures\debug2.tga" />
     <Image Include="textures\debug3.tga" />

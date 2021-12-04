@@ -256,6 +256,9 @@
     <Image Include="textures\banner.tga">
       <Filter>textures\Menu</Filter>
     </Image>
+    <Image Include="textures\cursor.tga">
+      <Filter>textures\Menu</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Bugs.txt" />

@@ -674,7 +674,7 @@ Mesh* CreateTexturedQuad(float width, float height, float uTile, float vTile)
 	//used to keep shape sizes for collision
 	mesh->setXWidth(width);
 	mesh->setYHeight(height);
-	mesh->setZDepth(0);
+	mesh->setZDepth(1);
 
     return mesh;
 }

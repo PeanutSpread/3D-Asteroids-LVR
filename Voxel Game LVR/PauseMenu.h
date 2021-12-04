@@ -15,31 +15,40 @@ class PauseMenu {
 	std::vector<Mesh*>		_meshes;
 
 	Entity*					_aligner;
+	Entity*					_mouse;
+	Entity*					_cursor;
 	glm::quat				_orientation;
 	glm::vec3				_position;
 	float					_scale;
 
+	bool					_controls = false;
+	bool					_menu = false;
+	bool					_exit = false;
+
+	void					_mouseLocator(const Mouse* mouse);
 	void					_draw();
+	void					_onClick();
+	Settings				s;
+
 
 public:
 	PauseMenu(Entity* aligner, glm::quat orientation, float scale);
 
 	void					update(glm::quat orientation, float scale);
-	void					interaction();
+	void					interaction(const Mouse* mouse);
 
 	std::vector<Entity*> getMenu() const 
 	{ return _entities; }
 
-	Entity* getResumeButton() const
-	{ return _entities[1]; }
+	Entity* getCursor() const 
+	{ return _cursor; }
 
-	Entity* getControlsButton() const
-	{ return _entities[2]; }
+	bool getControlsButton() const
+	{ return _controls; }
 
-	Entity* getMenuButton() const
-	{ return _entities[3]; }
+	bool getMenuButton() const
+	{ return _menu; }
 
-	Entity* getExitButton() const
-	{ return _entities[4]; }
+	bool getExitButton() const
+	{ return _exit; }
 };
-

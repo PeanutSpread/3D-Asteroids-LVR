@@ -70,8 +70,8 @@ void Camera::update(float deltaT)
 		if (_isFocused()) {
 
 			// Had issues with actual center of screen, and this gives a cool delayed affect to the camera
-			_dx += (mouse->getX() - s.SCREEN_WIDTH / 2);
-			_dy += (mouse->getY() - s.SCREEN_HEIGHT / 2);
+			_dx += (mouse->getX() - s.SCREEN_WIDTH() / 2);
+			_dy += (mouse->getY() - s.SCREEN_HEIGHT() / 2);
 
 			if (_startFix) {
 				if (mouse->getX() != 0.0 and mouse->getY() != 0.0) {

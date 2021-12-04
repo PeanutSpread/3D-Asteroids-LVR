@@ -99,6 +99,10 @@ public:
 	float getZoom() const
 	{ return mDistance; }
 
+	void orientationChange() {
+		_orientationChange();
+	}
+
 };
 
 #endif

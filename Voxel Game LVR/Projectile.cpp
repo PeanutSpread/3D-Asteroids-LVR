@@ -108,5 +108,10 @@ bool Projectile::hasCollision(std::vector<Entity*> otherHitboxes, CollisionType 
 }
 
 void Projectile::destroy() {
-	// TODO: Memory management
+	for (int i = 0; i < _entities.size(); ++i)
+		delete _entities[i];
+	for (int i = 0; i < _hitboxes.size(); ++i)
+		delete _hitboxes[i];
+
+	delete _aligner;
 }
