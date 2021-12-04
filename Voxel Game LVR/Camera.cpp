@@ -63,9 +63,6 @@ void Camera::update(float deltaT)
 	else
 		_inverse = true;
 
-	if (kb->keyPressed(KC_ESCAPE))
-		_pause = !_pause;
-
 	if (!_pause) {
 		if (_isFocused()) {
 

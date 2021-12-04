@@ -364,6 +364,7 @@ bool GameState::update(float dt) // GAME LOOP
 	if (kb->keyPressed(KC_ESCAPE)) {
 		_pause = !_pause;
 		glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
+		mCamera->toggleCameraMovement();
 	}
 
 	if (kb->keyPressed(KC_SPACE) && _pause)
@@ -439,8 +440,9 @@ bool GameState::update(float dt) // GAME LOOP
 			mCamera->toggleFreelook();
 		}
 
-	} else {
-		mCamera->setPosition(0, -s.ROOM_SIZE/2, 0);
+	}
+	else {
+		mCamera->setPosition(0, -s.ROOM_SIZE / 2, 0);
 		mCamera->lookAt(0, 0, 0);
 
 		_pauseMenu->interaction(mouse);
@@ -448,6 +450,12 @@ bool GameState::update(float dt) // GAME LOOP
 		// Menu Operations
 		if (_pauseMenu->getExitButton())
 			return false;
+
+		if (_pauseMenu->getResumeButton()) {
+			_pause = !_pause;
+			glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
+			mCamera->toggleCameraMovement();
+		}
 	}
 
 	if (isFocused()) {

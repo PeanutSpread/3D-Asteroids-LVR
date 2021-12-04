@@ -87,6 +87,10 @@ public:
 	float getPitch() const
 	{ return mPitch; }
 
+	void toggleCameraMovement() {
+		_pause = !_pause;
+	}
+
     void update(float deltaT);
 
 	void toggleFreelook();

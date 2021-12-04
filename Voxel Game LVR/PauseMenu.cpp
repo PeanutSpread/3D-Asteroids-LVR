@@ -46,10 +46,14 @@ void PauseMenu::_draw() {
 	_aligner->setPosition(_position);
 
 	_aligner->translateLocal(0, 0.10 * _scale, 0);
-	_entities.push_back(new Entity(_meshes[1], _materials[2], Transform(_aligner->getPosition()))); // Controls
+	_entities.push_back(new Entity(_meshes[1], _materials[1], Transform(_aligner->getPosition()))); // Resume
 	_aligner->setPosition(_position);
 
 	_aligner->translateLocal(0, -0.025 * _scale, 0);
+	_entities.push_back(new Entity(_meshes[1], _materials[2], Transform(_aligner->getPosition()))); // Controls
+	_aligner->setPosition(_position);
+
+	_aligner->translateLocal(0, -0.15 * _scale, 0);
 	_entities.push_back(new Entity(_meshes[1], _materials[3], Transform(_aligner->getPosition()))); // Main Menu
 	_aligner->setPosition(_position);
 
@@ -91,6 +95,7 @@ void PauseMenu::update(glm::quat orientation, float scale) {
 
 void PauseMenu::interaction(const Mouse* mouse) {
 
+	_resume = false;
 	_controls = false;
 	_menu = false;
 	_exit = false;
@@ -107,10 +112,11 @@ void PauseMenu::_onClick() {
 	glm::vec3 mousePos(_cursor->getPosition());
 
 	if (_entities[1]->doesIntersectAABB_Point(mousePos))
-		_controls = true;
+		_resume = true;
 	if (_entities[2]->doesIntersectAABB_Point(mousePos))
-		_menu = true;
+		_controls = true;
 	if (_entities[3]->doesIntersectAABB_Point(mousePos))
+		_menu = true;
+	if (_entities[4]->doesIntersectAABB_Point(mousePos))
 		_exit = true;
-	
 }

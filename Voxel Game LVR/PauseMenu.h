@@ -21,6 +21,7 @@ class PauseMenu {
 	glm::vec3				_position;
 	float					_scale;
 
+	bool					_resume = false;
 	bool					_controls = false;
 	bool					_menu = false;
 	bool					_exit = false;
@@ -42,6 +43,9 @@ public:
 
 	Entity* getCursor() const 
 	{ return _cursor; }
+
+	bool getResumeButton() const
+	{ return _resume; }
 
 	bool getControlsButton() const
 	{ return _controls; }

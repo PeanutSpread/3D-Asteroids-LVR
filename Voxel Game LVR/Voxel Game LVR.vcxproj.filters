@@ -42,6 +42,18 @@
     <Filter Include="Header Files\Menu">
       <UniqueIdentifier>{df8e3198-0753-44fd-8257-34f98f4f9802}</UniqueIdentifier>
     </Filter>
+    <Filter Include="textures\Cololrs">
+      <UniqueIdentifier>{b173402f-abc0-4ce1-ac9d-35a8f323b8ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="textures\HUD">
+      <UniqueIdentifier>{472711d6-f7b9-4231-9477-c501f569956f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="textures\Player">
+      <UniqueIdentifier>{612c48ff-673b-475c-9cf4-64a868a40010}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="textures\Entities">
+      <UniqueIdentifier>{935fe6cb-ae5c-4aaf-9a7e-e4dac19a9e75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -202,46 +214,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="textures\black.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\white.tga">
-      <Filter>textures</Filter>
-    </Image>
     <Image Include="textures\space.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\metal_panel.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\metal_panel_corrugated.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\metal_panel_dark.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\metal_window.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\engine_light.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\paint_red.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\rusted_gold.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\rocky.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\blue.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\crosshair.tga">
-      <Filter>textures</Filter>
-    </Image>
-    <Image Include="textures\life.tga">
       <Filter>textures</Filter>
     </Image>
     <Image Include="textures\debug.tga">
@@ -276,6 +249,48 @@
     </Image>
     <Image Include="textures\cursor.tga">
       <Filter>textures\Menu</Filter>
+    </Image>
+    <Image Include="textures\button_start.tga">
+      <Filter>textures\Menu</Filter>
+    </Image>
+    <Image Include="textures\black.tga">
+      <Filter>textures\Cololrs</Filter>
+    </Image>
+    <Image Include="textures\blue.tga">
+      <Filter>textures\Cololrs</Filter>
+    </Image>
+    <Image Include="textures\white.tga">
+      <Filter>textures\Cololrs</Filter>
+    </Image>
+    <Image Include="textures\crosshair.tga">
+      <Filter>textures\HUD</Filter>
+    </Image>
+    <Image Include="textures\life.tga">
+      <Filter>textures\HUD</Filter>
+    </Image>
+    <Image Include="textures\engine_light.tga">
+      <Filter>textures\Player</Filter>
+    </Image>
+    <Image Include="textures\metal_panel.tga">
+      <Filter>textures\Player</Filter>
+    </Image>
+    <Image Include="textures\metal_panel_corrugated.tga">
+      <Filter>textures\Player</Filter>
+    </Image>
+    <Image Include="textures\metal_panel_dark.tga">
+      <Filter>textures\Player</Filter>
+    </Image>
+    <Image Include="textures\metal_window.tga">
+      <Filter>textures\Player</Filter>
+    </Image>
+    <Image Include="textures\paint_red.tga">
+      <Filter>textures\Entities</Filter>
+    </Image>
+    <Image Include="textures\rocky.tga">
+      <Filter>textures\Entities</Filter>
+    </Image>
+    <Image Include="textures\rusted_gold.tga">
+      <Filter>textures\Entities</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

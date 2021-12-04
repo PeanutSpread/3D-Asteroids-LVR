@@ -15,6 +15,7 @@ MenuState::MenuState()
 	, mAxes(NULL)
 	, mVisualizePointLights(true)
 	, _toBeDrawn()
+	, _player()
 {
 }
 
@@ -119,8 +120,11 @@ void MenuState::initialize()
 	srand(time(NULL));
 
 	//
-	// Create permanent entities
+	// Create entities
 	//
+	_player = new Player(glm::vec3(0, 0, 0));
+
+	_createAsteroids();
 
 	//
 	// Create room
@@ -145,14 +149,15 @@ void MenuState::initialize()
 	// create the camera
 	//
 
-	mCamera = new Camera(this, NULL);
+	mCamera = new Camera(this, _player);
 	mCamera->setSpeed(2);
+	mCamera->toggleCameraMovement();
 
 	glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
 
 	// 2D Elements
 	_menuAligner = new Entity(NULL, NULL, Transform(0, 0, 0));
-	_pauseMenu = new PauseMenu(_menuAligner, _menuAligner->getOrientation(), 0);
+	_mainMenu = new MainMenu(_menuAligner, _menuAligner->getOrientation(), 0);
 
 	// create shader program for debug geometry
 	mDbgProgram = new ShaderProgram("shaders/vpc-vs.glsl",
@@ -250,7 +255,7 @@ void MenuState::draw()
 	mDbgProgram->activate();
 	mDbgProgram->sendUniform("u_ProjectionMatrix", mProjMatrix);
 
-	mDbgProgram->sendUniform("u_ModelviewMatrix", viewMatrix * _menuAligner->getWorldMatrix());
+	mDbgProgram->sendUniform("u_ModelviewMatrix", viewMatrix * _player->getEntities()[0]->getWorldMatrix());
 
 	CHECK_GL_ERRORS("drawing");
 }
@@ -290,11 +295,6 @@ bool MenuState::update(float dt) // GAME LOOP
 	const Keyboard* kb = getKeyboard();
 	const Mouse* mouse = getMouse();
 
-
-	if (_asteroids.size() == 0) {
-		_createAsteroids();
-	}
-
 	if (_asteroids.size() > 0) {
 		for (int i = 0; i < _asteroids.size(); i++) {
 			_asteroids[i]->update(dt);
@@ -309,14 +309,13 @@ bool MenuState::update(float dt) // GAME LOOP
 	mCamera->setPosition(0, -s.ROOM_SIZE / 2, 0);
 	mCamera->lookAt(0, 0, 0);
 
-	_pauseMenu->interaction(mouse);
+	_mainMenu->interaction(mouse);
 
 	// Menu Operations
-	if (_pauseMenu->getExitButton())
+	if (_mainMenu->getExitButton())
 		return false;
 
 	if (isFocused()) {
-		// Stop mouse tracking when out of window
 		glutSetCursor(GLUT_CURSOR_NONE);
 		mCamera->update(dt);
 	}
@@ -358,6 +357,7 @@ void MenuState::_createAsteroids() {
 		location = glm::vec3(rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE / 2, rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE / 2, rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE / 2);
 		velocity = glm::vec3(rand() % s.VARIANCE_XYZ + s.MIN_XYZ, rand() % s.VARIANCE_ASTEROIDS + s.MIN_XYZ, rand() % s.VARIANCE_XYZ + s.MIN_XYZ);
 		size = rand() % s.ASTEROID_SCALES + 1;
+		_asteroids.push_back(new Asteroid(location, velocity, size));
 	}
 }
 
@@ -405,7 +405,7 @@ void MenuState::_drawMenu(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	_menuAligner->translateLocal(0, 0, -10);
 	vP = _menuAligner->getPosition();
 	float scale = mCamera->getZoom();
-	_pauseMenu->update(viewOrientation, 10);
+	_mainMenu->update(viewOrientation, 10);
 
 	std::vector<Entity*> entities;
 
@@ -436,7 +436,7 @@ void MenuState::_drawMenu(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	}
 
 
-	std::vector<Entity*> menuEntities = _pauseMenu->getMenu();
+	std::vector<Entity*> menuEntities = _mainMenu->getMenu();
 	for (int i = 0; i < menuEntities.size(); ++i)
 		entities.push_back(menuEntities[i]);
 
@@ -445,7 +445,7 @@ void MenuState::_drawMenu(ShaderProgram* prog, glm::mat4 viewMatrix) {
 
 	glBlendFunc(GL_DST_ALPHA, GL_ONE);
 	std::vector<Entity*> cursorAdapter;
-	cursorAdapter.push_back(_pauseMenu->getCursor());
+	cursorAdapter.push_back(_mainMenu->getCursor());
 	_render(prog, viewMatrix, cursorAdapter);
 
 	glDepthMask(GL_TRUE);

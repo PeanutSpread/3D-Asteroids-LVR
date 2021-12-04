@@ -3,7 +3,7 @@
 #include "Camera.h"
 #include "Entity.h"
 #include "Player.h"
-#include "PauseMenu.h"
+#include "MainMenu.h"
 #include "Projectile.h"
 #include "Asteroid.h"
 #include "Settings.h"
@@ -31,6 +31,7 @@ class MenuState : public GLApp {
 
 	std::vector<Asteroid*>		_asteroids;
 	std::vector<Entity*>		_boundries;
+	Player*						_player;
 
 	Camera*                     mCamera;
 
@@ -51,8 +52,7 @@ class MenuState : public GLApp {
 
 	void						_drawMenu(ShaderProgram* prog, glm::mat4 viewMatrix);
 	Entity*						_menuAligner;
-	PauseMenu*					_pauseMenu;
-
+	MainMenu*					_mainMenu;
 
 	Settings					s;
 
