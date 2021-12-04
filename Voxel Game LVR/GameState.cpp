@@ -2,6 +2,7 @@
 #include "Image.h"
 #include "Prefabs.h"
 #include "CollisionType.h"
+#include "LightingModel.h"
 
 #include <time.h>
 #include <iostream>

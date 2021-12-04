@@ -138,6 +138,7 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenu.cpp" />
+    <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -156,8 +157,10 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="glshell.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="LightingModel.h" />
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="MenuState.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="Player.h" />

@@ -9,20 +9,11 @@
 #include "Projectile.h"
 #include "Asteroid.h"
 #include "Settings.h"
+#include "LightingModel.h"
 
 #include <ctime>
 #include <vector>
 #include <math.h>
-
-enum LightingModel {
-    PER_VERTEX_DIR_LIGHT,
-    BLINN_PHONG_PER_FRAGMENT_DIR_LIGHT,
-    BLINN_PHONG_PER_FRAGMENT_POINT_LIGHT,
-    BLINN_PHONG_PER_FRAGMENT_MULTI_LIGHT,
-
-    NUM_LIGHTING_MODELS
-};
-
 
 class GameState : public GLApp {
 

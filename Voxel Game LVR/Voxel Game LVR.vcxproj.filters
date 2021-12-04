@@ -24,14 +24,23 @@
     <Filter Include="Source Files\Menu">
       <UniqueIdentifier>{f46bd212-9da5-4984-a868-8568b137ea5b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Menu">
-      <UniqueIdentifier>{df8e3198-0753-44fd-8257-34f98f4f9802}</UniqueIdentifier>
-    </Filter>
     <Filter Include="textures\Debug">
       <UniqueIdentifier>{0636aa2e-7a23-47e1-a68a-31999158f09b}</UniqueIdentifier>
     </Filter>
     <Filter Include="textures\Menu">
       <UniqueIdentifier>{1b235c6d-9ad4-49c0-b941-bd33d90db114}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\States">
+      <UniqueIdentifier>{e4239e01-e51c-4fb3-8a26-1e3463ba2e96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\States">
+      <UniqueIdentifier>{7edfc561-cc4d-4b78-a911-6af569d2a3bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Enums">
+      <UniqueIdentifier>{6bc1003a-53fd-4239-9754-48cc847c7961}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Menu">
+      <UniqueIdentifier>{df8e3198-0753-44fd-8257-34f98f4f9802}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -71,23 +80,26 @@
     <ClCompile Include="Projectile.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="CollisionType.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="Asteroid.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="MainMenu.cpp">
       <Filter>Source Files\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="StateManager.cpp">
-      <Filter>Source Files\Menu</Filter>
-    </ClCompile>
     <ClCompile Include="PauseMenu.cpp">
       <Filter>Source Files\Menu</Filter>
     </ClCompile>
     <ClCompile Include="GameState.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuState.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="StateManager.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionType.h">
+      <Filter>Header Files\Enums</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -142,9 +154,6 @@
     <ClInclude Include="Asteroid.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="StateManager.h">
-      <Filter>Header Files\Menu</Filter>
-    </ClInclude>
     <ClInclude Include="MainMenu.h">
       <Filter>Header Files\Menu</Filter>
     </ClInclude>
@@ -152,7 +161,16 @@
       <Filter>Header Files\Menu</Filter>
     </ClInclude>
     <ClInclude Include="GameState.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="StateManager.h">
+      <Filter>Header Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingModel.h">
+      <Filter>Header Files\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuState.h">
+      <Filter>Header Files\States</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
