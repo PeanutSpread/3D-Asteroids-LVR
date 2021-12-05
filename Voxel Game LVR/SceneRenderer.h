@@ -56,6 +56,7 @@ class SceneRenderer : public GLApp {
 	bool						_spawnSafety = false;
 	bool						_gameOver = false;
 	int							_lives = 5;
+	unsigned int				_score = 0;
 
 	void						_addEntities(std::vector<Entity*> entities);
 	void						_drawEntities(std::vector<Entity*> entities);
@@ -66,6 +67,7 @@ class SceneRenderer : public GLApp {
 	void						_asteroidCheck(int index);
 	void						_destroyAsteroid(Projectile* projectile);
 	void						_createAsteroids();
+	void						_addScore(int stage);
 	bool						_timerCheck(clock_t timer, float elapsedTime);
 	bool						_timerIntervalCheck(clock_t timer, int interval);
 

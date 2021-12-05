@@ -190,8 +190,41 @@ void SceneRenderer::shutdown()
 		delete mTextures[i];
 	mTextures.clear();
 
+	for (unsigned i = 0; i < _toBeDrawn.size(); i++)
+		delete _toBeDrawn[i];
+	_toBeDrawn.clear();
+
+	for (unsigned i = 0; i < _projectiles.size(); i++)
+		delete _projectiles[i];
+	_projectiles.clear();
+
+	for (unsigned i = 0; i < _asteroids.size(); i++)
+		delete _asteroids[i];
+	_asteroids.clear();
+
+	for (unsigned i = 0; i < _boundries.size(); i++)
+		delete _boundries[i];
+	_boundries.clear();
+
+	_projectileIndexBin.clear();
+
+	delete _player;
+	_player = NULL;
+
 	delete mDbgProgram;
 	mDbgProgram = NULL;
+
+	delete _pauseMenuAligner;
+	_pauseMenuAligner = NULL;
+
+	delete _mainMenuAligner;
+	_mainMenuAligner = NULL;
+
+	delete _pauseMenu;
+	_pauseMenu = NULL;
+
+	delete _mainMenu;
+	_mainMenu = NULL;
 
 	delete mAxes;
 	mAxes = NULL;
@@ -300,6 +333,8 @@ bool SceneRenderer::isFocused() {
 	}
 }
 
+// --------------- Specifics ---------------
+
 void SceneRenderer::_addEntities(std::vector<Entity*> entities) {
 	for (int i = 0; i < entities.size(); i++) {
 		mEntities.push_back(entities[i]);
@@ -385,6 +420,7 @@ void SceneRenderer::_destroyAsteroid(Projectile* projectile) {
 			asteroidHolder = i;
 		}
 	}
+	_addScore(_asteroids[asteroidHolder]->getStage());
 	std::vector<Asteroid*> splits = _asteroids[asteroidHolder]->explode();
 	for (int i = 0; i < splits.size(); ++i)
 		_asteroids.push_back(splits[i]);
@@ -406,6 +442,21 @@ void SceneRenderer::_createAsteroids() {
 			if (sqrt(pow(_player->getPosition().y - location.y, 2)) > s.SAFE_DISTANCE)
 				if (sqrt(pow(_player->getPosition().z - location.z, 2)) > s.SAFE_DISTANCE)
 					_asteroids.push_back(new Asteroid(location, velocity, size));
+	}
+}
+
+void SceneRenderer::_addScore(int stage) {
+	switch (stage) {
+	case 1:
+		_score += 100;
+		break;
+	case 2:
+		_score += 50;
+		break;
+	case 3:
+	default:
+		_score += 20;
+		break;
 	}
 }
 
@@ -472,6 +523,8 @@ std::vector<Entity*> SceneRenderer::_getDangersTo(glm::vec3 point, std::vector<A
 	}
 	return dangers;
 }
+
+// --------------- 2D Aspect Creation ---------------
 
 void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -599,6 +652,8 @@ void SceneRenderer::_drawMenu(ShaderProgram * prog, glm::mat4 viewMatrix) {
 	glDepthMask(GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
+
+// --------------- State Switching ---------------
 
 bool SceneRenderer::_menuUpdate(const Keyboard* kb, const Mouse* mouse, float dt) {
 	if (_asteroids.size() > 0) {
@@ -900,6 +955,7 @@ void SceneRenderer::_switchToGame() {
 	mCamera->setCameraMovement(true);
 	_pause = false;
 	_lives = 5;
+	_score = 0;
 
 	_state = GAME_STATE;
 }

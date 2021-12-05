@@ -23,6 +23,8 @@ class Player {
 	float					t = 0;
 	bool					_throttle = false;
 
+	void					_destroy();
+
 	glm::vec3				_splinePointOnCurve(float dt, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
 
 	Settings				s;
@@ -52,6 +54,9 @@ public:
 
 	bool getThrottle() const
 	{ return _throttle; }
+
+	void destroy()
+	{ _destroy(); }
 	
 	void headLook(float yaw, float pitch, float dt);
 	void bodyMove(const Keyboard* kb, float dt);

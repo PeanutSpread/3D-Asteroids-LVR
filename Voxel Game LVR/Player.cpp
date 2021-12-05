@@ -99,6 +99,23 @@ Player::Player(glm::vec3 location)
 
 }
 
+void Player::_destroy() {
+	for (int i = 0; i < _entities.size(); i++)
+		delete _entities[i];
+	_entities.clear();
+
+	for (int i = 0; i < _hitboxes.size(); i++)
+		delete _hitboxes[i];
+	_hitboxes.clear();
+
+	for (int i = 0; i < _lights.size(); i++)
+		delete _lights[i];
+	_lights.clear();
+
+	delete _aligner;
+	_aligner = NULL;
+}
+
 glm::vec3 Player::_splinePointOnCurve(float dt, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
 	glm::vec3 vOut = glm::vec3(0.0f, 0.0f, 0.0f);
 
