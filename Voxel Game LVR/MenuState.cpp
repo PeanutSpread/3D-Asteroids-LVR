@@ -21,15 +21,6 @@ MenuState::MenuState()
 
 void MenuState::initialize()
 {
-	// print usage instructions
-	std::cout << "Usage:" << std::endl;
-	std::cout << "  Camera control:           WASD + Mouse" << std::endl;
-	std::cout << "  Rotate active entity:     Arrow keys" << std::endl;
-	std::cout << "  Reset entity orientation: R" << std::endl;
-	std::cout << "  Translate active entity:  IJKL (world space)" << std::endl;
-	std::cout << "  Translate active entity:  TFGH (local space)" << std::endl;
-	std::cout << "  Cycle active entity:      X/Z" << std::endl;
-	std::cout << "  Toggle point light vis.:  Tab" << std::endl;
 
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 

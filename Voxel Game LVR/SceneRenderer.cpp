@@ -1,4 +1,4 @@
-#include "GameState.h"
+#include "SceneRenderer.h"
 #include "Image.h"
 #include "Prefabs.h"
 #include "CollisionType.h"
@@ -7,7 +7,7 @@
 #include <time.h>
 #include <iostream>
 
-GameState::GameState()
+SceneRenderer::SceneRenderer()
 	: mLightingModel(BLINN_PHONG_PER_FRAGMENT_MULTI_LIGHT)
 	, mCamera(NULL)
 	, mProjMatrix(1.0f)
@@ -19,87 +19,86 @@ GameState::GameState()
 {
 }
 
-void GameState::initialize()
-{
-    // print usage instructions
+void SceneRenderer::initialize() {
+	// print usage instructions
 
-    glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
-    // enable blending (needed for textures with alpha channel)
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// enable blending (needed for textures with alpha channel)
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    mPrograms.resize(NUM_LIGHTING_MODELS);
+	mPrograms.resize(NUM_LIGHTING_MODELS);
 
 	mPrograms[PER_VERTEX_DIR_LIGHT] = new ShaderProgram("shaders/PerVertexDirLight-vs.glsl",
-														"shaders/PerVertexDirLight-fs.glsl");
-    
-    mPrograms[BLINN_PHONG_PER_FRAGMENT_DIR_LIGHT] = new ShaderProgram("shaders/BlinnPhongPerFragment-vs.glsl",
-                                                                      "shaders/BlinnPhongPerFragmentDirLight-fs.glsl");
+		"shaders/PerVertexDirLight-fs.glsl");
 
-    mPrograms[BLINN_PHONG_PER_FRAGMENT_POINT_LIGHT] = new ShaderProgram("shaders/BlinnPhongPerFragment-vs.glsl",
-                                                                        "shaders/BlinnPhongPerFragmentPointLight-fs.glsl");
+	mPrograms[BLINN_PHONG_PER_FRAGMENT_DIR_LIGHT] = new ShaderProgram("shaders/BlinnPhongPerFragment-vs.glsl",
+		"shaders/BlinnPhongPerFragmentDirLight-fs.glsl");
 
-    mPrograms[BLINN_PHONG_PER_FRAGMENT_MULTI_LIGHT] = new ShaderProgram("shaders/BlinnPhongPerFragment-vs.glsl",
-                                                                        "shaders/BlinnPhongPerFragmentMultiLight-fs.glsl");
+	mPrograms[BLINN_PHONG_PER_FRAGMENT_POINT_LIGHT] = new ShaderProgram("shaders/BlinnPhongPerFragment-vs.glsl",
+		"shaders/BlinnPhongPerFragmentPointLight-fs.glsl");
 
-    //
-    // Create meshes
-    //
+	mPrograms[BLINN_PHONG_PER_FRAGMENT_MULTI_LIGHT] = new ShaderProgram("shaders/BlinnPhongPerFragment-vs.glsl",
+		"shaders/BlinnPhongPerFragmentMultiLight-fs.glsl");
 
-    mMeshes.push_back(CreateTexturedCube(1));
-    mMeshes.push_back(CreateChunkyTexturedCylinder(0.5f, 1, 8));
-    mMeshes.push_back(CreateSmoothTexturedCylinder(0.5f, 1, 15));
+	//
+	// Create meshes
+	//
 
-    float roomWidth = s.ROOM_SIZE;
-    float roomHeight = s.ROOM_SIZE;
-    float roomDepth = s.ROOM_SIZE;
-    float roomTilesPerUnit = 0.05f;
+	mMeshes.push_back(CreateTexturedCube(1));
+	mMeshes.push_back(CreateChunkyTexturedCylinder(0.5f, 1, 8));
+	mMeshes.push_back(CreateSmoothTexturedCylinder(0.5f, 1, 15));
 
-    // front and back walls
-    Mesh* fbMesh = CreateTexturedQuad(roomWidth, roomHeight, roomWidth * roomTilesPerUnit, roomHeight * roomTilesPerUnit);
-    mMeshes.push_back(fbMesh);
-    // left and right walls
-    Mesh* lrMesh = CreateTexturedQuad(roomDepth, roomHeight, roomDepth * roomTilesPerUnit, roomHeight * roomTilesPerUnit);
-    mMeshes.push_back(lrMesh);
-    // ceiling and floor
-    Mesh* cfMesh = CreateTexturedQuad(roomWidth, roomDepth, roomWidth * roomTilesPerUnit, roomDepth * roomTilesPerUnit);
-    mMeshes.push_back(cfMesh);
+	float roomWidth = s.ROOM_SIZE;
+	float roomHeight = s.ROOM_SIZE;
+	float roomDepth = s.ROOM_SIZE;
+	float roomTilesPerUnit = 0.05f;
 
-    //
-    // Load textures
-    //
+	// front and back walls
+	Mesh* fbMesh = CreateTexturedQuad(roomWidth, roomHeight, roomWidth * roomTilesPerUnit, roomHeight * roomTilesPerUnit);
+	mMeshes.push_back(fbMesh);
+	// left and right walls
+	Mesh* lrMesh = CreateTexturedQuad(roomDepth, roomHeight, roomDepth * roomTilesPerUnit, roomHeight * roomTilesPerUnit);
+	mMeshes.push_back(lrMesh);
+	// ceiling and floor
+	Mesh* cfMesh = CreateTexturedQuad(roomWidth, roomDepth, roomWidth * roomTilesPerUnit, roomDepth * roomTilesPerUnit);
+	mMeshes.push_back(cfMesh);
 
-    std::vector<std::string> texNames;
-    texNames.push_back("textures/white.tga");
-    texNames.push_back("textures/black.tga");
+	//
+	// Load textures
+	//
+
+	std::vector<std::string> texNames;
+	texNames.push_back("textures/white.tga");
+	texNames.push_back("textures/black.tga");
 	texNames.push_back("textures/space.tga");
 
-    for (unsigned i = 0; i < texNames.size(); i++)
-        mTextures.push_back(new Texture(texNames[i], GL_REPEAT, GL_LINEAR));
+	for (unsigned i = 0; i < texNames.size(); i++)
+		mTextures.push_back(new Texture(texNames[i], GL_REPEAT, GL_LINEAR));
 
-    //
-    // Create materials
-    //
+	//
+	// Create materials
+	//
 
-    // add a material for each loaded texture (with default tint)
-    for (unsigned i = 0; i < texNames.size(); i++)
-        mMaterials.push_back(new Material(mTextures[i]));
+	// add a material for each loaded texture (with default tint)
+	for (unsigned i = 0; i < texNames.size(); i++)
+		mMaterials.push_back(new Material(mTextures[i]));
 
-    //
-    // set extra material properties
-    //
+	//
+	// set extra material properties
+	//
 
-    // white
-    mMaterials[0]->specular = glm::vec3(0.75f, 0.75f, 0.75f);
-    mMaterials[0]->shininess = 64;
+	// white
+	mMaterials[0]->specular = glm::vec3(0.75f, 0.75f, 0.75f);
+	mMaterials[0]->shininess = 64;
 
-    // black
-    mMaterials[1]->specular = glm::vec3(1.0f, 0.5f, 0.0f);  // orange hightlights
-    mMaterials[1]->shininess = 16;
+	// black
+	mMaterials[1]->specular = glm::vec3(1.0f, 0.5f, 0.0f);  // orange hightlights
+	mMaterials[1]->shininess = 16;
 
 	// space
 	mMaterials[2]->specular = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -111,38 +110,38 @@ void GameState::initialize()
 	//
 	srand(time(NULL));
 
-    //
-    // Create permanent entities
-    //
+	//
+	// Create permanent entities
+	//
 
 	// create Player
 	_player = new Player(glm::vec3(0, 0, 0));
 
-    //
-    // Create room
-    //
+	//
+	// Create room
+	//
 
-    // back wall
-    _boundries.push_back(new Entity(fbMesh, mMaterials[2], Transform(0, 0, -0.5f * roomDepth)));
-    // front wall
-    _boundries.push_back(new Entity(fbMesh, mMaterials[2], Transform(0, 0, 0.5f * roomDepth, glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
-    // left wall
-    _boundries.push_back(new Entity(lrMesh, mMaterials[2], Transform(-0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
-    // right wall
-    _boundries.push_back(new Entity(lrMesh, mMaterials[2], Transform(0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
-    // floor
-    _boundries.push_back(new Entity(cfMesh, mMaterials[2], Transform(0, -0.5f * roomHeight, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
-    // ceiling
-    _boundries.push_back(new Entity(cfMesh, mMaterials[2], Transform(0, 0.5f * roomHeight, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
+	// back wall
+	_boundries.push_back(new Entity(fbMesh, mMaterials[2], Transform(0, 0, -0.5f * roomDepth)));
+	// front wall
+	_boundries.push_back(new Entity(fbMesh, mMaterials[2], Transform(0, 0, 0.5f * roomDepth, glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
+	// left wall
+	_boundries.push_back(new Entity(lrMesh, mMaterials[2], Transform(-0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
+	// right wall
+	_boundries.push_back(new Entity(lrMesh, mMaterials[2], Transform(0.5f * roomWidth, 0, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)))));
+	// floor
+	_boundries.push_back(new Entity(cfMesh, mMaterials[2], Transform(0, -0.5f * roomHeight, 0, glm::angleAxis(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
+	// ceiling
+	_boundries.push_back(new Entity(cfMesh, mMaterials[2], Transform(0, 0.5f * roomHeight, 0, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)))));
 
 	_addEntities(_boundries);
 
-    //
-    // create the camera
-    //
+	//
+	// create the camera
+	//
 
-    mCamera = new Camera(this, _player);
-    mCamera->setSpeed(2);
+	mCamera = new Camera(this, _player);
+	mCamera->setSpeed(2);
 
 	glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
 
@@ -150,75 +149,75 @@ void GameState::initialize()
 	_menuAligner = new Entity(NULL, NULL, Transform(0, 0, 0));
 	_pauseMenu = new PauseMenu(_menuAligner, _menuAligner->getOrientation(), 0);
 
-    // create shader program for debug geometry
-    mDbgProgram = new ShaderProgram("shaders/vpc-vs.glsl",
-                                    "shaders/vcolor-fs.glsl");
+	// create shader program for debug geometry
+	mDbgProgram = new ShaderProgram("shaders/vpc-vs.glsl",
+		"shaders/vcolor-fs.glsl");
 
-    // create geometry for axes
-    mAxes = CreateAxes(2);
+	// create geometry for axes
+	mAxes = CreateAxes(2);
 
-    CHECK_GL_ERRORS("initialization");
+	CHECK_GL_ERRORS("initialization");
 }
 
-void GameState::shutdown()
+void SceneRenderer::shutdown()
 {
-    for (unsigned i = 0; i < mPrograms.size(); i++)
-        delete mPrograms[i];
-    mPrograms.clear();
+	for (unsigned i = 0; i < mPrograms.size(); i++)
+		delete mPrograms[i];
+	mPrograms.clear();
 
-    delete mDbgProgram;
-    mDbgProgram = NULL;
+	delete mDbgProgram;
+	mDbgProgram = NULL;
 
-    delete mCamera;
-    mCamera = NULL;
+	delete mCamera;
+	mCamera = NULL;
 
-    for (unsigned i = 0; i < mEntities.size(); i++)
-        delete mEntities[i];
-    mEntities.clear();
+	for (unsigned i = 0; i < mEntities.size(); i++)
+		delete mEntities[i];
+	mEntities.clear();
 
-    for (unsigned i = 0; i < mMeshes.size(); i++)
-        delete mMeshes[i];
-    mMeshes.clear();
+	for (unsigned i = 0; i < mMeshes.size(); i++)
+		delete mMeshes[i];
+	mMeshes.clear();
 
-    for (unsigned i = 0; i < mMaterials.size(); i++)
-        delete mMaterials[i];
-    mMaterials.clear();
-    
-    for (unsigned i = 0; i < mTextures.size(); i++)
-        delete mTextures[i];
-    mTextures.clear();
+	for (unsigned i = 0; i < mMaterials.size(); i++)
+		delete mMaterials[i];
+	mMaterials.clear();
 
-    delete mDbgProgram;
-    mDbgProgram = NULL;
-    
-    delete mAxes;
-    mAxes = NULL;
+	for (unsigned i = 0; i < mTextures.size(); i++)
+		delete mTextures[i];
+	mTextures.clear();
+
+	delete mDbgProgram;
+	mDbgProgram = NULL;
+
+	delete mAxes;
+	mAxes = NULL;
 }
 
-void GameState::resize(int width, int height)
+void SceneRenderer::resize(int width, int height)
 {
-    glViewport(0, 0, width, height);
+	glViewport(0, 0, width, height);
 
-    // compute new projection matrix
-    mProjMatrix = glm::perspective(glm::radians(50.f), width / (float)height, 0.1f, 1000.0f);
+	// compute new projection matrix
+	mProjMatrix = glm::perspective(glm::radians(50.f), width / (float)height, 0.1f, 1000.0f);
 }
 
-void GameState::draw()
+void SceneRenderer::draw()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // activate current program
-    ShaderProgram* prog = mPrograms[mLightingModel];
-    prog->activate();
+	// activate current program
+	ShaderProgram* prog = mPrograms[mLightingModel];
+	prog->activate();
 
-    // send projection matrix
-    prog->sendUniform("u_ProjectionMatrix", mProjMatrix);
+	// send projection matrix
+	prog->sendUniform("u_ProjectionMatrix", mProjMatrix);
 
-    // send the texture sampler id to shader
-    prog->sendUniformInt("u_TexSampler", 0);
+	// send the texture sampler id to shader
+	prog->sendUniformInt("u_TexSampler", 0);
 
-    // get the view matrix from the camera
-    glm::mat4 viewMatrix = mCamera->getViewMatrix();
+	// get the view matrix from the camera
+	glm::mat4 viewMatrix = mCamera->getViewMatrix();
 
 	_toBeDrawn.clear();
 	_drawEntities(mEntities);
@@ -231,6 +230,7 @@ void GameState::draw()
 	}
 
 	// Lighting
+
 	prog->sendUniform("u_AmbientLightColor", glm::vec3(0.1f, 0.1f, 0.1f));
 	prog->sendUniformInt("u_NumPointLights", _player->getLights().size());
 	prog->sendUniformInt("u_NumDirLights", 1);
@@ -244,7 +244,8 @@ void GameState::draw()
 		glm::vec4 lightDir = glm::normalize(glm::vec4(_player->getAim().x, _player->getAim().y, _player->getAim().z, 0));
 		prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
 		prog->sendUniform("u_DirLights[0].color", glm::vec3(0.0f, 0.0f, 0.05f));
-	} else {
+	}
+	else {
 		glm::vec4 lightDir = glm::normalize(glm::vec4(mCamera->getPosition(), 0));
 		prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
 		prog->sendUniform("u_DirLights[0].color", glm::vec3(0.5f, 0.5f, 0.5f));
@@ -272,23 +273,27 @@ void GameState::draw()
 			prog->sendUniform(text + ".attLin", 0.75f);
 			prog->sendUniform(text + ".attConst", 0.75f);
 
-		} else if (_spawnSafety && flip) {
+		}
+		else if (_spawnSafety && flip) {
 			prog->sendUniform(text + ".color", spawnColor);
 			prog->sendUniform(text + ".attQuat", 0.75f);
 			prog->sendUniform(text + ".attLin", 0.75f);
 			prog->sendUniform(text + ".attConst", 0.75f);
 
-		} else if (_player->getThrottle() && i > _player->getLights().size() - 3) {
+		}
+		else if (_player->getThrottle() && i > _player->getLights().size() - 3) {
 			prog->sendUniform(text + ".color", engineColor);
 			prog->sendUniform(text + ".attQuat", 0.725f);
 			prog->sendUniform(text + ".attLin", 0.25f);
 			prog->sendUniform(text + ".attConst", 0.025f);
-		} else if (i > 5) {
+		}
+		else if (i > 5) {
 			prog->sendUniform(text + ".color", lightColor);
 			prog->sendUniform(text + ".attQuat", 1.0f);
 			prog->sendUniform(text + ".attLin", 1.0f);
 			prog->sendUniform(text + ".attConst", 1.0f);
-		} else {
+		}
+		else {
 			prog->sendUniform(text + ".color", lightColor);
 			prog->sendUniform(text + ".attQuat", 1.0f);
 			prog->sendUniform(text + ".attLin", 0.35f);
@@ -297,25 +302,25 @@ void GameState::draw()
 
 	}
 
-    // render all entities
+	// render all entities
 	_render(prog, viewMatrix, _toBeDrawn);
 
 	_drawHUD(prog, viewMatrix);
 
-    mDbgProgram->activate();
-    mDbgProgram->sendUniform("u_ProjectionMatrix", mProjMatrix);
+	mDbgProgram->activate();
+	mDbgProgram->sendUniform("u_ProjectionMatrix", mProjMatrix);
 
-    mDbgProgram->sendUniform("u_ModelviewMatrix", viewMatrix * _player->getEntities()[0]->getWorldMatrix());
+	mDbgProgram->sendUniform("u_ModelviewMatrix", viewMatrix * _player->getEntities()[0]->getWorldMatrix());
 
 	if (_visualHitboxes) {
 		mAxes->activate();
 		mAxes->draw();
 	}
 
-    CHECK_GL_ERRORS("drawing");
+	CHECK_GL_ERRORS("drawing");
 }
 
-void GameState::_render(ShaderProgram* prog, glm::mat4 viewMatrix, std::vector<Entity*> entities) {
+void SceneRenderer::_render(ShaderProgram* prog, glm::mat4 viewMatrix, std::vector<Entity*> entities) {
 	for (unsigned i = 0; i < entities.size(); i++) {
 
 		Entity* ent = entities[i];
@@ -345,7 +350,7 @@ void GameState::_render(ShaderProgram* prog, glm::mat4 viewMatrix, std::vector<E
 	}
 }
 
-bool GameState::update(float dt) // GAME LOOP
+bool SceneRenderer::update(float dt) // GAME LOOP
 {
 	const Keyboard* kb = getKeyboard();
 	const Mouse* mouse = getMouse();
@@ -455,36 +460,38 @@ bool GameState::update(float dt) // GAME LOOP
 			glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
 		glutSetCursor(GLUT_CURSOR_NONE);
 		mCamera->update(dt);
-	} else {
+	}
+	else {
 		// Display mouse cursor over screen when not focused
 		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
 	}
 
-    return true;
+	return true;
 }
 
-bool GameState::isFocused() {
+bool SceneRenderer::isFocused() {
 	if (GetActiveWindow()) {
 		return true;
-	} else {
+	}
+	else {
 		return false;
 	}
 }
 
-void GameState::_addEntities(std::vector<Entity*> entities) {
+void SceneRenderer::_addEntities(std::vector<Entity*> entities) {
 	for (int i = 0; i < entities.size(); i++) {
 		mEntities.push_back(entities[i]);
-    }
+	}
 
 }
 
-void GameState::_drawEntities(std::vector<Entity*> entities) {
+void SceneRenderer::_drawEntities(std::vector<Entity*> entities) {
 	for (int i = 0; i < entities.size(); i++) {
 		_toBeDrawn.push_back(entities[i]);
 	}
 }
 
-void GameState::_cleanUpProjectiles() {
+void SceneRenderer::_cleanUpProjectiles() {
 	int index = 0;
 	for (int i = _projectileIndexBin.size() - 1; i >= 0; --i) {
 		index = _projectileIndexBin[i];
@@ -495,7 +502,7 @@ void GameState::_cleanUpProjectiles() {
 	_projectileIndexBin.clear();
 }
 
-void GameState::_playerDeath(float dt) {
+void SceneRenderer::_playerDeath(float dt) {
 	//TODO: Special animation or something
 	// Delete Player
 	if (_lives > 0) {
@@ -503,11 +510,11 @@ void GameState::_playerDeath(float dt) {
 		_dieing = true;
 		_respawnTimer = clock();
 	}
-	
+
 	_player->death(dt);
 }
 
-void GameState::_projectileCheck(int index) {
+void SceneRenderer::_projectileCheck(int index) {
 	// Check projectiles for collisions
 
 	glm::vec3 position(_projectiles[index]->getPosition());
@@ -517,12 +524,12 @@ void GameState::_projectileCheck(int index) {
 		_projectileIndexBin.push_back(index);
 	}
 
-	int boundry = (s.ROOM_SIZE / 2) + s.BUFFER*2;
+	int boundry = (s.ROOM_SIZE / 2) + s.BUFFER * 2;
 	if (position.x > boundry || position.y > boundry || position.z > boundry || position.x < -boundry || position.y < -boundry || position.z < -boundry)
 		_projectileIndexBin.push_back(index);
 }
 
-void GameState::_asteroidCheck(int index) {
+void SceneRenderer::_asteroidCheck(int index) {
 	// Repositioning asteroids so that they stay inside boundries
 	glm::vec3 position(_asteroids[index]->getPosition());
 	int boundry = (s.ROOM_SIZE / 2) + s.BUFFER * 2;
@@ -548,8 +555,8 @@ void GameState::_asteroidCheck(int index) {
 	}
 }
 
-void GameState::_destroyAsteroid(Projectile* projectile) {
-	
+void SceneRenderer::_destroyAsteroid(Projectile* projectile) {
+
 	int asteroidHolder = 0;
 	for (int i = 0; i < _asteroids.size(); i++) {
 		if (projectile->hasCollision(_asteroids[i]->getHitboxes(), AABB_Sphere)) {
@@ -563,12 +570,12 @@ void GameState::_destroyAsteroid(Projectile* projectile) {
 	_asteroids.erase(_asteroids.begin() + asteroidHolder);
 }
 
-void GameState::_createAsteroids() {
+void SceneRenderer::_createAsteroids() {
 	int totalAsteroids = rand() % s.VARIANCE_ASTEROIDS + s.MIN_ASTEROIDS;
 	int size = 0;
 	glm::vec3 location, velocity;
 	for (int i = 0; i < totalAsteroids; ++i) {
-		location = glm::vec3(rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE/2, rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE / 2, rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE/2);
+		location = glm::vec3(rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE / 2, rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE / 2, rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE / 2);
 		velocity = glm::vec3(rand() % s.VARIANCE_XYZ + s.MIN_XYZ, rand() % s.VARIANCE_ASTEROIDS + s.MIN_XYZ, rand() % s.VARIANCE_XYZ + s.MIN_XYZ);
 		size = rand() % s.ASTEROID_SCALES + 1;
 
@@ -580,14 +587,14 @@ void GameState::_createAsteroids() {
 	}
 }
 
-bool GameState::_timerCheck(clock_t timer, float elapsedTime) {
+bool SceneRenderer::_timerCheck(clock_t timer, float elapsedTime) {
 	timer = clock() - timer;
 	if ((float)timer / CLOCKS_PER_SEC >= elapsedTime)
 		return true;
 	return false;
 }
 
-bool GameState::_timerIntervalCheck(clock_t timer, int interval) {
+bool SceneRenderer::_timerIntervalCheck(clock_t timer, int interval) {
 	bool toggle = false;
 	timer = clock() - timer;
 	if ((timer / CLOCKS_PER_SEC) % interval == 0)
@@ -595,7 +602,7 @@ bool GameState::_timerIntervalCheck(clock_t timer, int interval) {
 	return toggle;
 }
 
-std::vector<Entity*> GameState::_flattenProjectiles()
+std::vector<Entity*> SceneRenderer::_flattenProjectiles()
 {
 	std::vector<Entity*> entities;
 	for (int i = 0; i < _projectiles.size(); ++i) {
@@ -611,7 +618,7 @@ std::vector<Entity*> GameState::_flattenProjectiles()
 	return entities;
 }
 
-std::vector<Entity*> GameState::_flattenAsteroids()
+std::vector<Entity*> SceneRenderer::_flattenAsteroids()
 {
 	std::vector<Entity*> entities;
 	for (int i = 0; i < _asteroids.size(); ++i) {
@@ -627,7 +634,7 @@ std::vector<Entity*> GameState::_flattenAsteroids()
 	return entities;
 }
 
-std::vector<Entity*> GameState::_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities) {
+std::vector<Entity*> SceneRenderer::_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities) {
 	std::vector<Entity*> dangers;
 	glm::vec3 distance;
 	for (int i = 0; i < entities.size(); ++i) {
@@ -644,7 +651,7 @@ std::vector<Entity*> GameState::_getDangersTo(glm::vec3 point, std::vector<Aster
 	return dangers;
 }
 
-void GameState::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
+void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glBlendFunc(GL_DST_ALPHA, GL_ONE);
 
@@ -736,5 +743,4 @@ void GameState::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	glDepthMask(GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
-
 

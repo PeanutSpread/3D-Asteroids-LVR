@@ -15,20 +15,20 @@
 #include <vector>
 #include <math.h>
 
-class GameState : public GLApp {
+class SceneRenderer : public GLApp {
 
-    LightingModel               mLightingModel;
+	LightingModel               mLightingModel;
 
-    // shaders used to render entities (one program per lighting model)
-    std::vector<ShaderProgram*> mPrograms;
+	// shaders used to render entities (one program per lighting model)
+	std::vector<ShaderProgram*> mPrograms;
 
-    // graphics resources
-    std::vector<Texture*>       mTextures;
-    std::vector<Mesh*>          mMeshes;
-    std::vector<Material*>      mMaterials;
+	// graphics resources
+	std::vector<Texture*>       mTextures;
+	std::vector<Mesh*>          mMeshes;
+	std::vector<Material*>      mMaterials;
 
-    // scene objects
-    std::vector<Entity*>        mEntities;
+	// scene objects
+	std::vector<Entity*>        mEntities;
 	std::vector<Entity*>		_toBeDrawn;
 
 	std::vector<Projectile*>	_projectiles;
@@ -37,14 +37,14 @@ class GameState : public GLApp {
 	std::vector<int>			_projectileIndexBin;
 	Player*						_player;
 
-    Camera*                     mCamera;
+	Camera*                     mCamera;
 
-    glm::mat4                   mProjMatrix;
+	glm::mat4                   mProjMatrix;
 
 	clock_t						_respawnTimer;
 	clock_t						_projectileTimer;
 
-    bool                        mVisualizePointLights;
+	bool                        mVisualizePointLights;
 	bool						_pause = false;
 	bool						_startFix = true;
 	bool						_dieing = false;
@@ -67,7 +67,7 @@ class GameState : public GLApp {
 
 	std::vector<Entity*>		_flattenProjectiles();
 	std::vector<Entity*>		_flattenAsteroids();
-	
+
 	std::vector<Entity*>		_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities);
 	void						_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix);
 	Entity*						_menuAligner;
@@ -76,26 +76,26 @@ class GameState : public GLApp {
 
 	Settings					s;
 
-    // debug visualization
+	// debug visualization
 	bool						_visualHitboxes = false;
 
-    // shader used to render active entity axes
-    ShaderProgram*              mDbgProgram;
+	// shader used to render active entity axes
+	ShaderProgram*              mDbgProgram;
 
-    // geometry of axes
-    Mesh*                       mAxes;
+	// geometry of axes
+	Mesh*                       mAxes;
 
 	// Rendering
 	void						_render(ShaderProgram* prog, glm::mat4 viewMatrix, std::vector<Entity*> entitie);
 
 public:
-	GameState();
+	SceneRenderer();
 
-    void                initialize();
-    void                shutdown();
-    void                resize(int width, int height);
-    void                draw();
-    bool                update(float dt);
+	void                initialize();
+	void                shutdown();
+	void                resize(int width, int height);
+	void                draw();
+	bool                update(float dt);
 	bool				isFocused();
 };
 

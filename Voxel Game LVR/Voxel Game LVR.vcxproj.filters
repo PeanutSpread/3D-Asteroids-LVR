@@ -101,17 +101,17 @@
     <ClCompile Include="PauseMenu.cpp">
       <Filter>Source Files\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="GameState.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="MenuState.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
-    <ClCompile Include="StateManager.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="CollisionType.h">
       <Filter>Header Files\Enums</Filter>
+    </ClCompile>
+    <ClCompile Include="GameState.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneRenderer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -172,17 +172,20 @@
     <ClInclude Include="PauseMenu.h">
       <Filter>Header Files\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="GameState.h">
-      <Filter>Header Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="StateManager.h">
-      <Filter>Header Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="LightingModel.h">
       <Filter>Header Files\Enums</Filter>
     </ClInclude>
     <ClInclude Include="MenuState.h">
       <Filter>Header Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgramState.h">
+      <Filter>Header Files\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="GameState.h">
+      <Filter>Header Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneRenderer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -295,5 +298,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Bugs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Voxel Game LVR1.rc" />
   </ItemGroup>
 </Project>
