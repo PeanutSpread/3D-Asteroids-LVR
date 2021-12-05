@@ -87,9 +87,11 @@ public:
 	float getPitch() const
 	{ return mPitch; }
 
-	void toggleCameraMovement() {
-		_pause = !_pause;
-	}
+	void toggleCameraMovement() 
+	{ _pause = !_pause; }
+
+	void setCameraMovement(bool value) 
+	{ _pause = !value; }
 
     void update(float deltaT);
 

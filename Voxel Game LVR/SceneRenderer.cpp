@@ -16,6 +16,7 @@ SceneRenderer::SceneRenderer()
 	, mVisualizePointLights(true)
 	, _player(NULL)
 	, _toBeDrawn()
+	, _state(MENU_STATE)
 {
 }
 
@@ -105,14 +106,8 @@ void SceneRenderer::initialize() {
 	mMaterials[2]->shininess = 100;
 	mMaterials[2]->emissive = glm::vec3(0.025f, 0.025f, 0.025f);
 
-	//
 	// Setup Random
-	//
 	srand(time(NULL));
-
-	//
-	// Create permanent entities
-	//
 
 	// create Player
 	_player = new Player(glm::vec3(0, 0, 0));
@@ -146,8 +141,10 @@ void SceneRenderer::initialize() {
 	glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
 
 	// 2D Elements
-	_menuAligner = new Entity(NULL, NULL, Transform(0, 0, 0));
-	_pauseMenu = new PauseMenu(_menuAligner, _menuAligner->getOrientation(), 0);
+	_pauseMenuAligner = new Entity(NULL, NULL, Transform(0, 0, 0));
+	_pauseMenu = new PauseMenu(_pauseMenuAligner, _pauseMenuAligner->getOrientation(), 0);
+	_mainMenuAligner = new Entity(NULL, NULL, Transform(0, 0, 0));
+	_mainMenu = new MainMenu(_mainMenuAligner, _mainMenuAligner->getOrientation(), 0);
 
 	// create shader program for debug geometry
 	mDbgProgram = new ShaderProgram("shaders/vpc-vs.glsl",
@@ -155,6 +152,12 @@ void SceneRenderer::initialize() {
 
 	// create geometry for axes
 	mAxes = CreateAxes(2);
+
+	// setup menu
+	if (_state == MENU_STATE) {
+		_createAsteroids();
+		mCamera->toggleCameraMovement();
+	}
 
 	CHECK_GL_ERRORS("initialization");
 }
@@ -219,103 +222,22 @@ void SceneRenderer::draw()
 	// get the view matrix from the camera
 	glm::mat4 viewMatrix = mCamera->getViewMatrix();
 
-	_toBeDrawn.clear();
-	_drawEntities(mEntities);
-	_drawEntities(_flattenAsteroids());
-	if (!_pause) {
-		_drawEntities(_flattenProjectiles());
-		_drawEntities(_player->getEntities());
-		if (_visualHitboxes)
-			_drawEntities(_player->getHitboxes());
+	switch (_state) {
+	case MENU_STATE:
+		_menuDraw(prog, viewMatrix);
+		break;
+	case GAME_STATE:
+		_gameDraw(prog, viewMatrix);
+		break;
+	case END_STATE:
+		_endDraw(prog, viewMatrix);
+		break;
 	}
-
-	// Lighting
-
-	prog->sendUniform("u_AmbientLightColor", glm::vec3(0.1f, 0.1f, 0.1f));
-	prog->sendUniformInt("u_NumPointLights", _player->getLights().size());
-	prog->sendUniformInt("u_NumDirLights", 1);
-	glm::vec3 lightColor = glm::vec3(1.0f, 0.9f, 0.8f);
-	glm::vec3 engineColor = glm::vec3(0.6f, 0.6f, 1.0f);
-	glm::vec3 spawnColor = glm::vec3(1.0f, 1.0f, 0.0f);
-	glm::vec3 dieingColor = glm::vec3(1.0f, 0.0f, 0.0f);
-
-	// direction light
-	if (!_pause) {
-		glm::vec4 lightDir = glm::normalize(glm::vec4(_player->getAim().x, _player->getAim().y, _player->getAim().z, 0));
-		prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
-		prog->sendUniform("u_DirLights[0].color", glm::vec3(0.0f, 0.0f, 0.05f));
-	}
-	else {
-		glm::vec4 lightDir = glm::normalize(glm::vec4(mCamera->getPosition(), 0));
-		prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
-		prog->sendUniform("u_DirLights[0].color", glm::vec3(0.5f, 0.5f, 0.5f));
-	}
-	static bool cond;
-	bool flip = _timerIntervalCheck(_respawnTimer, s.LIGHT_FLASH_INTERVAL);
-	if (_pause)
-		flip = cond;
-	cond = flip;
-
-	std::string text;
-	for (int i = 0; i < _player->getLights().size(); i++) {
-		// point light position
-		glm::vec3 lightPos = _player->getLights()[i]->getPosition();
-
-		text = "u_PointLights[" + std::to_string(i) + "]";
-
-		// send light position in eye space
-		prog->sendUniform(text + ".pos", glm::vec3(viewMatrix * glm::vec4(lightPos, 1)));
-
-		// send light color/intensity
-		if (_dieing  && flip) {
-			prog->sendUniform(text + ".color", dieingColor);
-			prog->sendUniform(text + ".attQuat", 0.75f);
-			prog->sendUniform(text + ".attLin", 0.75f);
-			prog->sendUniform(text + ".attConst", 0.75f);
-
-		}
-		else if (_spawnSafety && flip) {
-			prog->sendUniform(text + ".color", spawnColor);
-			prog->sendUniform(text + ".attQuat", 0.75f);
-			prog->sendUniform(text + ".attLin", 0.75f);
-			prog->sendUniform(text + ".attConst", 0.75f);
-
-		}
-		else if (_player->getThrottle() && i > _player->getLights().size() - 3) {
-			prog->sendUniform(text + ".color", engineColor);
-			prog->sendUniform(text + ".attQuat", 0.725f);
-			prog->sendUniform(text + ".attLin", 0.25f);
-			prog->sendUniform(text + ".attConst", 0.025f);
-		}
-		else if (i > 5) {
-			prog->sendUniform(text + ".color", lightColor);
-			prog->sendUniform(text + ".attQuat", 1.0f);
-			prog->sendUniform(text + ".attLin", 1.0f);
-			prog->sendUniform(text + ".attConst", 1.0f);
-		}
-		else {
-			prog->sendUniform(text + ".color", lightColor);
-			prog->sendUniform(text + ".attQuat", 1.0f);
-			prog->sendUniform(text + ".attLin", 0.35f);
-			prog->sendUniform(text + ".attConst", 0.025f);
-		}
-
-	}
-
-	// render all entities
-	_render(prog, viewMatrix, _toBeDrawn);
-
-	_drawHUD(prog, viewMatrix);
 
 	mDbgProgram->activate();
 	mDbgProgram->sendUniform("u_ProjectionMatrix", mProjMatrix);
 
 	mDbgProgram->sendUniform("u_ModelviewMatrix", viewMatrix * _player->getEntities()[0]->getWorldMatrix());
-
-	if (_visualHitboxes) {
-		mAxes->activate();
-		mAxes->draw();
-	}
 
 	CHECK_GL_ERRORS("drawing");
 }
@@ -350,120 +272,20 @@ void SceneRenderer::_render(ShaderProgram* prog, glm::mat4 viewMatrix, std::vect
 	}
 }
 
-bool SceneRenderer::update(float dt) // GAME LOOP
-{
+bool SceneRenderer::update(float dt) { //gameLoop
 	const Keyboard* kb = getKeyboard();
 	const Mouse* mouse = getMouse();
-
-
-	// Pause Toggle
-	if (kb->keyPressed(KC_ESCAPE)) {
-		_pause = !_pause;
-		glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
-		mCamera->toggleCameraMovement();
-	}
-
-	if (kb->keyPressed(KC_SPACE) && _pause)
-		return false;
-
-	if (!_pause) {
-		if (_dieing) {
-			_player->death(dt);
-			if (_timerCheck(_respawnTimer, s.RESPAWN_INTERVAL)) {
-				_spawnSafety = true;
-				_dieing = false;
-				_respawnTimer = clock();
-			}
-		}
-
-		if (_spawnSafety)
-			if (_timerCheck(_respawnTimer, s.RESPAWN_INTERVAL))
-				_spawnSafety = false;
-
-		if (!_gameOver) {
-			if (!mCamera->getFreeLook() && !_dieing) {
-				_player->headLook(mCamera->getYaw(), mCamera->getPitch(), dt);
-				_player->bodyMove(kb, dt);
-				if (!_spawnSafety) {
-					if (_player->hasCollision(_getDangersTo(_player->getPosition(), _asteroids), AABB_AABB)) {
-						_playerDeath(dt);
-					}
-				}
-				if (!_projectileReady)
-					if (_timerCheck(_projectileTimer, s.PROJECTILE_INTERVAL))
-						_projectileReady = true;
-
-				if (mouse->buttonPressed(MOUSE_BUTTON_LEFT) && _projectileReady) {
-					_projectiles.push_back(_player->shoot()[0]);
-					_projectileReady = false;
-					_projectileTimer = clock();
-				}
-			}
-		}
-
-		if (_projectiles.size() > 0) {
-			for (int i = 0; i < _projectiles.size(); i++) {
-				_projectiles[i]->update(dt);
-				_projectileCheck(i);
-			}
-		}
-
-		if (_asteroids.size() == 0) {
-			_createAsteroids();
-		}
-
-		if (_asteroids.size() > 0) {
-			for (int i = 0; i < _asteroids.size(); i++) {
-				_asteroids[i]->update(dt);
-				_asteroidCheck(i);
-			}
-		}
-
-		_cleanUpProjectiles();
-
-
-		// Commiting Suicide
-		if (kb->keyPressed(KC_RETURN))
-			_playerDeath(dt);
-
-		// Show Hitboxes
-		if (kb->keyPressed(KC_TILDE))
-			_visualHitboxes = !_visualHitboxes;
-
-		// update the camera
-		if (kb->keyPressed(KC_P)) {
-			// Freelook (i.e. not attatched to ship) Will be removed or hidden
-			mCamera->toggleFreelook();
-		}
-
-	}
-	else {
-		mCamera->setPosition(0, -s.ROOM_SIZE / 2, 0);
-		mCamera->lookAt(0, 0, 0);
-
-		_pauseMenu->interaction(mouse);
-
-		// Menu Operations
-		if (_pauseMenu->getExitButton())
-			return false;
-
-		if (_pauseMenu->getResumeButton()) {
-			_pause = !_pause;
-			glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
-			mCamera->toggleCameraMovement();
-		}
-	}
-
-	if (isFocused()) {
-		// Stop mouse tracking when out of window
-		if (!_pause)
-			glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
-		glutSetCursor(GLUT_CURSOR_NONE);
-		mCamera->update(dt);
-	}
-	else {
-		// Display mouse cursor over screen when not focused
-		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+	
+	switch (_state) {
+	case MENU_STATE:
+		return _menuUpdate(kb, mouse, dt);
+		break;
+	case GAME_STATE:
+		return _gameUpdate(kb, mouse, dt);
+		break;
+	case END_STATE:
+		return _endUpdate(kb, mouse, dt);
+		break;
 	}
 
 	return true;
@@ -503,14 +325,14 @@ void SceneRenderer::_cleanUpProjectiles() {
 }
 
 void SceneRenderer::_playerDeath(float dt) {
-	//TODO: Special animation or something
-	// Delete Player
-	if (_lives > 0) {
-		--_lives;
-		_dieing = true;
-		_respawnTimer = clock();
-	}
 
+	if (_lives > 0)
+		--_lives;
+	else 
+		_gameOver = true;
+	
+	_respawnTimer = clock();
+	_dieing = true;
 	_player->death(dt);
 }
 
@@ -656,13 +478,13 @@ void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	glBlendFunc(GL_DST_ALPHA, GL_ONE);
 
 	glm::vec3 vP = mCamera->getPosition();
-	_menuAligner->setPosition(vP);
+	_pauseMenuAligner->setPosition(vP);
 	float radYaw = (3.14159265f / 180.0f) * mCamera->getYaw();
 	float radPitch = (3.14159265f / 180.0f) * mCamera->getPitch();
-	_menuAligner->setOrientation(glm::quat(glm::vec3(radPitch - 1.5f, radYaw, 0.f)));
-	_menuAligner->setPosition(_player->getEntities()[0]->getPosition());
-	_menuAligner->translateLocal(0, 0, 3);
-	vP = _menuAligner->getPosition();
+	_pauseMenuAligner->setOrientation(glm::quat(glm::vec3(radPitch - 1.5f, radYaw, 0.f)));
+	_pauseMenuAligner->setPosition(_player->getEntities()[0]->getPosition());
+	_pauseMenuAligner->translateLocal(0, 0, 3);
+	vP = _pauseMenuAligner->getPosition();
 	float scale = mCamera->getZoom() + (_player->getAcceleration() / 20);
 	glm::quat viewOrientation(glm::vec3(radPitch, radYaw, 0.f));
 	_pauseMenu->update(viewOrientation, scale);
@@ -684,19 +506,19 @@ void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 
 
 		if (!_dieing) {
-			_menuAligner->translateLocal(-0.035 * scale, 0, 0);
-			entities.push_back(new Entity(meshes[0], materials[0], Transform(_menuAligner->getPosition())));
-			_menuAligner->setPosition(vP);
+			_pauseMenuAligner->translateLocal(-0.035 * scale, 0, 0);
+			entities.push_back(new Entity(meshes[0], materials[0], Transform(_pauseMenuAligner->getPosition())));
+			_pauseMenuAligner->setPosition(vP);
 
-			_menuAligner->translateLocal(0.035 * scale, 0, 0);
-			entities.push_back(new Entity(meshes[0], materials[0], Transform(_menuAligner->getPosition())));
-			_menuAligner->setPosition(vP);
+			_pauseMenuAligner->translateLocal(0.035 * scale, 0, 0);
+			entities.push_back(new Entity(meshes[0], materials[0], Transform(_pauseMenuAligner->getPosition())));
+			_pauseMenuAligner->setPosition(vP);
 		}
 
 		for (int i = 0; i < _lives; ++i) {
-			_menuAligner->translateLocal((0.25 + 0.07 * i)* scale, 0, 0.38 * scale);
-			entities.push_back(new Entity(meshes[1], materials[1], Transform(_menuAligner->getPosition())));
-			_menuAligner->setPosition(vP);
+			_pauseMenuAligner->translateLocal((0.25 + 0.07 * i)* scale, 0, 0.38 * scale);
+			entities.push_back(new Entity(meshes[1], materials[1], Transform(_pauseMenuAligner->getPosition())));
+			_pauseMenuAligner->setPosition(vP);
 		}
 
 	}
@@ -713,13 +535,13 @@ void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	if (_pause) {
 		mCamera->orientationChange();
 		glm::vec3 vP = mCamera->getPosition();
-		_menuAligner->setPosition(vP);
+		_pauseMenuAligner->setPosition(vP);
 		float radYaw = (3.14159265f / 180.0f) * mCamera->getYaw();
 		float radPitch = (3.14159265f / 180.0f) * mCamera->getPitch();
 		glm::quat viewOrientation(glm::vec3(radPitch, radYaw, 0.f));
-		_menuAligner->setOrientation(viewOrientation);
-		_menuAligner->translateLocal(0, 0, -10);
-		vP = _menuAligner->getPosition();
+		_pauseMenuAligner->setOrientation(viewOrientation);
+		_pauseMenuAligner->translateLocal(0, 0, -10);
+		vP = _pauseMenuAligner->getPosition();
 
 		_pauseMenu->update(viewOrientation, 10);
 
@@ -744,3 +566,350 @@ void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+void SceneRenderer::_drawMenu(ShaderProgram * prog, glm::mat4 viewMatrix) {
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	mCamera->orientationChange();
+	glm::vec3 vP = mCamera->getPosition();
+	_mainMenuAligner->setPosition(vP);
+	float radYaw = (3.14159265f / 180.0f) * mCamera->getYaw();
+	float radPitch = (3.14159265f / 180.0f) * mCamera->getPitch();
+	glm::quat viewOrientation(glm::vec3(radPitch, radYaw, 0.f));
+	_mainMenuAligner->setOrientation(viewOrientation);
+	_mainMenuAligner->translateLocal(0, 0, -10);
+	vP = _mainMenuAligner->getPosition();
+	float scale = mCamera->getZoom();
+	_mainMenu->update(viewOrientation, 10);
+
+
+	std::vector<Entity*> entities;
+
+	std::vector<Entity*> menuEntities = _mainMenu->getMenu();
+	for (int i = 0; i < menuEntities.size(); ++i)
+		entities.push_back(menuEntities[i]);
+
+	glDepthMask(GL_FALSE);
+	_render(prog, viewMatrix, entities);
+
+	glBlendFunc(GL_DST_ALPHA, GL_ONE);
+	std::vector<Entity*> cursorAdapter;
+	cursorAdapter.push_back(_mainMenu->getCursor());
+	_render(prog, viewMatrix, cursorAdapter);
+
+	glDepthMask(GL_TRUE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+bool SceneRenderer::_menuUpdate(const Keyboard* kb, const Mouse* mouse, float dt) {
+	if (_asteroids.size() > 0) {
+		for (int i = 0; i < _asteroids.size(); i++) {
+			_asteroids[i]->update(dt);
+		}
+	}
+
+	// Show Hitboxes
+	if (kb->keyPressed(KC_TILDE))
+		_visualHitboxes = !_visualHitboxes;
+
+
+	mCamera->setPosition(0, -s.ROOM_SIZE / 2, 0);
+	mCamera->lookAt(0, 0, 0);
+
+	_mainMenu->interaction(mouse);
+
+	// Menu Operations
+	if (_mainMenu->getExitButton())
+		return false;
+
+	if (_mainMenu->getStartButton()) {
+		_switchToGame();
+		return true;
+	}
+
+	if (isFocused()) {
+		glutSetCursor(GLUT_CURSOR_NONE);
+		mCamera->update(dt);
+	}
+	else {
+		// Display mouse cursor over screen when not focused
+		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+	}
+
+	return true;
+}
+
+void SceneRenderer::_menuDraw(ShaderProgram* prog, glm::mat4 viewMatrix) {
+	_toBeDrawn.clear();
+	_drawEntities(mEntities);
+	_drawEntities(_flattenAsteroids());
+
+	// Lighting
+	prog->sendUniform("u_AmbientLightColor", glm::vec3(0.1f, 0.1f, 0.1f));
+	prog->sendUniformInt("u_NumDirLights", 1);
+
+	// direction light
+	glm::vec4 lightDir = glm::normalize(glm::vec4(mCamera->getPosition(), 0));
+	prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
+	prog->sendUniform("u_DirLights[0].color", glm::vec3(0.5f, 0.5f, 0.5f));
+
+	// render all entities
+	_render(prog, viewMatrix, _toBeDrawn);
+
+	_drawMenu(prog, viewMatrix);
+}
+
+bool SceneRenderer::_gameUpdate(const Keyboard* kb, const Mouse* mouse, float dt) {
+
+	// Pause Toggle
+	if (kb->keyPressed(KC_ESCAPE)) {
+		_pause = !_pause;
+		glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
+		mCamera->toggleCameraMovement();
+	}
+
+	if (kb->keyPressed(KC_SPACE) && _pause)
+		return false;
+
+	if (!_pause) {
+		if (_dieing) {
+			_player->death(dt);
+			if (_timerCheck(_respawnTimer, s.RESPAWN_INTERVAL)) {
+				if (!_gameOver) {
+					_spawnSafety = true;
+					_dieing = false;
+					_respawnTimer = clock();
+				} else {
+					_dieing = false;
+					_gameOver = false;
+					_switchToEnd();
+				}
+			}
+		}
+
+		if (_spawnSafety)
+			if (_timerCheck(_respawnTimer, s.RESPAWN_INTERVAL))
+				_spawnSafety = false;
+
+		if (!_gameOver) {
+			if (!mCamera->getFreeLook() && !_dieing) {
+				_player->headLook(mCamera->getYaw(), mCamera->getPitch(), dt);
+				_player->bodyMove(kb, dt);
+				if (!_spawnSafety) {
+					if (_player->hasCollision(_getDangersTo(_player->getPosition(), _asteroids), AABB_AABB)) {
+						_playerDeath(dt);
+					}
+				}
+				if (!_projectileReady)
+					if (_timerCheck(_projectileTimer, s.PROJECTILE_INTERVAL))
+						_projectileReady = true;
+
+				if (mouse->buttonPressed(MOUSE_BUTTON_LEFT) && _projectileReady) {
+					_projectiles.push_back(_player->shoot()[0]);
+					_projectileReady = false;
+					_projectileTimer = clock();
+				}
+			}
+		}
+
+		if (_projectiles.size() > 0) {
+			for (int i = 0; i < _projectiles.size(); i++) {
+				_projectiles[i]->update(dt);
+				_projectileCheck(i);
+			}
+		}
+
+		if (_asteroids.size() == 0) {
+			_createAsteroids();
+		}
+
+		if (_asteroids.size() > 0) {
+			for (int i = 0; i < _asteroids.size(); i++) {
+				_asteroids[i]->update(dt);
+				_asteroidCheck(i);
+			}
+		}
+
+		_cleanUpProjectiles();
+
+
+		// Commiting Suicide
+		if (kb->keyPressed(KC_RETURN))
+			_playerDeath(dt);
+
+		// Show Hitboxes
+		if (kb->keyPressed(KC_TILDE))
+			_visualHitboxes = !_visualHitboxes;
+
+		// update the camera
+		if (kb->keyPressed(KC_P)) {
+			// Freelook (i.e. not attatched to ship) Will be removed or hidden
+			mCamera->toggleFreelook();
+		}
+
+	}
+	else {
+		mCamera->setPosition(0, -s.ROOM_SIZE / 2, 0);
+		mCamera->lookAt(0, 0, 0);
+
+		_pauseMenu->interaction(mouse);
+
+		// Menu Operations
+		if (_pauseMenu->getExitButton())
+			return false;
+
+		if (_pauseMenu->getResumeButton()) {
+			_pause = !_pause;
+			glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
+			mCamera->toggleCameraMovement();
+		}
+
+		if (_pauseMenu->getMenuButton())
+			_switchToMenu();
+	}
+
+	if (isFocused()) {
+		// Stop mouse tracking when out of window
+		if (!_pause)
+			glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
+		glutSetCursor(GLUT_CURSOR_NONE);
+		mCamera->update(dt);
+	}
+	else {
+		// Display mouse cursor over screen when not focused
+		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+	}
+
+
+	return true;
+}
+
+void SceneRenderer::_gameDraw(ShaderProgram* prog, glm::mat4 viewMatrix) {
+	_toBeDrawn.clear();
+	_drawEntities(mEntities);
+	_drawEntities(_flattenAsteroids());
+	if (!_pause) {
+		_drawEntities(_flattenProjectiles());
+		_drawEntities(_player->getEntities());
+		if (_visualHitboxes)
+			_drawEntities(_player->getHitboxes());
+	}
+
+	// Lighting
+
+	prog->sendUniform("u_AmbientLightColor", glm::vec3(0.1f, 0.1f, 0.1f));
+	prog->sendUniformInt("u_NumPointLights", _player->getLights().size());
+	prog->sendUniformInt("u_NumDirLights", 1);
+	glm::vec3 lightColor = glm::vec3(1.0f, 0.9f, 0.8f);
+	glm::vec3 engineColor = glm::vec3(0.6f, 0.6f, 1.0f);
+	glm::vec3 spawnColor = glm::vec3(1.0f, 1.0f, 0.0f);
+	glm::vec3 dieingColor = glm::vec3(1.0f, 0.0f, 0.0f);
+
+	// direction light
+	if (!_pause) {
+		glm::vec4 lightDir = glm::normalize(glm::vec4(_player->getAim().x, _player->getAim().y, _player->getAim().z, 0));
+		prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
+		prog->sendUniform("u_DirLights[0].color", glm::vec3(0.0f, 0.0f, 0.05f));
+	}
+	else {
+		glm::vec4 lightDir = glm::normalize(glm::vec4(mCamera->getPosition(), 0));
+		prog->sendUniform("u_DirLights[0].dir", glm::vec3(viewMatrix * lightDir));
+		prog->sendUniform("u_DirLights[0].color", glm::vec3(0.5f, 0.5f, 0.5f));
+	}
+	static bool cond;
+	bool flip = _timerIntervalCheck(_respawnTimer, s.LIGHT_FLASH_INTERVAL);
+	if (_pause)
+		flip = cond;
+	cond = flip;
+
+	std::string text;
+	for (int i = 0; i < _player->getLights().size(); i++) {
+		// point light position
+		glm::vec3 lightPos = _player->getLights()[i]->getPosition();
+
+		text = "u_PointLights[" + std::to_string(i) + "]";
+
+		// send light position in eye space
+		prog->sendUniform(text + ".pos", glm::vec3(viewMatrix * glm::vec4(lightPos, 1)));
+
+		// send light color/intensity
+		if (_dieing  && flip) {
+			prog->sendUniform(text + ".color", dieingColor);
+			prog->sendUniform(text + ".attQuat", 0.75f);
+			prog->sendUniform(text + ".attLin", 0.75f);
+			prog->sendUniform(text + ".attConst", 0.75f);
+
+		}
+		else if (_spawnSafety && flip) {
+			prog->sendUniform(text + ".color", spawnColor);
+			prog->sendUniform(text + ".attQuat", 0.75f);
+			prog->sendUniform(text + ".attLin", 0.75f);
+			prog->sendUniform(text + ".attConst", 0.75f);
+
+		}
+		else if (_player->getThrottle() && i > _player->getLights().size() - 3) {
+			prog->sendUniform(text + ".color", engineColor);
+			prog->sendUniform(text + ".attQuat", 0.725f);
+			prog->sendUniform(text + ".attLin", 0.25f);
+			prog->sendUniform(text + ".attConst", 0.025f);
+		}
+		else if (i > 5) {
+			prog->sendUniform(text + ".color", lightColor);
+			prog->sendUniform(text + ".attQuat", 1.0f);
+			prog->sendUniform(text + ".attLin", 1.0f);
+			prog->sendUniform(text + ".attConst", 1.0f);
+		}
+		else {
+			prog->sendUniform(text + ".color", lightColor);
+			prog->sendUniform(text + ".attQuat", 1.0f);
+			prog->sendUniform(text + ".attLin", 0.35f);
+			prog->sendUniform(text + ".attConst", 0.025f);
+		}
+
+	}
+
+	// render all entities
+	_render(prog, viewMatrix, _toBeDrawn);
+
+	_drawHUD(prog, viewMatrix);
+}
+
+bool SceneRenderer::_endUpdate(const Keyboard * kb, const Mouse * mouse, float dt) {
+	return _menuUpdate(kb, mouse, dt);
+}
+
+void SceneRenderer::_endDraw(ShaderProgram * prog, glm::mat4 viewMatrix) {
+
+}
+
+void SceneRenderer::_switchToGame() {
+	for (int i = 0; i < _asteroids.size(); ++i) {
+		_asteroids[i]->destroy();
+		delete _asteroids[i];
+	}
+
+	delete _player;
+	_player = new Player(glm::vec3(0, 0, 0));
+
+	delete mCamera;
+	mCamera = new Camera(this, _player);
+	mCamera->setSpeed(2);
+
+	_asteroids.clear();
+	_respawnTimer = clock();
+	_spawnSafety = true;
+	mCamera->setCameraMovement(true);
+	_pause = false;
+	_lives = 5;
+
+	_state = GAME_STATE;
+}
+
+void SceneRenderer::_switchToMenu() {
+	mCamera->setCameraMovement(false);
+	_state = MENU_STATE;
+}
+
+void SceneRenderer::_switchToEnd() {
+	mCamera->setCameraMovement(false);
+	_state = MENU_STATE;
+}

@@ -37,8 +37,6 @@ class MenuState : public GLApp {
 
 	glm::mat4                   mProjMatrix;
 
-	clock_t						_timer;
-
 	bool                        mVisualizePointLights;
 
 	void						_addEntities(std::vector<Entity*> entities);

@@ -51,6 +51,9 @@ public:
 
 	std::vector<Asteroid*> explode();
 
+	void destroy()
+	{ _destroy(); }
+
 	void update(float dt); // game loop function
 };
 

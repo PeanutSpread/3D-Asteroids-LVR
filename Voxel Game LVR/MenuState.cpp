@@ -225,13 +225,8 @@ void MenuState::draw()
 	_drawEntities(_flattenAsteroids());
 
 	// Lighting
-
 	prog->sendUniform("u_AmbientLightColor", glm::vec3(0.1f, 0.1f, 0.1f));
 	prog->sendUniformInt("u_NumDirLights", 1);
-	glm::vec3 lightColor = glm::vec3(1.0f, 0.9f, 0.8f);
-	glm::vec3 engineColor = glm::vec3(0.6f, 0.6f, 1.0f);
-	glm::vec3 spawnColor = glm::vec3(1.0f, 1.0f, 0.0f);
-	glm::vec3 dieingColor = glm::vec3(1.0f, 0.0f, 0.0f);
 
 	// direction light
 		glm::vec4 lightDir = glm::normalize(glm::vec4(mCamera->getPosition(), 0));
@@ -399,33 +394,6 @@ void MenuState::_drawMenu(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	_mainMenu->update(viewOrientation, 10);
 
 	std::vector<Entity*> entities;
-
-	std::vector<Texture*> textures;
-	textures.push_back(new Texture("textures/crosshair.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
-	textures.push_back(new Texture("textures/life.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
-
-	std::vector<Material*> materials;
-	materials.push_back(new Material(textures[0]));
-	materials.push_back(new Material(textures[1]));
-
-	std::vector<Mesh*> meshes;
-	meshes.push_back(CreateTexturedQuad(0.05f * scale, 0.025f * scale, 1.f, 1.f)); // Crosshair
-	meshes.push_back(CreateTexturedQuad(0.05f * scale, 0.1f * scale, 1.f, 1.f)); // Life
-
-
-	_menuAligner->translateLocal(-0.035 * scale, 0, 0);
-	entities.push_back(new Entity(meshes[0], materials[0], Transform(_menuAligner->getPosition())));
-	_menuAligner->setPosition(vP);
-
-	_menuAligner->translateLocal(0.035 * scale, 0, 0);
-	entities.push_back(new Entity(meshes[0], materials[0], Transform(_menuAligner->getPosition())));
-	_menuAligner->setPosition(vP);
-
-
-	for (int i = 0; i < entities.size(); ++i) {
-		entities[i]->setOrientation(viewOrientation);
-	}
-
 
 	std::vector<Entity*> menuEntities = _mainMenu->getMenu();
 	for (int i = 0; i < menuEntities.size(); ++i)

@@ -5,11 +5,13 @@
 #include "Camera.h"
 #include "Entity.h"
 #include "Player.h"
+#include "MainMenu.h"
 #include "PauseMenu.h"
 #include "Projectile.h"
 #include "Asteroid.h"
 #include "Settings.h"
 #include "LightingModel.h"
+#include "ProgramState.h"
 
 #include <ctime>
 #include <vector>
@@ -44,12 +46,14 @@ class SceneRenderer : public GLApp {
 	clock_t						_respawnTimer;
 	clock_t						_projectileTimer;
 
+	ProgramState				_state;
+
 	bool                        mVisualizePointLights;
 	bool						_pause = false;
 	bool						_startFix = true;
 	bool						_dieing = false;
 	bool						_projectileReady = true;
-	bool						_spawnSafety = true;
+	bool						_spawnSafety = false;
 	bool						_gameOver = false;
 	int							_lives = 5;
 
@@ -70,9 +74,22 @@ class SceneRenderer : public GLApp {
 
 	std::vector<Entity*>		_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities);
 	void						_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix);
-	Entity*						_menuAligner;
+	void						_drawMenu(ShaderProgram* prog, glm::mat4 viewMatrix);
+	Entity*						_pauseMenuAligner;
+	Entity*						_mainMenuAligner;
 	PauseMenu*					_pauseMenu;
+	MainMenu*					_mainMenu;
 
+	// State Management
+	bool						_menuUpdate(const Keyboard* kb, const Mouse* mouse, float dt);
+	void						_menuDraw(ShaderProgram* prog, glm::mat4 viewMatrix);
+	bool						_gameUpdate(const Keyboard* kb, const Mouse* mouse, float dt);
+	void						_gameDraw(ShaderProgram* prog, glm::mat4 viewMatrix);
+	bool						_endUpdate(const Keyboard* kb, const Mouse* mouse, float dt);
+	void						_endDraw(ShaderProgram* prog, glm::mat4 viewMatrix);
+	void						_switchToGame();
+	void						_switchToMenu();
+	void						_switchToEnd();
 
 	Settings					s;
 

@@ -1,9 +1,6 @@
-#include "GameState.h"
-#include "Settings.h"
-#include "MenuState.h"
+#include "SceneRenderer.h"
 
 int main() {
-    GameState game;
-	Settings s;
+    SceneRenderer game;
 	GLShell::Run(game, "Asteroids 3D", 800, 600);
 }
