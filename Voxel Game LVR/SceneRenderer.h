@@ -7,6 +7,7 @@
 #include "Player.h"
 #include "MainMenu.h"
 #include "PauseMenu.h"
+#include "GameEndMenu.h"
 #include "Projectile.h"
 #include "Asteroid.h"
 #include "Settings.h"
@@ -32,13 +33,12 @@ class SceneRenderer : public GLApp {
 	// scene objects
 	std::vector<Entity*>        mEntities;
 	std::vector<Entity*>		_toBeDrawn;
-
 	std::vector<Projectile*>	_projectiles;
 	std::vector<Asteroid*>		_asteroids;
 	std::vector<Entity*>		_boundries;
 	std::vector<int>			_projectileIndexBin;
-	Player*						_player;
 
+	Player*						_player;
 	Camera*                     mCamera;
 
 	glm::mat4                   mProjMatrix;
@@ -62,7 +62,6 @@ class SceneRenderer : public GLApp {
 	void						_drawEntities(std::vector<Entity*> entities);
 	void						_cleanUpProjectiles();
 	void						_playerDeath(float dt);
-
 	void						_projectileCheck(int index);
 	void						_asteroidCheck(int index);
 	void						_destroyAsteroid(Projectile* projectile);
@@ -73,14 +72,16 @@ class SceneRenderer : public GLApp {
 
 	std::vector<Entity*>		_flattenProjectiles();
 	std::vector<Entity*>		_flattenAsteroids();
-
 	std::vector<Entity*>		_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities);
+
+	void						_renderScore(glm::vec3 position, glm::quat orientation, int scale, std::vector<Entity*> &entities);
 	void						_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix);
 	void						_drawMenu(ShaderProgram* prog, glm::mat4 viewMatrix);
-	Entity*						_pauseMenuAligner;
-	Entity*						_mainMenuAligner;
+	void						_drawEnd(ShaderProgram* prog, glm::mat4 viewMatrix);
+	Entity*						_menuAligner;
 	PauseMenu*					_pauseMenu;
 	MainMenu*					_mainMenu;
+	GameEndMenu*				_endMenu;
 
 	// State Management
 	bool						_menuUpdate(const Keyboard* kb, const Mouse* mouse, float dt);

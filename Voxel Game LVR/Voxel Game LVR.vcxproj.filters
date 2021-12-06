@@ -54,6 +54,9 @@
     <Filter Include="textures\Entities">
       <UniqueIdentifier>{935fe6cb-ae5c-4aaf-9a7e-e4dac19a9e75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="textures\Characters">
+      <UniqueIdentifier>{d7bea6bf-3a86-457a-9346-a890ae8a99ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -112,6 +115,9 @@
     </ClCompile>
     <ClCompile Include="SceneRenderer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEndMenu.cpp">
+      <Filter>Source Files\Menu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -186,6 +192,9 @@
     </ClInclude>
     <ClInclude Include="SceneRenderer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEndMenu.h">
+      <Filter>Header Files\Menu</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -294,6 +303,90 @@
     </Image>
     <Image Include="textures\rusted_gold.tga">
       <Filter>textures\Entities</Filter>
+    </Image>
+    <Image Include="textures\number_0.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_1.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_2.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_3.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_4.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_5.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_6.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_7.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_8.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_9.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\operation_add.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\operation_divide.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\operation_multiply.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\operation_subtract.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\banner_end.tga">
+      <Filter>textures\Menu</Filter>
+    </Image>
+    <Image Include="textures\button_end_menu.tga">
+      <Filter>textures\Menu</Filter>
+    </Image>
+    <Image Include="textures\button_end_restart.tga">
+      <Filter>textures\Menu</Filter>
+    </Image>
+    <Image Include="textures\number_end_0.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_end_1.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_end_2.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_end_3.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_end_4.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_end_5.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_end_6.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_end_7.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_end_8.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\number_end_9.tga">
+      <Filter>textures\Characters</Filter>
+    </Image>
+    <Image Include="textures\cursor_end.tga">
+      <Filter>textures\Menu</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

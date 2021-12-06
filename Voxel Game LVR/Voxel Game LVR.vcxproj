@@ -130,6 +130,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Asteroid.cpp" />
+    <ClCompile Include="GameEndMenu.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CollisionType.h" />
@@ -151,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Asteroid.h" />
+    <ClInclude Include="GameEndMenu.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="common.h" />
@@ -189,16 +191,20 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\banner.tga" />
+    <Image Include="textures\banner_end.tga" />
     <Image Include="textures\black.tga" />
     <Image Include="textures\blue.tga" />
     <Image Include="textures\button.tga" />
     <Image Include="textures\button_controls.tga" />
+    <Image Include="textures\button_end_menu.tga" />
+    <Image Include="textures\button_end_restart.tga" />
     <Image Include="textures\button_exit.tga" />
     <Image Include="textures\button_menu.tga" />
     <Image Include="textures\button_resume.tga" />
     <Image Include="textures\button_start.tga" />
     <Image Include="textures\crosshair.tga" />
     <Image Include="textures\cursor.tga" />
+    <Image Include="textures\cursor_end.tga" />
     <Image Include="textures\debug.tga" />
     <Image Include="textures\debug2.tga" />
     <Image Include="textures\debug3.tga" />
@@ -209,6 +215,30 @@
     <Image Include="textures\metal_panel_dark.tga" />
     <Image Include="textures\metal_window.tga" />
     <Image Include="textures\mogus.tga" />
+    <Image Include="textures\number_0.tga" />
+    <Image Include="textures\number_1.tga" />
+    <Image Include="textures\number_2.tga" />
+    <Image Include="textures\number_3.tga" />
+    <Image Include="textures\number_4.tga" />
+    <Image Include="textures\number_5.tga" />
+    <Image Include="textures\number_6.tga" />
+    <Image Include="textures\number_7.tga" />
+    <Image Include="textures\number_8.tga" />
+    <Image Include="textures\number_9.tga" />
+    <Image Include="textures\number_end_0.tga" />
+    <Image Include="textures\number_end_1.tga" />
+    <Image Include="textures\number_end_2.tga" />
+    <Image Include="textures\number_end_3.tga" />
+    <Image Include="textures\number_end_4.tga" />
+    <Image Include="textures\number_end_5.tga" />
+    <Image Include="textures\number_end_6.tga" />
+    <Image Include="textures\number_end_7.tga" />
+    <Image Include="textures\number_end_8.tga" />
+    <Image Include="textures\number_end_9.tga" />
+    <Image Include="textures\operation_add.tga" />
+    <Image Include="textures\operation_divide.tga" />
+    <Image Include="textures\operation_multiply.tga" />
+    <Image Include="textures\operation_subtract.tga" />
     <Image Include="textures\paint_red.tga" />
     <Image Include="textures\rocky.tga" />
     <Image Include="textures\rusted_gold.tga" />
