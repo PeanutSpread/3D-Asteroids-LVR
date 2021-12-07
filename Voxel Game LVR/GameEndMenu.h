@@ -28,6 +28,7 @@ class GameEndMenu {
 	void					_mouseLocator(const Mouse* mouse);
 	void					_draw();
 	void					_onClick();
+	void					_destroy();
 	Settings				s;
 
 
@@ -51,5 +52,8 @@ public:
 
 	bool getExitButton() const
 	{ return _exit; }
+
+	void destroy()
+	{ _destroy(); }
 
 };

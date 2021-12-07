@@ -388,6 +388,9 @@
     <Image Include="textures\cursor_end.tga">
       <Filter>textures\Menu</Filter>
     </Image>
+    <Image Include="textures\controls.tga">
+      <Filter>textures\Menu</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Bugs.txt" />

@@ -50,6 +50,7 @@ class SceneRenderer : public GLApp {
 
 	bool                        mVisualizePointLights;
 	bool						_pause = false;
+	bool						_controls = false;
 	bool						_startFix = true;
 	bool						_dieing = false;
 	bool						_projectileReady = true;
@@ -75,6 +76,7 @@ class SceneRenderer : public GLApp {
 	std::vector<Entity*>		_getDangersTo(glm::vec3 point, std::vector<Asteroid*> entities);
 
 	void						_renderScore(glm::vec3 position, glm::quat orientation, int scale, std::vector<Entity*> &entities);
+	void						_showControls(glm::vec3 position, glm::quat orientation, int scale, std::vector<Entity*> &entities);
 	void						_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix);
 	void						_drawMenu(ShaderProgram* prog, glm::mat4 viewMatrix);
 	void						_drawEnd(ShaderProgram* prog, glm::mat4 viewMatrix);

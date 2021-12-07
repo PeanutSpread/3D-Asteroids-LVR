@@ -28,6 +28,7 @@ class MainMenu {
 	void					_mouseLocator(const Mouse* mouse);
 	void					_draw();
 	void					_onClick();
+	void					_destroy();
 	Settings				s;
 
 
@@ -38,29 +39,21 @@ public:
 	void					interaction(const Mouse* mouse);
 
 	std::vector<Entity*> getMenu() const
-	{
-		return _entities;
-	}
+	{ return _entities; }
 
 	Entity* getCursor() const
-	{
-		return _cursor;
-	}
+	{ return _cursor; }
 
 	bool getStartButton() const
-	{
-		return _start;
-	}
+	{ return _start; }
 
 	bool getControlsButton() const
-	{
-		return _controls;
-	}
+	{ return _controls; }
 
 	bool getExitButton() const
-	{
-		return _exit;
-	}
+	{ return _exit; }
 
+	void destroy()
+	{ _destroy(); }
 };
 

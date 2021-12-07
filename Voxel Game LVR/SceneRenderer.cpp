@@ -203,6 +203,7 @@ void SceneRenderer::shutdown() {
 
 	_projectileIndexBin.clear();
 
+	_player->destroy();
 	delete _player;
 	_player = NULL;
 
@@ -212,11 +213,17 @@ void SceneRenderer::shutdown() {
 	delete _menuAligner;
 	_menuAligner = NULL;
 
+	_pauseMenu->destroy();
 	delete _pauseMenu;
 	_pauseMenu = NULL;
 
+	_mainMenu->destroy();
 	delete _mainMenu;
 	_mainMenu = NULL;
+
+	_endMenu->destroy();
+	delete _endMenu;
+	_endMenu = NULL;
 
 	delete mAxes;
 	mAxes = NULL;
@@ -230,8 +237,7 @@ void SceneRenderer::resize(int width, int height)
 	mProjMatrix = glm::perspective(glm::radians(50.f), width / (float)height, 0.1f, 1000.0f);
 }
 
-void SceneRenderer::draw()
-{
+void SceneRenderer::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// activate current program
@@ -246,6 +252,8 @@ void SceneRenderer::draw()
 
 	// get the view matrix from the camera
 	glm::mat4 viewMatrix = mCamera->getViewMatrix();
+
+	_toBeDrawn.clear();
 
 	switch (_state) {
 	case MENU_STATE:
@@ -317,12 +325,7 @@ bool SceneRenderer::update(float dt) { //gameLoop
 }
 
 bool SceneRenderer::isFocused() {
-	if (GetActiveWindow()) {
-		return true;
-	}
-	else {
-		return false;
-	}
+	return GetActiveWindow();
 }
 
 // --------------- Specifics ---------------
@@ -428,7 +431,7 @@ void SceneRenderer::_createAsteroids() {
 	for (int i = 0; i < totalAsteroids; ++i) {
 		location = glm::vec3(rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE / 2, rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE / 2, rand() % (int)(s.ROOM_SIZE + 1) - s.ROOM_SIZE / 2);
 		velocity = glm::vec3(rand() % s.VARIANCE_XYZ + s.MIN_XYZ, rand() % s.VARIANCE_ASTEROIDS + s.MIN_XYZ, rand() % s.VARIANCE_XYZ + s.MIN_XYZ);
-		size = rand() % s.ASTEROID_SCALES + 1;
+		size = 3; // rand() % s.ASTEROID_SCALES + 1;
 
 		// Remove asteroids that are too close too the player
 		if (sqrt(pow(_player->getPosition().x - location.x, 2)) > s.SAFE_DISTANCE)
@@ -519,6 +522,7 @@ std::vector<Entity*> SceneRenderer::_getDangersTo(glm::vec3 point, std::vector<A
 
 // --------------- 2D Aspect Creation ---------------
 
+// TODO MEMORY ALLOCATION
 void SceneRenderer::_renderScore(glm::vec3 position, glm::quat orientation, int scale, std::vector<Entity*> &entities) {
 	std::string texChange = "";
 	if (_state == END_STATE)
@@ -547,6 +551,14 @@ void SceneRenderer::_renderScore(glm::vec3 position, glm::quat orientation, int 
 		entities[entities.size()-1]->setOrientation(orientation);
 		aligner.setPosition(base);
 	}
+}
+
+void SceneRenderer::_showControls(glm::vec3 position, glm::quat orientation, int scale, std::vector<Entity*> &entities) {
+	Texture* texture = new Texture("textures/controls.tga", GL_REPEAT, GL_LINEAR);
+	Material* material = new Material(texture);
+	Mesh* mesh(CreateTexturedQuad(0.75 * scale, 0.75 * scale, 1.f, 1.f));
+	entities.push_back(new Entity(mesh, material, Transform(position)));
+	entities[entities.size() - 1]->setOrientation(orientation);
 }
 
 void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
@@ -621,13 +633,16 @@ void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 
 		_pauseMenu->update(viewOrientation, 10);
 
-
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		std::vector<Entity*> menuEntities = _pauseMenu->getMenu();
 		for (int i = 0; i < menuEntities.size(); ++i)
 			entities.push_back(menuEntities[i]);
 
-
+		if (_controls) {
+			_menuAligner->translateLocal(0, 0, -1);
+			_showControls(_menuAligner->getPosition(), viewOrientation, scale, entities);
+			_menuAligner->setPosition(vP);
+		}
 	}
 
 	glDepthMask(GL_FALSE);
@@ -665,6 +680,12 @@ void SceneRenderer::_drawMenu(ShaderProgram * prog, glm::mat4 viewMatrix) {
 	for (int i = 0; i < menuEntities.size(); ++i)
 		entities.push_back(menuEntities[i]);
 
+	if (_controls) {
+		_menuAligner->translateLocal(0,0,-1);
+		_showControls(_menuAligner->getPosition(), viewOrientation, scale, entities);
+		_menuAligner->setPosition(vP);
+	}
+	
 	glDepthMask(GL_FALSE);
 	_render(prog, viewMatrix, entities);
 
@@ -736,10 +757,15 @@ bool SceneRenderer::_menuUpdate(const Keyboard* kb, const Mouse* mouse, float dt
 	if (_mainMenu->getExitButton())
 		return false;
 
-	if (_mainMenu->getStartButton()) {
+	if (_mainMenu->getStartButton() && !_controls) {
 		_switchToGame();
 		return true;
 	}
+
+	if (mouse->buttonPressed(MOUSE_BUTTON_LEFT))
+		_controls = false;
+	if (_mainMenu->getControlsButton() && !_controls)
+		_controls = true;
 
 	if (isFocused()) {
 		glutSetCursor(GLUT_CURSOR_NONE);
@@ -754,7 +780,6 @@ bool SceneRenderer::_menuUpdate(const Keyboard* kb, const Mouse* mouse, float dt
 }
 
 void SceneRenderer::_menuDraw(ShaderProgram* prog, glm::mat4 viewMatrix) {
-	_toBeDrawn.clear();
 	_drawEntities(mEntities);
 	_drawEntities(_flattenAsteroids());
 
@@ -777,6 +802,7 @@ bool SceneRenderer::_gameUpdate(const Keyboard* kb, const Mouse* mouse, float dt
 
 	// Pause Toggle
 	if (kb->keyPressed(KC_ESCAPE)) {
+		_controls = false;
 		_pause = !_pause;
 		glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
 		mCamera->toggleCameraMovement();
@@ -847,21 +873,18 @@ bool SceneRenderer::_gameUpdate(const Keyboard* kb, const Mouse* mouse, float dt
 
 		_cleanUpProjectiles();
 
-
-		// Commiting Suicide
-		if (kb->keyPressed(KC_RETURN))
-			_playerDeath(dt);
-
 		// Show Hitboxes
 		if (kb->keyPressed(KC_TILDE))
 			_visualHitboxes = !_visualHitboxes;
 
-		// update the camera
-		if (kb->keyPressed(KC_P)) {
+		if (_visualHitboxes) {
+			// Commiting Suicide
+			if (kb->keyPressed(KC_RETURN))
+				_playerDeath(dt);
 			// Freelook (i.e. not attatched to ship) Will be removed or hidden
-			mCamera->toggleFreelook();
+			if (kb->keyPressed(KC_P))
+				mCamera->toggleFreelook();
 		}
-
 	}
 	else {
 		mCamera->setPosition(0, -s.ROOM_SIZE / 2, 0);
@@ -873,14 +896,19 @@ bool SceneRenderer::_gameUpdate(const Keyboard* kb, const Mouse* mouse, float dt
 		if (_pauseMenu->getExitButton())
 			return false;
 
-		if (_pauseMenu->getResumeButton()) {
+		if (_pauseMenu->getResumeButton() && !_controls) {
 			_pause = !_pause;
 			glutWarpPointer(s.SCREEN_WIDTH() / 2, s.SCREEN_HEIGHT() / 2);
 			mCamera->toggleCameraMovement();
 		}
 
-		if (_pauseMenu->getMenuButton())
+		if (_pauseMenu->getMenuButton() && !_controls)
 			_switchToMenu();
+
+		if (mouse->buttonPressed(MOUSE_BUTTON_LEFT))
+			_controls = false;
+		if (_pauseMenu->getControlsButton() && !_controls)
+			_controls = true;
 	}
 
 	if (isFocused()) {
@@ -900,7 +928,6 @@ bool SceneRenderer::_gameUpdate(const Keyboard* kb, const Mouse* mouse, float dt
 }
 
 void SceneRenderer::_gameDraw(ShaderProgram* prog, glm::mat4 viewMatrix) {
-	_toBeDrawn.clear();
 	_drawEntities(mEntities);
 	_drawEntities(_flattenAsteroids());
 	if (!_pause) {
@@ -1035,7 +1062,6 @@ bool SceneRenderer::_endUpdate(const Keyboard * kb, const Mouse * mouse, float d
 }
 
 void SceneRenderer::_endDraw(ShaderProgram * prog, glm::mat4 viewMatrix) {
-	_toBeDrawn.clear();
 	_drawEntities(mEntities);
 	_drawEntities(_flattenAsteroids());
 	_drawEntities(_player->getEntities());
@@ -1077,12 +1103,14 @@ void SceneRenderer::_switchToGame() {
 	_pause = false;
 	_lives = 5;
 	_score = 0;
+	_controls = false;
 
 	_state = GAME_STATE;
 }
 
 void SceneRenderer::_switchToMenu() {
 	mCamera->setCameraMovement(false);
+	_controls = false;
 	_state = MENU_STATE;
 }
 

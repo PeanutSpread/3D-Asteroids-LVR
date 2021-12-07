@@ -111,3 +111,20 @@ void MainMenu::_onClick() {
 	if (_entities[3]->doesIntersectAABB_Point(mousePos))
 		_exit = true;
 }
+
+void MainMenu::_destroy() {
+	for (int i = 0; i < _entities.size(); ++i)
+		delete _entities[i];
+	_entities.clear();
+
+	for (int i = 0; i < _textures.size(); ++i)
+		delete _textures[i];
+	_textures.clear();
+
+	for (int i = 0; i < _meshes.size(); ++i)
+		delete _meshes[i];
+	_meshes.clear();
+
+	delete _cursor;
+	_cursor = NULL;
+}
