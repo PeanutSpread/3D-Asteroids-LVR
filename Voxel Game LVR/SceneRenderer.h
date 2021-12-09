@@ -8,6 +8,7 @@
 #include "MainMenu.h"
 #include "PauseMenu.h"
 #include "GameEndMenu.h"
+#include "ScoreDisplay.h"
 #include "Projectile.h"
 #include "Asteroid.h"
 #include "Settings.h"
@@ -84,6 +85,12 @@ class SceneRenderer : public GLApp {
 	PauseMenu*					_pauseMenu;
 	MainMenu*					_mainMenu;
 	GameEndMenu*				_endMenu;
+	ScoreDisplay*				_scoreDisplay;
+
+	// Displaying Controls Componets
+	Texture*					_controlTexture;
+	Material*					_controlMaterial;
+	Mesh*						_controlMesh;
 
 	// State Management
 	bool						_menuUpdate(const Keyboard* kb, const Mouse* mouse, float dt);

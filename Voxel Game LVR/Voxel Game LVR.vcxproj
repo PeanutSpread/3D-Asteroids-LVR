@@ -146,6 +146,7 @@
     <ClCompile Include="Prefabs.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="SceneRenderer.cpp" />
+    <ClCompile Include="ScoreDisplay.cpp" />
     <ClCompile Include="Shaders.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Vertex.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SceneRenderer.h" />
+    <ClInclude Include="ScoreDisplay.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Shaders.h" />
     <ClInclude Include="Texture.h" />

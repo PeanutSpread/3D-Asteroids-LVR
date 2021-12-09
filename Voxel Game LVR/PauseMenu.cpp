@@ -130,6 +130,10 @@ void PauseMenu::_destroy() {
 		delete _textures[i];
 	_textures.clear();
 
+	for (int i = 0; i < _materials.size(); ++i)
+		delete _materials[i];
+	_materials.clear();
+
 	for (int i = 0; i < _meshes.size(); ++i)
 		delete _meshes[i];
 	_meshes.clear();

@@ -145,6 +145,11 @@ void SceneRenderer::initialize() {
 	_pauseMenu = new PauseMenu(_menuAligner, _menuAligner->getOrientation(), 0);
 	_mainMenu = new MainMenu(_menuAligner, _menuAligner->getOrientation(), 0);
 	_endMenu = new GameEndMenu(_menuAligner, _menuAligner->getOrientation(), 0);
+	_scoreDisplay = new ScoreDisplay();
+
+	// Controls Menu
+	Texture* _controlTexture = new Texture("textures/controls.tga", GL_REPEAT, GL_LINEAR);
+	Material* _controlMaterial = new Material(_controlTexture);
 
 	// create shader program for debug geometry
 	mDbgProgram = new ShaderProgram("shaders/vpc-vs.glsl",
@@ -224,6 +229,10 @@ void SceneRenderer::shutdown() {
 	_endMenu->destroy();
 	delete _endMenu;
 	_endMenu = NULL;
+
+	_scoreDisplay->destroy();
+	delete _scoreDisplay;
+	_scoreDisplay = NULL;
 
 	delete mAxes;
 	mAxes = NULL;
@@ -522,42 +531,18 @@ std::vector<Entity*> SceneRenderer::_getDangersTo(glm::vec3 point, std::vector<A
 
 // --------------- 2D Aspect Creation ---------------
 
-// TODO MEMORY ALLOCATION
 void SceneRenderer::_renderScore(glm::vec3 position, glm::quat orientation, int scale, std::vector<Entity*> &entities) {
-	std::string texChange = "";
 	if (_state == END_STATE)
-		texChange = "end_";
+		_scoreDisplay->addEndScoreEntities(position, orientation, scale, entities, _score);
+	else
+		_scoreDisplay->addScoreEntities(position, orientation, scale, entities, _score);
 
-	std::vector<Texture*> textures;
-	for (int i = 0; i < 10; ++i)
-		textures.push_back(new Texture("textures/number_" + texChange + std::to_string(i) + ".tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
-
-	std::vector<Material*> materials;
-	for (int i = 0; i < 10; ++i)
-	materials.push_back(new Material(textures[i]));
-
-	Mesh* number(CreateTexturedQuad(0.025 * scale, 0.05 * scale, 1.0, 1.0));
-
-	Entity aligner(NULL, NULL, position);
-	aligner.setOrientation(orientation);
-
-	std::string scoreString = std::to_string(_score);
-	aligner.translateLocal(-(0.025 * scale) * (scoreString.size() / 2), 0, 0);
-	glm::vec3 base(aligner.getPosition());
-
-	for (int i = 0; i < scoreString.size(); ++i) {
-		aligner.translateLocal((0.025 * i) * scale, 0, 0);
-		entities.push_back(new Entity(number, materials[scoreString[i] - '0'], Transform(aligner.getPosition())));
-		entities[entities.size()-1]->setOrientation(orientation);
-		aligner.setPosition(base);
-	}
 }
 
 void SceneRenderer::_showControls(glm::vec3 position, glm::quat orientation, int scale, std::vector<Entity*> &entities) {
-	Texture* texture = new Texture("textures/controls.tga", GL_REPEAT, GL_LINEAR);
-	Material* material = new Material(texture);
-	Mesh* mesh(CreateTexturedQuad(0.75 * scale, 0.75 * scale, 1.f, 1.f));
-	entities.push_back(new Entity(mesh, material, Transform(position)));
+	delete _controlMesh;
+	_controlMesh = CreateTexturedQuad(0.75 * scale, 0.75 * scale, 1.f, 1.f);
+	entities.push_back(new Entity(_controlMesh, _controlMaterial, Transform(position)));
 	entities[entities.size() - 1]->setOrientation(orientation);
 }
 
@@ -578,20 +563,20 @@ void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	_pauseMenu->update(viewOrientation, scale);
 
 	std::vector<Entity*> entities;
+	int entitiesToDelete = 0;
+	std::vector<Texture*> textures;
+	std::vector<Material*> materials;
+	std::vector<Mesh*> meshes;
 	if (!_pause) {
 
-		std::vector<Texture*> textures;
 		textures.push_back(new Texture("textures/crosshair.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
 		textures.push_back(new Texture("textures/life.tga", GL_CLAMP_TO_EDGE, GL_LINEAR));
 
-		std::vector<Material*> materials;
 		materials.push_back(new Material(textures[0]));
 		materials.push_back(new Material(textures[1]));
 
-		std::vector<Mesh*> meshes;
 		meshes.push_back(CreateTexturedQuad(0.05f * scale, 0.025f * scale, 1.f, 1.f)); // Crosshair
 		meshes.push_back(CreateTexturedQuad(0.05f * scale, 0.1f * scale, 1.f, 1.f)); // Life
-
 
 		if (!_dieing) {
 			_menuAligner->translateLocal(-0.035 * scale, 0, 0);
@@ -604,6 +589,8 @@ void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 			entities[1]->setOrientation(viewOrientation);
 			entities[1]->rotate(180, 0, 0, 1);
 			_menuAligner->setPosition(vP);
+
+			entitiesToDelete += 2;
 		}
 
 		for (int i = 0; i < _lives; ++i) {
@@ -611,6 +598,7 @@ void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 			entities.push_back(new Entity(meshes[1], materials[1], Transform(_menuAligner->getPosition())));
 			entities[entities.size() - 1]->setOrientation(viewOrientation);
 			_menuAligner->setPosition(vP);
+			entitiesToDelete++;
 		}
 
 		_menuAligner->translateLocal(0, 0, 0.38 * scale);
@@ -648,11 +636,26 @@ void SceneRenderer::_drawHUD(ShaderProgram* prog, glm::mat4 viewMatrix) {
 	glDepthMask(GL_FALSE);
 	_render(prog, viewMatrix, entities);
 
+	for (int i = 0; i < entitiesToDelete; ++i)
+		delete entities[i];
+	entities.clear();
+	for (int i = 0; i < textures.size(); ++i)
+		delete textures[i];
+	textures.clear();
+	for (int i = 0; i < materials.size(); ++i)
+		delete materials[i];
+	materials.clear();
+	for (int i = 0; i < meshes.size(); ++i)
+		delete meshes[i];
+	meshes.clear();
+
+
 	if (_pause) {
 		glBlendFunc(GL_DST_ALPHA, GL_ONE);
 		std::vector<Entity*> cursorAdapter;
 		cursorAdapter.push_back(_pauseMenu->getCursor());
 		_render(prog, viewMatrix, cursorAdapter);
+		cursorAdapter.clear();
 	}
 
 	glDepthMask(GL_TRUE);
@@ -688,11 +691,13 @@ void SceneRenderer::_drawMenu(ShaderProgram * prog, glm::mat4 viewMatrix) {
 	
 	glDepthMask(GL_FALSE);
 	_render(prog, viewMatrix, entities);
+	entities.clear();
 
 	glBlendFunc(GL_DST_ALPHA, GL_ONE);
 	std::vector<Entity*> cursorAdapter;
 	cursorAdapter.push_back(_mainMenu->getCursor());
 	_render(prog, viewMatrix, cursorAdapter);
+	cursorAdapter.clear();
 
 	glDepthMask(GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -721,6 +726,7 @@ void SceneRenderer::_drawEnd(ShaderProgram * prog, glm::mat4 viewMatrix) {
 
 	glDepthMask(GL_FALSE);
 	_render(prog, viewMatrix, entities);
+	entities.clear();
 
 	glBlendFunc(GL_DST_ALPHA, GL_ONE);
 	std::vector<Entity*> transparents;
@@ -729,6 +735,7 @@ void SceneRenderer::_drawEnd(ShaderProgram * prog, glm::mat4 viewMatrix) {
 	_menuAligner->setPosition(vP);
 	transparents.push_back(_endMenu->getCursor());
 	_render(prog, viewMatrix, transparents);
+	transparents.clear();
 
 	glDepthMask(GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1088,7 +1095,9 @@ void SceneRenderer::_switchToGame() {
 		_asteroids[i]->destroy();
 		delete _asteroids[i];
 	}
+	_asteroids.clear();
 
+	_player->destroy();
 	delete _player;
 	_player = new Player(glm::vec3(0, 0, 0));
 
@@ -1096,7 +1105,6 @@ void SceneRenderer::_switchToGame() {
 	mCamera = new Camera(this, _player);
 	mCamera->setSpeed(2);
 
-	_asteroids.clear();
 	_respawnTimer = clock();
 	_spawnSafety = true;
 	mCamera->setCameraMovement(true);
