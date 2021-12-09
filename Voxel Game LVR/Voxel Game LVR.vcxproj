@@ -131,7 +131,6 @@
   <ItemGroup>
     <ClCompile Include="Asteroid.cpp" />
     <ClCompile Include="GameEndMenu.cpp" />
-    <ClCompile Include="GameState.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CollisionType.h" />
     <ClCompile Include="common.cpp" />
@@ -139,7 +138,6 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenu.cpp" />
-    <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -154,7 +152,6 @@
   <ItemGroup>
     <ClInclude Include="Asteroid.h" />
     <ClInclude Include="GameEndMenu.h" />
-    <ClInclude Include="GameState.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="Entity.h" />
@@ -164,7 +161,6 @@
     <ClInclude Include="LightingModel.h" />
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Material.h" />
-    <ClInclude Include="MenuState.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="Player.h" />
