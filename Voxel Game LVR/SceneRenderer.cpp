@@ -148,8 +148,8 @@ void SceneRenderer::initialize() {
 	_scoreDisplay = new ScoreDisplay();
 
 	// Controls Menu
-	Texture* _controlTexture = new Texture("textures/controls.tga", GL_REPEAT, GL_LINEAR);
-	Material* _controlMaterial = new Material(_controlTexture);
+	_controlTexture = new Texture("textures/controls.tga", GL_REPEAT, GL_LINEAR);
+	_controlMaterial = new Material(_controlTexture);
 
 	// create shader program for debug geometry
 	mDbgProgram = new ShaderProgram("shaders/vpc-vs.glsl",
