@@ -238,8 +238,7 @@ void SceneRenderer::shutdown() {
 	mAxes = NULL;
 }
 
-void SceneRenderer::resize(int width, int height)
-{
+void SceneRenderer::resize(int width, int height) {
 	glViewport(0, 0, width, height);
 
 	// compute new projection matrix

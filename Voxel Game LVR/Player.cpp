@@ -214,21 +214,24 @@ void Player::bodyMove(const Keyboard * kb, float dt) {
 	}
 
 	_aligner->translateLocal(displacement);
-	glm::vec3 position(_aligner->getPosition());
-	int boundry = (s.ROOM_SIZE / 2) - s.BUFFER * 4;
+	glm::vec3 position(_aligner->getPosition);
+	const float boundry = (s.ROOM_SIZE / 2) - s.BUFFER * 4;
 	if (position.x >= boundry)
 		_aligner->setPosition(boundry, position.y, position.z);
 	else if (position.x <= -boundry)
 		_aligner->setPosition(-boundry, position.y, position.z);
+
 	if (position.y >= boundry)
 		_aligner->setPosition(position.x, boundry, position.z);
 	else if (position.y <= -boundry)
 		_aligner->setPosition(position.x, -boundry, position.z);
+
 	if (position.z >= boundry)
 		_aligner->setPosition(position.x, position.y, boundry);
 	else if (position.z <= -boundry)
 		_aligner->setPosition(position.x, position.y, -boundry);
 
+	//printf("%f, %f, %f ]\n", _aligner->getPosition().x, _aligner->getPosition().y, _aligner->getPosition().z);
 	_position = _aligner->getPosition();
 }
 
