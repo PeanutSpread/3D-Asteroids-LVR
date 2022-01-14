@@ -214,7 +214,7 @@ void Player::bodyMove(const Keyboard * kb, float dt) {
 	}
 
 	_aligner->translateLocal(displacement);
-	glm::vec3 position(_aligner->getPosition);
+	glm::vec3 position(_aligner->getPosition());
 	const float boundry = (s.ROOM_SIZE / 2) - s.BUFFER * 4;
 	if (position.x >= boundry)
 		_aligner->setPosition(boundry, position.y, position.z);

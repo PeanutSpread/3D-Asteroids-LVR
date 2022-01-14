@@ -167,6 +167,7 @@
     <ClInclude Include="Prefabs.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="SceneRenderer.h" />
     <ClInclude Include="ScoreDisplay.h" />
     <ClInclude Include="Settings.h" />
@@ -188,6 +189,8 @@
     <None Include="shaders\vpc-vs.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="icon1.ico" />
+    <Image Include="icon2.ico" />
     <Image Include="textures\banner.tga" />
     <Image Include="textures\banner_end.tga" />
     <Image Include="textures\black.tga" />
@@ -208,6 +211,7 @@
     <Image Include="textures\debug2.tga" />
     <Image Include="textures\debug3.tga" />
     <Image Include="textures\engine_light.tga" />
+    <Image Include="textures\icon.png" />
     <Image Include="textures\life.tga" />
     <Image Include="textures\metal_panel.tga" />
     <Image Include="textures\metal_panel_corrugated.tga" />

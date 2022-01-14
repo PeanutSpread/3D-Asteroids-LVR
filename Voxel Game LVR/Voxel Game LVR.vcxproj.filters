@@ -184,6 +184,9 @@
     <ClInclude Include="ScoreDisplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="freeglut.dll" />
@@ -379,6 +382,9 @@
     <Image Include="textures\controls.tga">
       <Filter>textures\Menu</Filter>
     </Image>
+    <Image Include="icon1.ico" />
+    <Image Include="icon2.ico" />
+    <Image Include="textures\icon.png" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Bugs.txt" />
